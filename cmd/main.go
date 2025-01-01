@@ -34,6 +34,9 @@ func main() {
 
 	// Routes
 	app.Get("/api/users", userHandler.GetAllUsers)
+	app.Post("/api/users", userHandler.CreateUser)
+	app.Put("/api/users/:id", userHandler.UpdateUser) 
+	app.Delete("/api/users/:id", userHandler.DeleteUser)
 
 	// Start server
 	port := config.GetEnv("PORT", "3000")

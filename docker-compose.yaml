@@ -9,11 +9,13 @@ services:
       - "${PORT}:${PORT}"
     environment:
       PORT: ${PORT}
-      DB_HOST: ${DB_HOST}
-      DB_PORT: ${DB_PORT}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_NAME: ${DB_NAME}
+      DB_HOST: ${PGHOST}
+      DB_PORT: ${PGPORT}
+      DB_USER: ${PGUSER}
+      DB_PASSWORD: ${PGPASSWORD}
+      DB_NAME: ${PGDATABASE}
+      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_PUBLIC_URL: ${DATABASE_PUBLIC_URL}
     volumes:
       - .:/app:cached
       - /app/vendor
@@ -29,7 +31,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "${DB_PORT}:${DB_PORT}"
+      - "${PGPORT}:${PGPORT}"
     volumes:
       - db_data:/var/lib/postgresql/data
     restart: unless-stopped

@@ -15,11 +15,11 @@ var DB *sql.DB
 
 func ConnectDatabase() {
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=require",
-		GetEnv("DB_USER", "fiberuser"),
-		GetEnv("DB_PASSWORD", "fiberpassword"),
-		GetEnv("DB_HOST", "localhost"),
-		GetEnv("DB_PORT", "5432"),
-		GetEnv("DB_NAME", "fiberdb"),
+		GetEnv("PGUSER", "fiberuser"),
+		GetEnv("PGPASSWORD", "fiberpassword"),
+		GetEnv("PGHOST", "localhost"),
+		GetEnv("PGPORT", "5432"),
+		GetEnv("PGDATABASE", "fiberdb"),
 	)
 
 	var err error

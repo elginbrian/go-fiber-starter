@@ -34,17 +34,21 @@ func ConnectDatabase() {
 
 	log.Println("Successfully connected to the database.")
 
-	m, err := migrate.New(
-		"file://db/migrations",
-		dsn,
-	)
-	if err != nil {
-		log.Fatalf("Failed to initialize migrations: %v", err)
-	}
+	if GetEnv("MIGRATIONS_ENABLED", "true") == "true" {
+		m, err := migrate.New(
+			"file://db/migrations",
+			dsn,
+		)
+		if err != nil {
+			log.Fatalf("Failed to initialize migrations: %v", err)
+		}
 
-	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-		log.Fatalf("Failed to apply migrations: %v", err)
-	}
+		if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+			log.Fatalf("Failed to apply migrations: %v", err)
+		}
 
-	log.Println("Migrations applied successfully.")
+		log.Println("Migrations applied successfully.")
+	} else {
+		log.Println("Migrations are disabled.")
+	}
 }

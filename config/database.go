@@ -14,7 +14,7 @@ import (
 var DB *sql.DB
 
 func ConnectDatabase() {
-	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=require",
 		GetEnv("DB_USER", "fiberuser"),
 		GetEnv("DB_PASSWORD", "fiberpassword"),
 		GetEnv("DB_HOST", "localhost"),

@@ -1,4 +1,5 @@
 version: "3.9"
+
 services:
   app:
     build:
@@ -7,17 +8,18 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - PORT=3000
-      - DB_HOST=database
-      - DB_PORT=5432
-      - DB_USER=fiberuser
-      - DB_PASSWORD=fiberpassword
-      - DB_NAME=fiberdb
+      PORT: 3000
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_USER: fiberuser
+      DB_PASSWORD: fiberpassword
+      DB_NAME: fiberdb
     volumes:
-      - .:/app
+      - .:/app:cached
       - /app/vendor
     depends_on:
       - database
+    restart: unless-stopped
 
   database:
     image: postgres:15
@@ -30,6 +32,7 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+    restart: unless-stopped
 
 volumes:
   db_data:

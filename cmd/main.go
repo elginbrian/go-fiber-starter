@@ -36,9 +36,9 @@ func main() {
 	app.Get("/api/users", userHandler.GetAllUsers)
 
 	// Start server
-	port := config.GetEnv("PORT", ":3000")
-	log.Printf("Fiber Starter is running on http://localhost%s", port)
-	if err := app.Listen(port); err != nil {
+	port := config.GetEnv("PORT", "3000")
+	log.Printf("Fiber Starter is running on http://localhost:%s", port)
+	if err := app.Listen(":" + port); err != nil {
 		log.Fatalf("Failed to start Fiber Starter: %v", err)
 	}
 }

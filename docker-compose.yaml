@@ -6,14 +6,14 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "${PORT}:${PORT}"
     environment:
-      PORT: 3000
-      DB_HOST: database
-      DB_PORT: 5432
-      DB_USER: fiberuser
-      DB_PASSWORD: fiberpassword
-      DB_NAME: fiberdb
+      PORT: ${PORT}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
     volumes:
       - .:/app:cached
       - /app/vendor
@@ -25,11 +25,11 @@ services:
     image: postgres:15
     container_name: fiber_postgres
     environment:
-      POSTGRES_USER: fiberuser
-      POSTGRES_PASSWORD: fiberpassword
-      POSTGRES_DB: fiberdb
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "5432:5432"
+      - "${DB_PORT}:${DB_PORT}"
     volumes:
       - db_data:/var/lib/postgresql/data
     restart: unless-stopped

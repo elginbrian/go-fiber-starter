@@ -72,7 +72,7 @@ func (r *userRepository) CreateUser(user domain.User) (domain.User, error) {
 	}
 
 	user.ID = int(id)
-	user.CreatedAt = time.Now().Format(time.RFC3339)
+	user.CreatedAt = time.Now()
 	user.UpdatedAt = user.CreatedAt
 	return user, nil
 }
@@ -85,7 +85,7 @@ func (r *userRepository) UpdateUser(id int, user domain.User) (domain.User, erro
 	}
 
 	user.ID = id
-	user.UpdatedAt = time.Now().Format(time.RFC3339)
+	user.UpdatedAt = time.Now()
 	return user, nil
 }
 

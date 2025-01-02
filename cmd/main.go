@@ -2,9 +2,8 @@ package main
 
 import (
 	"fiber-starter/config"
-	"fiber-starter/internal/handler"
-	"fiber-starter/internal/repository"
-	"fiber-starter/internal/service"
+	"fiber-starter/internal/di"
+	"fiber-starter/internal/routes"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -13,7 +12,7 @@ import (
 )
 
 func main() {
-	// Load configuration
+	// Load environment variables
 	config.LoadEnv()
 
 	// Connect to the database
@@ -28,17 +27,12 @@ func main() {
 	app.Use(cors.New())
 
 	// Dependency Injection
-	userRepo := repository.NewUserRepository(config.DB)
-	userService := service.NewUserService(userRepo)
-	userHandler := handler.NewUserHandler(userService)
+	container := di.NewContainer()
 
-	// Routes
-	app.Get("/api/users", userHandler.GetAllUsers)
-	app.Post("/api/users", userHandler.CreateUser)
-	app.Put("/api/users/:id", userHandler.UpdateUser) 
-	app.Delete("/api/users/:id", userHandler.DeleteUser)
+	// Setup Routes
+	routes.SetupRoutes(app, container.UserHandler, container.AuthHandler)
 
-	// Start server
+	// Start the server
 	port := config.GetEnv("PORT", "3000")
 	log.Printf("Fiber Starter is running on http://localhost:%s", port)
 	if err := app.Listen(":" + port); err != nil {

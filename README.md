@@ -18,14 +18,21 @@ fiber-starter/
 │       ├── 000001_init_users.up.sql
 │       ├── 000001_init_users.down.sql
 ├── internal/
+│   ├── di/
+│   │   └── di.go
 │   ├── domain/
 │   │   └── entity.go
 │   ├── handler/
-│   │   └── user_handler.go
+│   │   ├── user_handler.go
+│   │   └── auth_handler.go
 │   ├── repository/
-│   │   └── user_repository.go
+│   │   ├── user_repository.go
+│   │   └── auth_repository.go
+│   ├── routes/
+│   │   └── routes.go
 │   ├── service/
-│   │   └── user_service.go
+│   │   ├── user_service.go
+│   │   └── auth_service.go
 ├── pkg/
 │   └── response/
 │       └── response.go

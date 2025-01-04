@@ -17,8 +17,8 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       DATABASE_PUBLIC_URL: ${DATABASE_PUBLIC_URL}
     volumes:
-      - .:/app:cached
-      - /app/vendor
+      - ./cmd:/app/cmd:cached
+      - ./vendor:/app/vendor:cached
     depends_on:
       - database
     restart: unless-stopped

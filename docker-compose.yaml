@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "4000:3000"
     environment:
       PORT: "3000"
       DB_HOST: "localhost"
@@ -31,7 +31,7 @@ services:
       POSTGRES_PASSWORD: "password"
       POSTGRES_DB: "mydb"
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
     restart: unless-stopped

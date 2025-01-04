@@ -66,5 +66,5 @@ jobs:
           port: ${{ secrets.SERVER_PORT }}
           script: |
             cd github/go-fiber-starter
-            docker-compose pull
+            git pull https://github.com/elginbrian/go-fiber-starter.git
             docker-compose up -d

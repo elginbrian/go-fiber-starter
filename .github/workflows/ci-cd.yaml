@@ -67,5 +67,6 @@ jobs:
           script: |
             cd github/go-fiber-starter
             git pull https://github.com/elginbrian/go-fiber-starter.git
+            go mod vendor
             docker-compose down
             docker-compose up --build

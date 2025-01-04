@@ -6,16 +6,16 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "${PORT}:${PORT}"
+      - "3000:3000"
     environment:
-      PORT: ${PORT}
-      DB_HOST: ${PGHOST}
-      DB_PORT: ${PGPORT}
-      DB_USER: ${PGUSER}
-      DB_PASSWORD: ${PGPASSWORD}
-      DB_NAME: ${PGDATABASE}
-      DATABASE_URL: ${DATABASE_URL}
-      DATABASE_PUBLIC_URL: ${DATABASE_PUBLIC_URL}
+      PORT: "3000"
+      DB_HOST: "localhost"
+      DB_PORT: "5432"
+      DB_USER: "user"
+      DB_PASSWORD: "password"
+      DB_NAME: "mydb"
+      DATABASE_URL: "postgres://user:password@localhost:5432/mydb"
+      DATABASE_PUBLIC_URL: "postgres://user:password@localhost:5432/mydb?sslmode=require"
     volumes:
       - ./cmd:/app/cmd:cached
       - ./vendor:/app/vendor:cached
@@ -27,11 +27,11 @@ services:
     image: postgres:15
     container_name: fiber_postgres
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: "user"
+      POSTGRES_PASSWORD: "password"
+      POSTGRES_DB: "mydb"
     ports:
-      - "${PGPORT}:${PGPORT}"
+      - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
     restart: unless-stopped

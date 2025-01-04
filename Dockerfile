@@ -4,9 +4,10 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN go build -o fiber-starter ./cmd/main.go
+RUN go build -o /app/fiber-starter ./cmd/main.go
 FROM alpine:latest
 WORKDIR /app
-COPY --from=builder /app/fiber-starter .
+COPY --from=builder /app/fiber-starter /app/fiber-starter
+RUN chmod +x /app/fiber-starter
 EXPOSE 3000
-CMD ["./fiber-starter"]
+CMD ["/app/fiber-starter"]

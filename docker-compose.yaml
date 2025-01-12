@@ -11,18 +11,18 @@ services:
     depends_on:
       - db
     networks:
-      - app-network
+      - fiber-network
 
   db:
     image: postgres:13
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: url_shortener
+      POSTGRES_DB: fiber_starter
     volumes:
       - db_data:/var/lib/postgresql/data
     networks:
-      - app-network
+      - fiber-network
 
 networks:
   app-network:

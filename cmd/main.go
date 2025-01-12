@@ -1,9 +1,13 @@
 package main
 
 import (
+	"crypto/rand"
+	"database/sql"
+	"encoding/hex"
 	"fiber-starter/config"
 	"fiber-starter/internal/di"
 	"fiber-starter/internal/routes"
+	"fmt"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -12,30 +16,45 @@ import (
 )
 
 func main() {
-	// Load environment variables
-	config.LoadEnv()
+	cfg := config.LoadConfig()
 
-	// Connect to the database
-	config.ConnectDatabase()
-	defer config.DB.Close()
+	db, err := sql.Open("postgres", cfg.DatabaseURL)
+	if err != nil {
+		log.Fatalf("Could not connect to the database: %v", err)
+	}
 
-	// Create a new Fiber app
+	err = config.MigrateDatabase(db)
+	if err != nil {
+		log.Fatalf("Error applying migrations: %v", err)
+	}
+
+	jwtSecret, err := generateRandomSecret(32)
+	if err != nil {
+		log.Fatalf("Failed to generate JWT secret: %v", err)
+	}
+
+	container := di.NewContainer(db, jwtSecret)
+
 	app := fiber.New()
 
-	// Middleware
 	app.Use(logger.New())
 	app.Use(cors.New())
 
-	// Dependency Injection
-	container := di.NewContainer()
-
-	// Setup Routes
 	routes.SetupRoutes(app, container.UserHandler, container.AuthHandler)
 
-	// Start the server
-	port := config.GetEnv("PORT", "3000")
-	log.Printf("Fiber Starter is running on http://localhost:%s", port)
-	if err := app.Listen(":" + port); err != nil {
-		log.Fatalf("Failed to start Fiber Starter: %v", err)
+	err = app.Listen(cfg.Port)
+	if err != nil {
+		log.Fatalf("Error starting server: %v", err)
 	}
+
+	fmt.Println("Server started successfully!")
+}
+
+func generateRandomSecret(length int) (string, error) {
+	bytes := make([]byte, length)
+	_, err := rand.Read(bytes)
+	if err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(bytes), nil
 }

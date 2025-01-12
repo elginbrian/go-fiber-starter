@@ -1,7 +1,7 @@
 package di
 
 import (
-	"fiber-starter/config"
+	"database/sql"
 	"fiber-starter/internal/handler"
 	"fiber-starter/internal/repository"
 	"fiber-starter/internal/service"
@@ -12,14 +12,14 @@ type Container struct {
 	AuthHandler *handler.AuthHandler
 }
 
-func NewContainer() *Container {
+func NewContainer(db *sql.DB, jwtSecret string) *Container {
 	// Repositories
-	userRepo := repository.NewUserRepository(config.DB)
-	authRepo := repository.NewAuthRepository(config.DB)
+	userRepo := repository.NewUserRepository(db)
+	authRepo := repository.NewAuthRepository(db)
 
 	// Services
 	userService := service.NewUserService(userRepo)
-	authService := service.NewAuthService(authRepo, userRepo, config.GetEnv("JWT_SECRET", "secret"))
+	authService := service.NewAuthService(authRepo, userRepo, jwtSecret)
 
 	// Handlers
 	userHandler := handler.NewUserHandler(userService)

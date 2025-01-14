@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"fiber-starter/internal/domain"
 	"fiber-starter/internal/repository"
@@ -26,6 +27,7 @@ func NewAuthService(authRepo repository.AuthRepository, userRepo repository.User
 }
 
 func (s *authService) Register(username, email, password string) error {
+	ctx := context.Background()
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
@@ -37,12 +39,13 @@ func (s *authService) Register(username, email, password string) error {
 		PasswordHash: string(hashedPassword),
 	}
 
-	_, err = s.userRepo.CreateUser(user)
+	_, err = s.userRepo.CreateUser(ctx, user)
 	return err
 }
 
 func (s *authService) Login(email, password string) (string, error) {
-	user, err := s.authRepo.GetUserByEmail(email)
+	ctx := context.Background()
+	user, err := s.authRepo.GetUserByEmail(ctx, email)
 	if err != nil || user == nil {
 		return "", errors.New("invalid email or password")
 	}

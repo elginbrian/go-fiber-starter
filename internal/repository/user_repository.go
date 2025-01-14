@@ -1,32 +1,36 @@
 package repository
 
 import (
-	"database/sql"
+	"context"
 	"errors"
 	"fiber-starter/internal/domain"
+	"fmt"
 	"time"
+
+	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 type UserRepository interface {
-	GetAllUsers() ([]domain.User, error)
-	GetUserByID(id int) (domain.User, error)
-	CreateUser(user domain.User) (domain.User, error)
-	UpdateUser(id int, user domain.User) (domain.User, error)
-	DeleteUser(id int) error
+	GetAllUsers(ctx context.Context) ([]domain.User, error)
+	GetUserByID(ctx context.Context, id int) (domain.User, error)
+	CreateUser(ctx context.Context, user domain.User) (domain.User, error)
+	UpdateUser(ctx context.Context, id int, user domain.User) (domain.User, error)
+	DeleteUser(ctx context.Context, id int) error
 }
 
 type userRepository struct {
-	db *sql.DB
+	db *pgxpool.Pool
 }
 
-func NewUserRepository(db *sql.DB) UserRepository {
+func NewUserRepository(db *pgxpool.Pool) UserRepository {
 	return &userRepository{db: db}
 }
 
-func (r *userRepository) GetAllUsers() ([]domain.User, error) {
-	rows, err := r.db.Query("SELECT id, name, email, created_at, updated_at FROM users")
+func (r *userRepository) GetAllUsers(ctx context.Context) ([]domain.User, error) {
+	rows, err := r.db.Query(ctx, "SELECT id, name, email, created_at, updated_at FROM users")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error fetching users: %w", err)
 	}
 	defer rows.Close()
 
@@ -34,7 +38,7 @@ func (r *userRepository) GetAllUsers() ([]domain.User, error) {
 	for rows.Next() {
 		var user domain.User
 		if err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.CreatedAt, &user.UpdatedAt); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error scanning user row: %w", err)
 		}
 		users = append(users, user)
 	}
@@ -46,42 +50,46 @@ func (r *userRepository) GetAllUsers() ([]domain.User, error) {
 	return users, nil
 }
 
-func (r *userRepository) GetUserByID(id int) (domain.User, error) {
+func (r *userRepository) GetUserByID(ctx context.Context, id int) (domain.User, error) {
 	var user domain.User
-	err := r.db.QueryRow("SELECT id, name, email, created_at, updated_at FROM users WHERE id = ?", id).
+	err := r.db.QueryRow(ctx, "SELECT id, name, email, created_at, updated_at FROM users WHERE id = $1", id).
 		Scan(&user.ID, &user.Name, &user.Email, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if err == pgx.ErrNoRows {
 			return user, errors.New("user not found")
 		}
-		return user, err
+		return user, fmt.Errorf("error fetching user: %w", err)
 	}
 	return user, nil
 }
 
-func (r *userRepository) CreateUser(user domain.User) (domain.User, error) {
-	result, err := r.db.Exec("INSERT INTO users (name, email, password_hash, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())", 
+func (r *userRepository) CreateUser(ctx context.Context, user domain.User) (domain.User, error) {
+	commandTag, err := r.db.Exec(ctx, 
+		"INSERT INTO users (name, email, password_hash, created_at, updated_at) VALUES ($1, $2, $3, NOW(), NOW())", 
 		user.Name, user.Email, user.PasswordHash)
 	if err != nil {
-		return user, err
+		return user, fmt.Errorf("error creating user: %w", err)
 	}
 
-	id, err := result.LastInsertId()
-	if err != nil {
-		return user, err
+	if commandTag.RowsAffected() > 0 {
+		user.CreatedAt = time.Now()
+		user.UpdatedAt = user.CreatedAt
+		return user, nil
 	}
 
-	user.ID = int(id)
-	user.CreatedAt = time.Now()
-	user.UpdatedAt = user.CreatedAt
-	return user, nil
+	return user, errors.New("failed to create user")
 }
 
-func (r *userRepository) UpdateUser(id int, user domain.User) (domain.User, error) {
-	_, err := r.db.Exec("UPDATE users SET name = ?, email = ?, password_hash = ?, updated_at = NOW() WHERE id = ?", 
+func (r *userRepository) UpdateUser(ctx context.Context, id int, user domain.User) (domain.User, error) {
+	commandTag, err := r.db.Exec(ctx, 
+		"UPDATE users SET name = $1, email = $2, password_hash = $3, updated_at = NOW() WHERE id = $4", 
 		user.Name, user.Email, user.PasswordHash, id)
 	if err != nil {
-		return user, err
+		return user, fmt.Errorf("error updating user: %w", err)
+	}
+
+	if commandTag.RowsAffected() == 0 {
+		return user, errors.New("user not found")
 	}
 
 	user.ID = id
@@ -89,7 +97,15 @@ func (r *userRepository) UpdateUser(id int, user domain.User) (domain.User, erro
 	return user, nil
 }
 
-func (r *userRepository) DeleteUser(id int) error {
-	_, err := r.db.Exec("DELETE FROM users WHERE id = ?", id)
-	return err
+func (r *userRepository) DeleteUser(ctx context.Context, id int) error {
+	commandTag, err := r.db.Exec(ctx, "DELETE FROM users WHERE id = $1", id)
+	if err != nil {
+		return fmt.Errorf("error deleting user: %w", err)
+	}
+
+	if commandTag.RowsAffected() == 0 {
+		return errors.New("user not found")
+	}
+
+	return nil
 }

@@ -1,10 +1,11 @@
 package di
 
 import (
-	"database/sql"
 	"fiber-starter/internal/handler"
 	"fiber-starter/internal/repository"
 	"fiber-starter/internal/service"
+
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 type Container struct {
@@ -13,7 +14,7 @@ type Container struct {
 	PostHandler *handler.PostHandler
 }
 
-func NewContainer(db *sql.DB, jwtSecret string) *Container {
+func NewContainer(db *pgxpool.Pool, jwtSecret string) *Container {
 	// Repositories
 	userRepo := repository.NewUserRepository(db)
 	authRepo := repository.NewAuthRepository(db)

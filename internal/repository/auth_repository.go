@@ -1,32 +1,38 @@
 package repository
 
 import (
-	"database/sql"
+	"context"
 	"fiber-starter/internal/domain"
+	"fmt"
+
+	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 type AuthRepository interface {
-    GetUserByEmail(email string) (*domain.User, error)
+    GetUserByEmail(ctx context.Context, email string) (*domain.User, error)
 }
 
 type authRepository struct {
-    db *sql.DB
+    db *pgxpool.Pool
 }
 
-func NewAuthRepository(db *sql.DB) AuthRepository {
+func NewAuthRepository(db *pgxpool.Pool) AuthRepository {
     return &authRepository{db: db}
 }
 
-func (r *authRepository) GetUserByEmail(email string) (*domain.User, error) {
+func (r *authRepository) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
     var user domain.User
-    query := "SELECT id, name, email FROM users WHERE email = ?"
-    row := r.db.QueryRow(query, email)
+    query := "SELECT id, name, email FROM users WHERE email = $1"
+
+    row := r.db.QueryRow(ctx, query, email)
 
     if err := row.Scan(&user.ID, &user.Name, &user.Email); err != nil {
-        if err == sql.ErrNoRows {
+        if err == pgx.ErrNoRows {
             return nil, nil 
         }
-        return nil, err
+        return nil, fmt.Errorf("error scanning row: %w", err) 
     }
+
     return &user, nil
 }

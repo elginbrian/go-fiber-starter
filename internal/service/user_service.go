@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fiber-starter/internal/domain"
 	"fiber-starter/internal/repository"
 )
@@ -22,21 +23,26 @@ func NewUserService(repo repository.UserRepository) UserService {
 }
 
 func (s *userService) FetchAllUsers() ([]domain.User, error) {
-	return s.userRepo.GetAllUsers()
+	ctx := context.Background()
+	return s.userRepo.GetAllUsers(ctx)
 }
 
 func (s *userService) FetchUserByID(id int) (domain.User, error) {
-	return s.userRepo.GetUserByID(id)
+	ctx := context.Background()
+	return s.userRepo.GetUserByID(ctx, id)
 }
 
 func (s *userService) CreateUser(user domain.User) (domain.User, error) {
-	return s.userRepo.CreateUser(user)
+	ctx := context.Background()
+	return s.userRepo.CreateUser(ctx, user)
 }
 
 func (s *userService) UpdateUser(id int, user domain.User) (domain.User, error) {
-	return s.userRepo.UpdateUser(id, user)
+	ctx := context.Background()
+	return s.userRepo.UpdateUser(ctx, id, user)
 }
 
 func (s *userService) DeleteUser(id int) error {
-	return s.userRepo.DeleteUser(id)
+	ctx := context.Background()
+	return s.userRepo.DeleteUser(ctx, id)
 }

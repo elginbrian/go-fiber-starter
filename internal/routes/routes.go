@@ -4,6 +4,7 @@ import (
 	"fiber-starter/internal/handler"
 
 	"github.com/gofiber/fiber/v2"
+	fiberSwagger "github.com/swaggo/fiber-swagger"
 )
 
 func SetupRoutes(
@@ -12,6 +13,8 @@ func SetupRoutes(
 	authHandler *handler.AuthHandler,
 	postHandler *handler.PostHandler,
 ) {
+	app.Get("/api/docs/*", fiberSwagger.WrapHandler)
+
 	// User Routes
 	userGroup := app.Group("/api/users")
 	userGroup.Get("/", userHandler.GetAllUsers)

@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -9,9 +10,9 @@ import (
 )
 
 func MigrateDatabase() error {
-	databaseURL := "postgres://user:password@localhost:5432/url_shortener?sslmode=disable"
+	databaseURL := os.Getenv("DATABASE_URL") 
 
-	migrationDir := "file://db/migrations"
+	migrationDir := "file://db/migrations" 
 
 	m, err := migrate.New(
 		migrationDir, 

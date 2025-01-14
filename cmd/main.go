@@ -49,7 +49,7 @@ func main() {
 	container := di.NewContainer(db, jwtSecret)
 
 	app := fiber.New()
-	app.Use(logger.New()) 
+	app.Use(logger.New())
 	app.Use(cors.New())
 
 	routes.SetupRoutes(app, container.UserHandler, container.AuthHandler, container.PostHandler)

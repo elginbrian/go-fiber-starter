@@ -10,23 +10,28 @@ import (
 type Container struct {
 	UserHandler *handler.UserHandler
 	AuthHandler *handler.AuthHandler
+	PostHandler *handler.PostHandler
 }
 
 func NewContainer(db *sql.DB, jwtSecret string) *Container {
 	// Repositories
 	userRepo := repository.NewUserRepository(db)
 	authRepo := repository.NewAuthRepository(db)
+	postRepo := repository.NewPostRepository(db) 
 
 	// Services
 	userService := service.NewUserService(userRepo)
 	authService := service.NewAuthService(authRepo, userRepo, jwtSecret)
+	postService := service.NewPostService(postRepo) 
 
 	// Handlers
 	userHandler := handler.NewUserHandler(userService)
 	authHandler := handler.NewAuthHandler(authService)
+	postHandler := handler.NewPostHandler(postService) 
 
 	return &Container{
 		UserHandler: userHandler,
 		AuthHandler: authHandler,
+		PostHandler: postHandler, 
 	}
 }

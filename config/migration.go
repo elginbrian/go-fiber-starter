@@ -1,7 +1,6 @@
 package config
 
 import (
-	"database/sql"
 	"fmt"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -9,19 +8,21 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
-func MigrateDatabase(db *sql.DB) error {
+func MigrateDatabase() error {
 	databaseURL := "postgres://user:password@localhost:5432/url_shortener?sslmode=disable"
 
+	migrationDir := "file://db/migrations"
+
 	m, err := migrate.New(
-		"file://../db/migrations", 
-		databaseURL,               
+		migrationDir, 
+		databaseURL,
 	)
 	if err != nil {
-		return fmt.Errorf("could not initialize migration: %v", err)
+		return fmt.Errorf("could not initialize migration: %w", err)
 	}
 
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-		return fmt.Errorf("could not apply migrations: %v", err)
+		return fmt.Errorf("could not apply migrations: %w", err)
 	}
 
 	fmt.Println("Migrations applied successfully!")

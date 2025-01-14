@@ -4,10 +4,11 @@ services:
   app:
     build: .
     ports:
-      - "8082:8080"
+      - "8084:8080"
     environment:
-      - PORT=:8082
+      - PORT=:8080
       - DATABASE_URL=postgres://user:password@db:5432/fiber_starter?sslmode=disable
+      - JWT_SECRET=my-secure-random-secret
     depends_on:
       - db
     networks:
@@ -25,7 +26,7 @@ services:
       - fiber-network
 
 networks:
-  app-network:
+  fiber-network:
     driver: bridge
 
 volumes:

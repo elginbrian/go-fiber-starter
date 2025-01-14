@@ -8,14 +8,18 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// PostHandler handles post-related requests
 type PostHandler struct {
 	postService service.PostService
 }
 
-// NewPostHandler creates a new PostHandler instance
 func NewPostHandler(service service.PostService) *PostHandler {
 	return &PostHandler{postService: service}
+}
+
+type PostResponse struct {
+	ID      int    `json:"id"`
+	Title   string `json:"title"`
+	Content string `json:"content"`
 }
 
 // GetAllPosts godoc
@@ -23,15 +27,23 @@ func NewPostHandler(service service.PostService) *PostHandler {
 // @Description Retrieves all posts from the database
 // @Tags posts
 // @Produce json
-// @Success 200 {array} domain.Post "List of posts"
-// @Failure 500 {object} fiber.Map{"error": "Internal server error"}
+// @Success 200 {array} PostResponse "List of posts"
+// @Failure 500 {object} ErrorResponse
 // @Router /api/posts [get]
 func (h *PostHandler) GetAllPosts(c *fiber.Ctx) error {
 	posts, err := h.postService.FetchAllPosts()
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{Error: err.Error()})
 	}
-	return c.JSON(posts)
+	var response []PostResponse
+	for _, post := range posts {
+		response = append(response, PostResponse{
+			ID:      post.ID,
+			Title:   post.Caption,
+			Content: post.ImageURL,
+		})
+	}
+	return c.JSON(response)
 }
 
 // GetPostByID godoc
@@ -40,21 +52,26 @@ func (h *PostHandler) GetAllPosts(c *fiber.Ctx) error {
 // @Tags posts
 // @Produce json
 // @Param id path int true "Post ID"
-// @Success 200 {object} domain.Post "Post details"
-// @Failure 400 {object} fiber.Map{"error": "Invalid post ID"}
-// @Failure 404 {object} fiber.Map{"error": "Post not found"}
+// @Success 200 {object} PostResponse "Post details"
+// @Failure 400 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
 // @Router /api/posts/{id} [get]
 func (h *PostHandler) GetPostByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	postID, err := strconv.Atoi(id)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid post ID"})
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{Error: "Invalid post ID"})
 	}
 	post, err := h.postService.FetchPostByID(postID)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Post not found"})
+		return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{Error: "Post not found"})
 	}
-	return c.JSON(post)
+	response := PostResponse{
+		ID:      post.ID,
+		Title:   post.Caption,
+		Content: post.ImageURL,
+	}
+	return c.JSON(response)
 }
 
 // CreatePost godoc
@@ -64,20 +81,25 @@ func (h *PostHandler) GetPostByID(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param post body domain.Post true "Post details"
-// @Success 201 {object} domain.Post "Created post details"
-// @Failure 400 {object} fiber.Map{"error": "Invalid input"}
-// @Failure 500 {object} fiber.Map{"error": "Internal server error"}
+// @Success 201 {object} PostResponse "Created post details"
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
 // @Router /api/posts [post]
 func (h *PostHandler) CreatePost(c *fiber.Ctx) error {
 	var post domain.Post
 	if err := c.BodyParser(&post); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid input"})
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{Error: "Invalid input"})
 	}
 	createdPost, err := h.postService.CreatePost(post)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{Error: err.Error()})
 	}
-	return c.Status(fiber.StatusCreated).JSON(createdPost)
+	response := PostResponse{
+		ID:      createdPost.ID,
+		Title:   createdPost.Caption,
+		Content: createdPost.ImageURL,
+	}
+	return c.Status(fiber.StatusCreated).JSON(response)
 }
 
 // UpdatePost godoc
@@ -88,25 +110,30 @@ func (h *PostHandler) CreatePost(c *fiber.Ctx) error {
 // @Produce json
 // @Param id path int true "Post ID"
 // @Param post body domain.Post true "Updated post details"
-// @Success 200 {object} domain.Post "Updated post details"
-// @Failure 400 {object} fiber.Map{"error": "Invalid post ID"}
-// @Failure 404 {object} fiber.Map{"error": "Post not found"}
+// @Success 200 {object} PostResponse "Updated post details"
+// @Failure 400 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
 // @Router /api/posts/{id} [put]
 func (h *PostHandler) UpdatePost(c *fiber.Ctx) error {
 	id := c.Params("id")
 	postID, err := strconv.Atoi(id)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid post ID"})
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{Error: "Invalid post ID"})
 	}
 	var post domain.Post
 	if err := c.BodyParser(&post); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid input"})
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{Error: "Invalid input"})
 	}
 	updatedPost, err := h.postService.UpdatePost(postID, post)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Post not found"})
+		return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{Error: "Post not found"})
 	}
-	return c.JSON(updatedPost)
+	response := PostResponse{
+		ID:      updatedPost.ID,
+		Title:   updatedPost.Caption,
+		Content: updatedPost.ImageURL,
+	}
+	return c.JSON(response)
 }
 
 // DeletePost godoc
@@ -115,18 +142,18 @@ func (h *PostHandler) UpdatePost(c *fiber.Ctx) error {
 // @Tags posts
 // @Param id path int true "Post ID"
 // @Success 204 {object} string "No content"
-// @Failure 400 {object} fiber.Map{"error": "Invalid post ID"}
-// @Failure 404 {object} fiber.Map{"error": "Post not found"}
+// @Failure 400 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
 // @Router /api/posts/{id} [delete]
 func (h *PostHandler) DeletePost(c *fiber.Ctx) error {
 	id := c.Params("id")
 	postID, err := strconv.Atoi(id)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid post ID"})
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{Error: "Invalid post ID"})
 	}
 	err = h.postService.DeletePost(postID)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Post not found"})
+		return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{Error: "Post not found"})
 	}
 	return c.SendStatus(fiber.StatusNoContent)
 }

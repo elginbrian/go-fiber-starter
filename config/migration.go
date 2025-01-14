@@ -1,27 +1,50 @@
 package config
 
 import (
+	"context"
 	"fmt"
+	"os"
+	"path/filepath"
 
-	"github.com/golang-migrate/migrate/v4"
-	_ "github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-func MigrateDatabase() error {
-	databaseURL := GetDatabaseURL()
+func RunSQLMigrations(db *pgxpool.Pool) error {
+	migrationsDir := "../db/migrations"
 
-	migrationDir := "file://db/migrations"
+	_, err := os.Stat(migrationsDir)
+	if os.IsNotExist(err) {
+		fmt.Println("Migration directory does not exist. Skipping migrations.")
+		return nil
+	} else if err != nil {
+		return fmt.Errorf("could not access migrations directory: %w", err)
+	}
 
-	m, err := migrate.New(migrationDir, databaseURL)
+	files, err := os.ReadDir(migrationsDir)
 	if err != nil {
-		return fmt.Errorf("could not initialize migration: %w", err)
+		return fmt.Errorf("could not read migrations directory: %w", err)
 	}
 
-	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-		return fmt.Errorf("could not apply migrations: %w", err)
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+
+		migrationFilePath := filepath.Join(migrationsDir, file.Name())
+		fmt.Printf("Running migration: %s\n", migrationFilePath)
+
+		sqlBytes, err := os.ReadFile(migrationFilePath)
+		if err != nil {
+			return fmt.Errorf("could not read migration file %s: %w", file.Name(), err)
+		}
+
+		_, err = db.Exec(context.Background(), string(sqlBytes))
+		if err != nil {
+			return fmt.Errorf("could not execute migration %s: %w", file.Name(), err)
+		}
+
+		fmt.Printf("Migration %s applied successfully!\n", file.Name())
 	}
 
-	fmt.Println("Migrations applied successfully!")
 	return nil
 }

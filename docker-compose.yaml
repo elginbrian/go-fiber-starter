@@ -13,9 +13,11 @@ services:
       - db
     networks:
       - fiber-network
+    command: >
+      sh -c "/wait-for-it.sh db:5432 -- ./fiber-starter"
 
   db:
-    image: postgres:13
+    image: postgres:15
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
@@ -24,6 +26,11 @@ services:
       - db_data:/var/lib/postgresql/data
     networks:
       - fiber-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d fiber_starter"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 networks:
   fiber-network:

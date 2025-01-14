@@ -13,8 +13,20 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 
 	"github.com/jackc/pgx/v4/pgxpool"
+
+	_ "fiber-starter/docs"
 )
 
+// @title Fiber API
+// @version 1.0
+// @termsOfService https://example.com/terms
+// @contact.name API Support
+// @contact.url https://www.example.com/support
+// @contact.email support@example.com
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+// @host localhost:8084
+// @BasePath /api
 func main() {
 	serverPort := config.GetServerPort()
 	databaseURL := config.GetDatabaseURL()
@@ -33,7 +45,7 @@ func main() {
 	}
 
 	log.Println("Running database migrations...")
-	if err := config.MigrateDatabase(); err != nil {
+	if err := config.RunSQLMigrations(db); err != nil {
 		log.Fatalf("Error applying migrations: %v", err)
 	}
 

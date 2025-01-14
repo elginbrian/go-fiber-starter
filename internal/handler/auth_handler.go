@@ -6,70 +6,82 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// AuthHandler handles authentication-related requests
 type AuthHandler struct {
 	authService service.AuthService
 }
 
-// NewAuthHandler creates a new AuthHandler instance
 func NewAuthHandler(authService service.AuthService) *AuthHandler {
 	return &AuthHandler{authService: authService}
 }
 
-// Register godoc
+type UserRegistrationRequest struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type UserLoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type UserRegistrationResponse struct {
+	Message string `json:"message"`
+}
+
+type UserLoginResponse struct {
+	Token string `json:"token"`
+}
+
+type ErrorResponse struct {
+	Error string `json:"error"`
+}
+
 // @Summary Registers a new user
 // @Description Registers a new user with a username, email, and password
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param request body struct { Username string `json:"username"`; Email string `json:"email"`; Password string `json:"password"` } true "User Registration Details"
-// @Success 201 {object} fiber.Map{"message": "User registered successfully"}
-// @Failure 400 {object} fiber.Map{"error": "Invalid request"}
-// @Failure 500 {object} fiber.Map{"error": "Internal server error"}
+// @Param request body UserRegistrationRequest true "User Registration Details"
+// @Success 201 {object} UserRegistrationResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
 // @Router /api/auth/register [post]
 func (h *AuthHandler) Register(c *fiber.Ctx) error {
-	var req struct {
-		Username string `json:"username"`
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
+	var req UserRegistrationRequest
 
 	if err := c.BodyParser(&req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{Error: "Invalid request"})
 	}
 
 	if err := h.authService.Register(req.Username, req.Email, req.Password); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{Error: err.Error()})
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "User registered successfully"})
+	return c.Status(fiber.StatusCreated).JSON(UserRegistrationResponse{Message: "User registered successfully"})
 }
 
-// Login godoc
 // @Summary Logs in a user
 // @Description Logs in a user by verifying email and password, and returns a JWT token
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param request body struct { Email string `json:"email"`; Password string `json:"password"` } true "User Login Details"
-// @Success 200 {object} fiber.Map{"token": "JWT token"}
-// @Failure 400 {object} fiber.Map{"error": "Invalid request"}
-// @Failure 401 {object} fiber.Map{"error": "Unauthorized"}
+// @Param request body UserLoginRequest true "User Login Details"
+// @Success 200 {object} UserLoginResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 401 {object} ErrorResponse
 // @Router /api/auth/login [post]
 func (h *AuthHandler) Login(c *fiber.Ctx) error {
-	var req struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
+	var req UserLoginRequest
 
 	if err := c.BodyParser(&req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{Error: "Invalid request"})
 	}
 
 	token, err := h.authService.Login(req.Email, req.Password)
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusUnauthorized).JSON(ErrorResponse{Error: err.Error()})
 	}
 
-	return c.JSON(fiber.Map{"token": token})
+	return c.JSON(UserLoginResponse{Token: token})
 }

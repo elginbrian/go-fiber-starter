@@ -13,7 +13,9 @@ func SetupRoutes(
 	authHandler *handler.AuthHandler,
 	postHandler *handler.PostHandler,
 ) {
-	app.Get("/api/docs/*", fiberSwagger.WrapHandler)
+	app.Get("/api/docs/*", fiberSwagger.WrapHandler, func(c *fiber.Ctx) error {
+		return c.Redirect("/api/docs/index.html")
+	})
 
 	// User Routes
 	userGroup := app.Group("/api/users")

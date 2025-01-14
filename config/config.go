@@ -6,27 +6,25 @@ import (
 )
 
 func GetServerPort() string {
-	port := os.Getenv("SERVER_PORT")
+	port := os.Getenv("PORT") 
 	if port == "" {
-		port = "3000" 
+		port = "3000"
 	}
 	return port
 }
 
-func GetDatabaseConfig() map[string]string {
-	dbConfig := map[string]string{
-		"host":     os.Getenv("DB_HOST"),
-		"port":     os.Getenv("DB_PORT"),
-		"user":     os.Getenv("DB_USER"),
-		"password": os.Getenv("DB_PASSWORD"),
-		"dbname":   os.Getenv("DB_NAME"),
-		"sslmode":  os.Getenv("DB_SSLMODE"), 
+func GetDatabaseURL() string {
+	dbURL := os.Getenv("DATABASE_URL") 
+	if dbURL == "" {
+		log.Fatalf("DATABASE_URL environment variable is not set")
 	}
-	
-	for key, value := range dbConfig {
-		if value == "" && key != "sslmode" {
-			log.Fatalf("Missing required environment variable for database: %s", key)
-		}
+	return dbURL
+}
+
+func GetJWTSecret() string {
+	jwtSecret := os.Getenv("JWT_SECRET") 
+	if jwtSecret == "" {
+		log.Fatalf("JWT_SECRET environment variable is not set")
 	}
-	return dbConfig
+	return jwtSecret
 }

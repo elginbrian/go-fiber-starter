@@ -9,17 +9,9 @@ import (
 )
 
 func MigrateDatabase() error {
-	dbConfig := GetDatabaseConfig()
+	databaseURL := GetDatabaseURL()
 
-	databaseURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s", 
-		dbConfig["user"], 
-		dbConfig["password"], 
-		dbConfig["host"], 
-		dbConfig["port"], 
-		dbConfig["dbname"], 
-		dbConfig["sslmode"])
-
-	migrationDir := "file://db/migrations" 
+	migrationDir := "file://db/migrations"
 
 	m, err := migrate.New(migrationDir, databaseURL)
 	if err != nil {

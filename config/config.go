@@ -5,24 +5,28 @@ import (
 	"os"
 )
 
-type Config struct {
-	Port        string
-	DatabaseURL string
+func GetServerPort() string {
+	port := os.Getenv("SERVER_PORT")
+	if port == "" {
+		port = "3000" 
+	}
+	return port
 }
 
-func LoadConfig() *Config {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = ":8080" 
+func GetDatabaseConfig() map[string]string {
+	dbConfig := map[string]string{
+		"host":     os.Getenv("DB_HOST"),
+		"port":     os.Getenv("DB_PORT"),
+		"user":     os.Getenv("DB_USER"),
+		"password": os.Getenv("DB_PASSWORD"),
+		"dbname":   os.Getenv("DB_NAME"),
+		"sslmode":  os.Getenv("DB_SSLMODE"), 
 	}
-
-	databaseURL := os.Getenv("DATABASE_URL")
-	if databaseURL == "" {
-		log.Fatal("DATABASE_URL must be set in the environment variables")
+	
+	for key, value := range dbConfig {
+		if value == "" && key != "sslmode" {
+			log.Fatalf("Missing required environment variable for database: %s", key)
+		}
 	}
-
-	return &Config{
-		Port:        port,
-		DatabaseURL: databaseURL,
-	}
+	return dbConfig
 }

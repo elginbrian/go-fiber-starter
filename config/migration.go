@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -10,14 +9,19 @@ import (
 )
 
 func MigrateDatabase() error {
-	databaseURL := os.Getenv("DATABASE_URL") 
+	dbConfig := GetDatabaseConfig()
+
+	databaseURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s", 
+		dbConfig["user"], 
+		dbConfig["password"], 
+		dbConfig["host"], 
+		dbConfig["port"], 
+		dbConfig["dbname"], 
+		dbConfig["sslmode"])
 
 	migrationDir := "file://db/migrations" 
 
-	m, err := migrate.New(
-		migrationDir, 
-		databaseURL,
-	)
+	m, err := migrate.New(migrationDir, databaseURL)
 	if err != nil {
 		return fmt.Errorf("could not initialize migration: %w", err)
 	}

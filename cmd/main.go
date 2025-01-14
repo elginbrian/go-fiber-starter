@@ -1,13 +1,12 @@
 package main
 
 import (
+	"context"
 	"crypto/rand"
-	"database/sql"
 	"encoding/hex"
 	"fiber-starter/config"
 	"fiber-starter/internal/di"
 	"fiber-starter/internal/routes"
-	"fmt"
 	"log"
 	"os"
 
@@ -15,24 +14,16 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 
+	"github.com/jackc/pgx/v4/pgxpool"
 	_ "github.com/lib/pq"
 )
 
 func main() {
-	cfg := config.LoadConfig()
-	if cfg.DatabaseURL == "" || cfg.Port == "" {
-		log.Fatal("Missing required configuration (DatabaseURL or Port)")
-	}
-
-	db, err := sql.Open("postgres", cfg.DatabaseURL)
+	db, err := pgxpool.New(context.Background(), "postgres://username:password@localhost:5432/chatterbox")
 	if err != nil {
-		log.Fatalf("Could not connect to the database: %v", err)
+		log.Fatalf("Unable to connect to database: %v", err)
 	}
-	defer func() {
-		if err := db.Close(); err != nil {
-			log.Printf("Error closing database connection: %v", err)
-		}
-	}()
+	defer db.Close()
 
 	if err := config.MigrateDatabase(); err != nil {
 		log.Fatalf("Error applying migrations: %v", err)
@@ -53,11 +44,6 @@ func main() {
 	app.Use(cors.New())
 
 	routes.SetupRoutes(app, container.UserHandler, container.AuthHandler, container.PostHandler)
-
-	fmt.Printf("Server running on port %s\n", cfg.Port)
-	if err := app.Listen(cfg.Port); err != nil {
-		log.Fatalf("Error starting server: %v", err)
-	}
 }
 
 func generateRandomSecret(length int) (string, error) {

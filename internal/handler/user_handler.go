@@ -27,12 +27,10 @@ type UserResponse struct {
 }
 
 // GetAllUsers godoc
-// @Summary Get all users
-// @Description Retrieves all users from the database
+// @Summary Retrieve a list of all users
+// @Description Fetches all user records from the database and returns them with timestamps for creation and update.
 // @Tags users
 // @Produce json
-// @Success 200 {array} UserResponse "List of users with timestamps"
-// @Failure 500 {object} response.ErrorResponse
 // @Router /api/users [get]
 func (h *UserHandler) GetAllUsers(c *fiber.Ctx) error {
 	users, err := h.userService.FetchAllUsers()
@@ -55,14 +53,11 @@ func (h *UserHandler) GetAllUsers(c *fiber.Ctx) error {
 }
 
 // GetUserByID godoc
-// @Summary Get a user by ID
-// @Description Retrieves a user from the database by their ID
+// @Summary Retrieve user details by user ID
+// @Description Fetches a specific user record from the database by the provided ID and returns the user's details, including timestamps.
 // @Tags users
 // @Produce json
 // @Param id path int true "User ID"
-// @Success 200 {object} UserResponse "User details with timestamps"
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 404 {object} response.ErrorResponse
 // @Router /api/users/{id} [get]
 func (h *UserHandler) GetUserByID(c *fiber.Ctx) error {
 	id := c.Params("id")
@@ -88,15 +83,13 @@ func (h *UserHandler) GetUserByID(c *fiber.Ctx) error {
 }
 
 // CreateUser godoc
-// @Summary Create a new user
-// @Description Creates a new user in the database
+// @Summary Create a new user record
+// @Description Accepts user details from the request body, validates the input, and creates a new user in the database. Returns the created user's details along with timestamps.
 // @Tags users
 // @Accept json
 // @Produce json
 // @Param user body domain.User true "User details"
-// @Success 201 {object} UserResponse "Created user details with timestamps"
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 500 {object} response.ErrorResponse
+// @Security BearerAuth
 // @Router /api/users [post]
 func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 	var user domain.User
@@ -125,16 +118,14 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 }
 
 // UpdateUser godoc
-// @Summary Update an existing user
-// @Description Updates a user's details in the database by their ID
+// @Summary Update an existing user's details
+// @Description Accepts the user ID as a path parameter, along with updated user data in the request body, and updates the user record in the database. Returns the updated user's details with timestamps.
 // @Tags users
 // @Accept json
 // @Produce json
 // @Param id path int true "User ID"
 // @Param user body domain.User true "Updated user details"
-// @Success 200 {object} UserResponse "Updated user details with timestamps"
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 404 {object} response.ErrorResponse
+// @Security BearerAuth
 // @Router /api/users/{id} [put]
 func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 	id := c.Params("id")
@@ -169,13 +160,11 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 }
 
 // DeleteUser godoc
-// @Summary Delete a user by ID
-// @Description Deletes a user from the database by their ID
+// @Summary Delete a user record by ID
+// @Description Accepts the user ID as a path parameter and deletes the user record from the database. Returns a success message upon deletion.
 // @Tags users
 // @Param id path int true "User ID"
-// @Success 204 {string} string "No content"
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 404 {object} response.ErrorResponse
+// @Security BearerAuth
 // @Router /api/users/{id} [delete]
 func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
 	id := c.Params("id")

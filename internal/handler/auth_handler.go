@@ -27,34 +27,24 @@ type UserLoginRequest struct {
 	Password string `json:"password" validate:"required"`
 }
 
-type RegisterResponse struct {
-	Status string `json:"status"`
-	Data   struct {
-		Message string `json:"message"`
-	} `json:"data"`
-}
-
-type LoginResponse struct {
-	Status string `json:"status"`
-	Data   struct {
-		Token string `json:"token"`
-	} `json:"data"`
-}
-
-type ErrorResponse struct {
-	Status  string `json:"status"`
+type UserRegistrationResponse struct {
 	Message string `json:"message"`
 }
 
+type UserLoginResponse struct {
+	Token string `json:"token"`
+}
+
+type ErrorResponse struct {
+	Error string `json:"error"`
+}
+
 // @Summary Registers a new user
-// @Description Registers a new user with a username, email, and password
+// @Description This endpoint allows users to create a new account by providing a username, email, and password. The registration data is validated, and upon successful registration, a success message is returned.
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param request body UserRegistrationRequest true "User Registration Details"
-// @Success 201 {object} RegisterResponse
-// @Failure 400 {object} ErrorResponse "Validation error"
-// @Failure 500 {object} ErrorResponse "Internal server error"
+// @Param request body UserRegistrationRequest true "User registration details"
 // @Router /api/auth/register [post]
 func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	var req UserRegistrationRequest
@@ -72,25 +62,17 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 		return response.Error(c, err.Error())
 	}
 
-	return response.Success(c.Status(fiber.StatusCreated), RegisterResponse{
-		Status: "success",
-		Data: struct {
-			Message string `json:"message"`
-		}{
-			Message: "User registered successfully",
-		},
+	return response.Success(c.Status(fiber.StatusCreated), UserRegistrationResponse{
+		Message: "User registered successfully",
 	})
 }
 
-// @Summary Logs in a user
-// @Description Logs in a user by verifying email and password, and returns a JWT token
+// @Summary Logs in an existing user
+// @Description This endpoint allows a user to log in by providing their email and password. Upon successful login, a JWT token is generated and returned, which can be used for authenticated requests.
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param request body UserLoginRequest true "User Login Details"
-// @Success 200 {object} LoginResponse
-// @Failure 400 {object} ErrorResponse "Validation error"
-// @Failure 401 {object} ErrorResponse "Unauthorized"
+// @Param request body UserLoginRequest true "User login details"
 // @Router /api/auth/login [post]
 func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	var req UserLoginRequest
@@ -109,12 +91,7 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 		return response.Error(c.Status(fiber.StatusUnauthorized), err.Error())
 	}
 
-	return response.Success(c, LoginResponse{
-		Status: "success",
-		Data: struct {
-			Token string `json:"token"`
-		}{
-			Token: token,
-		},
+	return response.Success(c, UserLoginResponse{
+		Token: token,
 	})
 }

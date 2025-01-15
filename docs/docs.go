@@ -9,7 +9,16 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {},
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "Elgin Brian Wahyu Bramadhika",
+            "url": "https://elginbrian.com",
+            "email": "https://wa.me/6285749806571"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -17,7 +26,7 @@ const docTemplate = `{
     "paths": {
         "/api/auth/login": {
             "post": {
-                "description": "Logs in a user by verifying email and password, and returns a JWT token",
+                "description": "This endpoint allows a user to log in by providing their email and password. Upon successful login, a JWT token is generated and returned, which can be used for authenticated requests.",
                 "consumes": [
                     "application/json"
                 ],
@@ -27,10 +36,10 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Logs in a user",
+                "summary": "Logs in an existing user",
                 "parameters": [
                     {
-                        "description": "User Login Details",
+                        "description": "User login details",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -39,31 +48,12 @@ const docTemplate = `{
                         }
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/handler.LoginResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Validation error",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    }
-                }
+                "responses": {}
             }
         },
         "/api/auth/register": {
             "post": {
-                "description": "Registers a new user with a username, email, and password",
+                "description": "This endpoint allows users to create a new account by providing a username, email, and password. The registration data is validated, and upon successful registration, a success message is returned.",
                 "consumes": [
                     "application/json"
                 ],
@@ -76,7 +66,7 @@ const docTemplate = `{
                 "summary": "Registers a new user",
                 "parameters": [
                     {
-                        "description": "User Registration Details",
+                        "description": "User registration details",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -85,31 +75,12 @@ const docTemplate = `{
                         }
                     }
                 ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/handler.RegisterResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Validation error",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    }
-                }
+                "responses": {}
             }
         },
         "/api/posts": {
             "get": {
-                "description": "Retrieves all posts from the database",
+                "description": "Retrieves all posts, including the user who created them, the caption, image URL, and timestamps.",
                 "produces": [
                     "application/json"
                 ],
@@ -117,26 +88,15 @@ const docTemplate = `{
                     "posts"
                 ],
                 "summary": "Get all posts",
-                "responses": {
-                    "200": {
-                        "description": "List of posts",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/handler.PostResponse"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    }
-                }
+                "responses": {}
             },
             "post": {
-                "description": "Creates a new post in the database",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates a new post with an optional image. The caption is required. If an image is provided, it will be uploaded to the server, and the URL will be returned in the response.",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -150,44 +110,24 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Caption",
+                        "description": "Post caption",
                         "name": "caption",
                         "in": "formData",
                         "required": true
                     },
                     {
                         "type": "file",
-                        "description": "Post image",
+                        "description": "Post image (optional)",
                         "name": "image",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     }
                 ],
-                "responses": {
-                    "201": {
-                        "description": "Created post details",
-                        "schema": {
-                            "$ref": "#/definitions/handler.PostResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    }
-                }
+                "responses": {}
             }
         },
         "/api/posts/{id}": {
             "get": {
-                "description": "Retrieves a post from the database by its ID",
+                "description": "Retrieves a specific post by its ID, including its caption, image URL, and timestamps.",
                 "produces": [
                     "application/json"
                 ],
@@ -204,29 +144,15 @@ const docTemplate = `{
                         "required": true
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "Post details",
-                        "schema": {
-                            "$ref": "#/definitions/handler.PostResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    }
-                }
+                "responses": {}
             },
             "put": {
-                "description": "Updates a post's details in the database by its ID",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updates the details of a post (caption and/or image). Only the creator of the post is allowed to update it.",
                 "consumes": [
                     "application/json"
                 ],
@@ -255,33 +181,19 @@ const docTemplate = `{
                         }
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "Updated post details",
-                        "schema": {
-                            "$ref": "#/definitions/handler.PostResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    }
-                }
+                "responses": {}
             },
             "delete": {
-                "description": "Deletes a post from the database by its ID",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Deletes a post by its ID. Only the creator of the post is authorized to delete it.",
                 "tags": [
                     "posts"
                 ],
-                "summary": "Delete a post by ID",
+                "summary": "Delete a post",
                 "parameters": [
                     {
                         "type": "integer",
@@ -291,58 +203,28 @@ const docTemplate = `{
                         "required": true
                     }
                 ],
-                "responses": {
-                    "204": {
-                        "description": "No content",
-                        "schema": {
-                            "$ref": "#/definitions/handler.SuccessResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    }
-                }
+                "responses": {}
             }
         },
         "/api/users": {
             "get": {
-                "description": "Retrieves all users from the database",
+                "description": "Fetches all user records from the database and returns them with timestamps for creation and update.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "users"
                 ],
-                "summary": "Get all users",
-                "responses": {
-                    "200": {
-                        "description": "List of users with timestamps",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/handler.UserResponse"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    }
-                }
+                "summary": "Retrieve a list of all users",
+                "responses": {}
             },
             "post": {
-                "description": "Creates a new user in the database",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Accepts user details from the request body, validates the input, and creates a new user in the database. Returns the created user's details along with timestamps.",
                 "consumes": [
                     "application/json"
                 ],
@@ -352,7 +234,7 @@ const docTemplate = `{
                 "tags": [
                     "users"
                 ],
-                "summary": "Create a new user",
+                "summary": "Create a new user record",
                 "parameters": [
                     {
                         "description": "User details",
@@ -364,38 +246,19 @@ const docTemplate = `{
                         }
                     }
                 ],
-                "responses": {
-                    "201": {
-                        "description": "Created user details with timestamps",
-                        "schema": {
-                            "$ref": "#/definitions/handler.UserResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    }
-                }
+                "responses": {}
             }
         },
         "/api/users/{id}": {
             "get": {
-                "description": "Retrieves a user from the database by their ID",
+                "description": "Fetches a specific user record from the database by the provided ID and returns the user's details, including timestamps.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "users"
                 ],
-                "summary": "Get a user by ID",
+                "summary": "Retrieve user details by user ID",
                 "parameters": [
                     {
                         "type": "integer",
@@ -405,29 +268,15 @@ const docTemplate = `{
                         "required": true
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "User details with timestamps",
-                        "schema": {
-                            "$ref": "#/definitions/handler.UserResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    }
-                }
+                "responses": {}
             },
             "put": {
-                "description": "Updates a user's details in the database by their ID",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Accepts the user ID as a path parameter, along with updated user data in the request body, and updates the user record in the database. Returns the updated user's details with timestamps.",
                 "consumes": [
                     "application/json"
                 ],
@@ -437,7 +286,7 @@ const docTemplate = `{
                 "tags": [
                     "users"
                 ],
-                "summary": "Update an existing user",
+                "summary": "Update an existing user's details",
                 "parameters": [
                     {
                         "type": "integer",
@@ -456,33 +305,19 @@ const docTemplate = `{
                         }
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "Updated user details with timestamps",
-                        "schema": {
-                            "$ref": "#/definitions/handler.UserResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    }
-                }
+                "responses": {}
             },
             "delete": {
-                "description": "Deletes a user from the database by their ID",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Accepts the user ID as a path parameter and deletes the user record from the database. Returns a success message upon deletion.",
                 "tags": [
                     "users"
                 ],
-                "summary": "Delete a user by ID",
+                "summary": "Delete a user record by ID",
                 "parameters": [
                     {
                         "type": "integer",
@@ -492,26 +327,7 @@ const docTemplate = `{
                         "required": true
                     }
                 ],
-                "responses": {
-                    "204": {
-                        "description": "No content",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    }
-                }
+                "responses": {}
             }
         }
     },
@@ -559,81 +375,6 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.ErrorResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.LoginResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "object",
-                    "properties": {
-                        "token": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.PostResponse": {
-            "type": "object",
-            "properties": {
-                "caption": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "image_url": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "handler.RegisterResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "object",
-                    "properties": {
-                        "message": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.SuccessResponse": {
-            "type": "object",
-            "properties": {
-                "data": {},
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
         "handler.UserLoginRequest": {
             "type": "object",
             "required": [
@@ -668,49 +409,18 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        },
-        "handler.UserResponse": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "response.ErrorResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
         }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
-	Host:             "",
-	BasePath:         "",
+	Version:          "1.0",
+	Host:             "localhost:8084",
+	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "Fiber Starter API",
+	Description:      "This is a RESTful API for managing posts, users, and authentication using JWT. The API is built using the Fiber framework and interacts with a PostgreSQL database.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

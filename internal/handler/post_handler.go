@@ -36,11 +36,9 @@ type SuccessResponse struct {
 
 // GetAllPosts godoc
 // @Summary Get all posts
-// @Description Retrieves all posts from the database
+// @Description Retrieves all posts, including the user who created them, the caption, image URL, and timestamps.
 // @Tags posts
 // @Produce json
-// @Success 200 {array} PostResponse "List of posts"
-// @Failure 500 {object} ErrorResponse
 // @Router /api/posts [get]
 func (h *PostHandler) GetAllPosts(c *fiber.Ctx) error {
 	posts, err := h.postService.FetchAllPosts()
@@ -65,13 +63,10 @@ func (h *PostHandler) GetAllPosts(c *fiber.Ctx) error {
 
 // GetPostByID godoc
 // @Summary Get a post by ID
-// @Description Retrieves a post from the database by its ID
+// @Description Retrieves a specific post by its ID, including its caption, image URL, and timestamps.
 // @Tags posts
 // @Produce json
 // @Param id path int true "Post ID"
-// @Success 200 {object} PostResponse "Post details"
-// @Failure 400 {object} ErrorResponse
-// @Failure 404 {object} ErrorResponse
 // @Router /api/posts/{id} [get]
 func (h *PostHandler) GetPostByID(c *fiber.Ctx) error {
 	id := c.Params("id")
@@ -97,15 +92,13 @@ func (h *PostHandler) GetPostByID(c *fiber.Ctx) error {
 
 // CreatePost godoc
 // @Summary Create a new post
-// @Description Creates a new post in the database
+// @Description Creates a new post with an optional image. The caption is required. If an image is provided, it will be uploaded to the server, and the URL will be returned in the response.
 // @Tags posts
 // @Accept multipart/form-data
 // @Produce json
-// @Param caption formData string true "Caption"
-// @Param image formData file true "Post image"  
-// @Success 201 {object} PostResponse "Created post details"
-// @Failure 400 {object} ErrorResponse
-// @Failure 500 {object} ErrorResponse
+// @Param caption formData string true "Post caption"
+// @Param image formData file false "Post image (optional)"
+// @Security BearerAuth
 // @Router /api/posts [post]
 func (h *PostHandler) CreatePost(c *fiber.Ctx) error {
 	userID, ok := c.Locals("user_id").(int)
@@ -170,15 +163,13 @@ func sanitizeFileName(fileName string) string {
 
 // UpdatePost godoc
 // @Summary Update an existing post
-// @Description Updates a post's details in the database by its ID
+// @Description Updates the details of a post (caption and/or image). Only the creator of the post is allowed to update it.
 // @Tags posts
 // @Accept json
 // @Produce json
 // @Param id path int true "Post ID"
 // @Param post body domain.Post true "Updated post details"
-// @Success 200 {object} PostResponse "Updated post details"
-// @Failure 400 {object} ErrorResponse
-// @Failure 404 {object} ErrorResponse
+// @Security BearerAuth
 // @Router /api/posts/{id} [put]
 func (h *PostHandler) UpdatePost(c *fiber.Ctx) error {
 	userID := c.Locals("userID").(int)
@@ -215,13 +206,11 @@ func (h *PostHandler) UpdatePost(c *fiber.Ctx) error {
 }
 
 // DeletePost godoc
-// @Summary Delete a post by ID
-// @Description Deletes a post from the database by its ID
+// @Summary Delete a post
+// @Description Deletes a post by its ID. Only the creator of the post is authorized to delete it.
 // @Tags posts
 // @Param id path int true "Post ID"
-// @Success 204 {object} SuccessResponse "No content"
-// @Failure 400 {object} ErrorResponse
-// @Failure 404 {object} ErrorResponse
+// @Security BearerAuth
 // @Router /api/posts/{id} [delete]
 func (h *PostHandler) DeletePost(c *fiber.Ctx) error {
 	userID := c.Locals("userID").(int)

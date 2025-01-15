@@ -1,3 +1,4 @@
+basePath: /
 definitions:
   domain.Post:
     properties:
@@ -27,54 +28,6 @@ definitions:
       updated:
         type: string
     type: object
-  handler.ErrorResponse:
-    properties:
-      message:
-        type: string
-      status:
-        type: string
-    type: object
-  handler.LoginResponse:
-    properties:
-      data:
-        properties:
-          token:
-            type: string
-        type: object
-      status:
-        type: string
-    type: object
-  handler.PostResponse:
-    properties:
-      caption:
-        type: string
-      created_at:
-        type: string
-      id:
-        type: integer
-      image_url:
-        type: string
-      updated_at:
-        type: string
-      user_id:
-        type: integer
-    type: object
-  handler.RegisterResponse:
-    properties:
-      data:
-        properties:
-          message:
-            type: string
-        type: object
-      status:
-        type: string
-    type: object
-  handler.SuccessResponse:
-    properties:
-      data: {}
-      status:
-        type: string
-    type: object
   handler.UserLoginRequest:
     properties:
       email:
@@ -99,37 +52,31 @@ definitions:
     - password
     - username
     type: object
-  handler.UserResponse:
-    properties:
-      created_at:
-        type: string
-      email:
-        type: string
-      id:
-        type: integer
-      updated_at:
-        type: string
-      username:
-        type: string
-    type: object
-  response.ErrorResponse:
-    properties:
-      message:
-        type: string
-      status:
-        type: string
-    type: object
+host: localhost:8084
 info:
-  contact: {}
+  contact:
+    email: https://wa.me/6285749806571
+    name: Elgin Brian Wahyu Bramadhika
+    url: https://elginbrian.com
+  description: This is a RESTful API for managing posts, users, and authentication
+    using JWT. The API is built using the Fiber framework and interacts with a PostgreSQL
+    database.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: Fiber Starter API
+  version: "1.0"
 paths:
   /api/auth/login:
     post:
       consumes:
       - application/json
-      description: Logs in a user by verifying email and password, and returns a JWT
-        token
+      description: This endpoint allows a user to log in by providing their email
+        and password. Upon successful login, a JWT token is generated and returned,
+        which can be used for authenticated requests.
       parameters:
-      - description: User Login Details
+      - description: User login details
         in: body
         name: request
         required: true
@@ -137,29 +84,19 @@ paths:
           $ref: '#/definitions/handler.UserLoginRequest'
       produces:
       - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/handler.LoginResponse'
-        "400":
-          description: Validation error
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-      summary: Logs in a user
+      responses: {}
+      summary: Logs in an existing user
       tags:
       - auth
   /api/auth/register:
     post:
       consumes:
       - application/json
-      description: Registers a new user with a username, email, and password
+      description: This endpoint allows users to create a new account by providing
+        a username, email, and password. The registration data is validated, and upon
+        successful registration, a success message is returned.
       parameters:
-      - description: User Registration Details
+      - description: User registration details
         in: body
         name: request
         required: true
@@ -167,101 +104,63 @@ paths:
           $ref: '#/definitions/handler.UserRegistrationRequest'
       produces:
       - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/handler.RegisterResponse'
-        "400":
-          description: Validation error
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+      responses: {}
       summary: Registers a new user
       tags:
       - auth
   /api/posts:
     get:
-      description: Retrieves all posts from the database
+      description: Retrieves all posts, including the user who created them, the caption,
+        image URL, and timestamps.
       produces:
       - application/json
-      responses:
-        "200":
-          description: List of posts
-          schema:
-            items:
-              $ref: '#/definitions/handler.PostResponse'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+      responses: {}
       summary: Get all posts
       tags:
       - posts
     post:
       consumes:
       - multipart/form-data
-      description: Creates a new post in the database
+      description: Creates a new post with an optional image. The caption is required.
+        If an image is provided, it will be uploaded to the server, and the URL will
+        be returned in the response.
       parameters:
-      - description: Caption
+      - description: Post caption
         in: formData
         name: caption
         required: true
         type: string
-      - description: Post image
+      - description: Post image (optional)
         in: formData
         name: image
-        required: true
         type: file
       produces:
       - application/json
-      responses:
-        "201":
-          description: Created post details
-          schema:
-            $ref: '#/definitions/handler.PostResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+      responses: {}
+      security:
+      - BearerAuth: []
       summary: Create a new post
       tags:
       - posts
   /api/posts/{id}:
     delete:
-      description: Deletes a post from the database by its ID
+      description: Deletes a post by its ID. Only the creator of the post is authorized
+        to delete it.
       parameters:
       - description: Post ID
         in: path
         name: id
         required: true
         type: integer
-      responses:
-        "204":
-          description: No content
-          schema:
-            $ref: '#/definitions/handler.SuccessResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-      summary: Delete a post by ID
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Delete a post
       tags:
       - posts
     get:
-      description: Retrieves a post from the database by its ID
+      description: Retrieves a specific post by its ID, including its caption, image
+        URL, and timestamps.
       parameters:
       - description: Post ID
         in: path
@@ -270,26 +169,15 @@ paths:
         type: integer
       produces:
       - application/json
-      responses:
-        "200":
-          description: Post details
-          schema:
-            $ref: '#/definitions/handler.PostResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+      responses: {}
       summary: Get a post by ID
       tags:
       - posts
     put:
       consumes:
       - application/json
-      description: Updates a post's details in the database by its ID
+      description: Updates the details of a post (caption and/or image). Only the
+        creator of the post is allowed to update it.
       parameters:
       - description: Post ID
         in: path
@@ -304,45 +192,28 @@ paths:
           $ref: '#/definitions/domain.Post'
       produces:
       - application/json
-      responses:
-        "200":
-          description: Updated post details
-          schema:
-            $ref: '#/definitions/handler.PostResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+      responses: {}
+      security:
+      - BearerAuth: []
       summary: Update an existing post
       tags:
       - posts
   /api/users:
     get:
-      description: Retrieves all users from the database
+      description: Fetches all user records from the database and returns them with
+        timestamps for creation and update.
       produces:
       - application/json
-      responses:
-        "200":
-          description: List of users with timestamps
-          schema:
-            items:
-              $ref: '#/definitions/handler.UserResponse'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      summary: Get all users
+      responses: {}
+      summary: Retrieve a list of all users
       tags:
       - users
     post:
       consumes:
       - application/json
-      description: Creates a new user in the database
+      description: Accepts user details from the request body, validates the input,
+        and creates a new user in the database. Returns the created user's details
+        along with timestamps.
       parameters:
       - description: User details
         in: body
@@ -352,49 +223,31 @@ paths:
           $ref: '#/definitions/domain.User'
       produces:
       - application/json
-      responses:
-        "201":
-          description: Created user details with timestamps
-          schema:
-            $ref: '#/definitions/handler.UserResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      summary: Create a new user
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Create a new user record
       tags:
       - users
   /api/users/{id}:
     delete:
-      description: Deletes a user from the database by their ID
+      description: Accepts the user ID as a path parameter and deletes the user record
+        from the database. Returns a success message upon deletion.
       parameters:
       - description: User ID
         in: path
         name: id
         required: true
         type: integer
-      responses:
-        "204":
-          description: No content
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      summary: Delete a user by ID
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Delete a user record by ID
       tags:
       - users
     get:
-      description: Retrieves a user from the database by their ID
+      description: Fetches a specific user record from the database by the provided
+        ID and returns the user's details, including timestamps.
       parameters:
       - description: User ID
         in: path
@@ -403,26 +256,16 @@ paths:
         type: integer
       produces:
       - application/json
-      responses:
-        "200":
-          description: User details with timestamps
-          schema:
-            $ref: '#/definitions/handler.UserResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      summary: Get a user by ID
+      responses: {}
+      summary: Retrieve user details by user ID
       tags:
       - users
     put:
       consumes:
       - application/json
-      description: Updates a user's details in the database by their ID
+      description: Accepts the user ID as a path parameter, along with updated user
+        data in the request body, and updates the user record in the database. Returns
+        the updated user's details with timestamps.
       parameters:
       - description: User ID
         in: path
@@ -437,20 +280,10 @@ paths:
           $ref: '#/definitions/domain.User'
       produces:
       - application/json
-      responses:
-        "200":
-          description: Updated user details with timestamps
-          schema:
-            $ref: '#/definitions/handler.UserResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      summary: Update an existing user
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Update an existing user's details
       tags:
       - users
 swagger: "2.0"

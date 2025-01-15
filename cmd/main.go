@@ -17,16 +17,6 @@ import (
 	_ "fiber-starter/docs"
 )
 
-// @title Fiber API
-// @version 1.0
-// @termsOfService https://example.com/terms
-// @contact.name API Support
-// @contact.url https://www.example.com/support
-// @contact.email support@example.com
-// @license.name MIT
-// @license.url https://opensource.org/licenses/MIT
-// @host localhost:8084
-// @BasePath /api
 func main() {
 	serverPort := config.GetServerPort()
 	databaseURL := config.GetDatabaseURL()

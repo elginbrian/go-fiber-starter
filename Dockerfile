@@ -1,4 +1,4 @@
-# Step 1: Build the Go application
+# Step 1: Build the Go application 
 FROM golang:1.23-alpine as builder
 
 # Install git for fetching dependencies

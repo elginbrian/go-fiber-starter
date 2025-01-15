@@ -5,7 +5,9 @@ import (
 	"fiber-starter/internal/service"
 	"fiber-starter/pkg/response"
 	"os"
+	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -100,58 +102,66 @@ func (h *PostHandler) GetPostByID(c *fiber.Ctx) error {
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
 // @Router /api/posts [post]
-func (h *PostHandler) CreatePost(c *fiber.Ctx) error { 
-	userID, ok := c.Locals("user_id").(int)
-	if !ok {
-		return response.ValidationError(c, "Invalid or missing user ID")
-	}
+func (h *PostHandler) CreatePost(c *fiber.Ctx) error {   
+    userID, ok := c.Locals("user_id").(int)
+    if !ok {
+        return response.ValidationError(c, "Invalid or missing user ID")
+    }
 
-	caption := c.FormValue("caption")
-	if caption == "" {
-		return response.ValidationError(c, "Caption is required")
-	}
+    caption := c.FormValue("caption")
+    if caption == "" {
+        return response.ValidationError(c, "Caption is required")
+    }
 
-	file, err := c.FormFile("image")
-	if err != nil {
-		return response.Error(c, "Failed to upload image", fiber.StatusBadRequest)
-	}
+    var imageURL string
 
-	uploadDir := "./public/uploads/"
-	if _, err := os.Stat(uploadDir); os.IsNotExist(err) {
-		err := os.MkdirAll(uploadDir, os.ModePerm)
-		if err != nil {
-			return response.Error(c, "Failed to create upload directory", fiber.StatusInternalServerError)
-		}
-	}
+    file, err := c.FormFile("image")
+    if err == nil {
+        uploadDir := "./public/uploads/"
+        if _, err := os.Stat(uploadDir); os.IsNotExist(err) {
+            if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
+                return response.Error(c, "Failed to create upload directory", fiber.StatusInternalServerError)
+            }
+        }
 
-	savePath := uploadDir + file.Filename
-	if err := c.SaveFile(file, savePath); err != nil {
-		return response.Error(c, "Failed to save image", fiber.StatusInternalServerError)
-	}
+        sanitizedFileName := sanitizeFileName(file.Filename)
 
-	imageURL := "http://localhost:8084" + "/uploads/" + file.Filename
+        savePath := uploadDir + sanitizedFileName
+        if err := c.SaveFile(file, savePath); err != nil {
+            return response.Error(c, "Failed to save image", fiber.StatusInternalServerError)
+        }
 
-	post := domain.Post{
-		UserID:   userID,
-		Caption:  caption,
-		ImageURL: imageURL,
-	}
+        imageURL = "http://localhost:8084" + "/uploads/" + sanitizedFileName
+    }
 
-	createdPost, err := h.postService.CreatePost(post)
-	if err != nil {
-		return response.Error(c, err.Error(), fiber.StatusInternalServerError)
-	}
+    post := domain.Post{
+        UserID:   userID,
+        Caption:  caption,
+        ImageURL: imageURL, 
+    }
 
-	postResponse := PostResponse{
-		ID:        createdPost.ID,
-		UserID:    createdPost.UserID,
-		Caption:   createdPost.Caption,
-		ImageURL:  createdPost.ImageURL,
-		CreatedAt: createdPost.CreatedAt.Format("2006-01-02 15:04:05"),
-		UpdatedAt: createdPost.UpdatedAt.Format("2006-01-02 15:04:05"),
-	}
+    createdPost, err := h.postService.CreatePost(post)
+    if err != nil {
+        return response.Error(c, err.Error(), fiber.StatusInternalServerError)
+    }
 
-	return response.Success(c, postResponse, fiber.StatusCreated)
+    postResponse := PostResponse{
+        ID:        createdPost.ID,
+        UserID:    createdPost.UserID,
+        Caption:   createdPost.Caption,
+        ImageURL:  createdPost.ImageURL,
+        CreatedAt: createdPost.CreatedAt.Format("2006-01-02 15:04:05"),
+        UpdatedAt: createdPost.UpdatedAt.Format("2006-01-02 15:04:05"),
+    }
+
+    return response.Success(c, postResponse, fiber.StatusCreated)
+}
+
+func sanitizeFileName(fileName string) string {
+    
+    sanitized := strings.ReplaceAll(fileName, " ", "_")
+    sanitized = regexp.MustCompile(`[^a-zA-Z0-9\._-]`).ReplaceAllString(sanitized, "")
+    return sanitized
 }
 
 // UpdatePost godoc

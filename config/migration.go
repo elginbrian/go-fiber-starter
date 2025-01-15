@@ -3,47 +3,29 @@ package config
 import (
 	"context"
 	"fmt"
-	"os"
-	"path/filepath"
+
+	migrations "fiber-starter/db/migrations"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 func RunSQLMigrations(db *pgxpool.Pool) error {
-	migrationsDir := "../db/migrations"
-
-	_, err := os.Stat(migrationsDir)
-	if os.IsNotExist(err) {
-		fmt.Println("Migration directory does not exist. Skipping migrations.")
-		return nil
-	} else if err != nil {
-		return fmt.Errorf("could not access migrations directory: %w", err)
+	var Migrations = []string{
+		migrations.CreateUsersTable,
+		migrations.CreatePostsTable,
 	}
 
-	files, err := os.ReadDir(migrationsDir)
-	if err != nil {
-		return fmt.Errorf("could not read migrations directory: %w", err)
-	}
+	for i, migration := range Migrations {
+		fmt.Printf("Running migration %d...\n", i+1)
 
-	for _, file := range files {
-		if file.IsDir() {
+		_, err := db.Exec(context.Background(), migration)
+		if err != nil {
+			fmt.Printf("Error executing migration %d: %v\n", i+1, err)
+			fmt.Println("Skipping this migration and continuing with the next one...")
 			continue
 		}
 
-		migrationFilePath := filepath.Join(migrationsDir, file.Name())
-		fmt.Printf("Running migration: %s\n", migrationFilePath)
-
-		sqlBytes, err := os.ReadFile(migrationFilePath)
-		if err != nil {
-			return fmt.Errorf("could not read migration file %s: %w", file.Name(), err)
-		}
-
-		_, err = db.Exec(context.Background(), string(sqlBytes))
-		if err != nil {
-			return fmt.Errorf("could not execute migration %s: %w", file.Name(), err)
-		}
-
-		fmt.Printf("Migration %s applied successfully!\n", file.Name())
+		fmt.Printf("Migration %d applied successfully!\n", i+1)
 	}
 
 	return nil

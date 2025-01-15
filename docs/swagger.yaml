@@ -35,11 +35,23 @@ definitions:
     type: object
   handler.PostResponse:
     properties:
-      content:
+      caption:
+        type: string
+      created_at:
         type: string
       id:
         type: integer
-      title:
+      image_url:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  handler.SuccessResponse:
+    properties:
+      data: {}
+      status:
         type: string
     type: object
   handler.UserLoginRequest:
@@ -48,6 +60,9 @@ definitions:
         type: string
       password:
         type: string
+    required:
+    - email
+    - password
     type: object
   handler.UserLoginResponse:
     properties:
@@ -59,9 +74,14 @@ definitions:
       email:
         type: string
       password:
+        minLength: 6
         type: string
       username:
         type: string
+    required:
+    - email
+    - password
+    - username
     type: object
   handler.UserRegistrationResponse:
     properties:
@@ -70,11 +90,22 @@ definitions:
     type: object
   handler.UserResponse:
     properties:
+      created_at:
+        type: string
       email:
         type: string
       id:
         type: integer
+      updated_at:
+        type: string
       username:
+        type: string
+    type: object
+  response.ErrorResponse:
+    properties:
+      message:
+        type: string
+      status:
         type: string
     type: object
 host: localhost:8084
@@ -111,7 +142,7 @@ paths:
           schema:
             $ref: '#/definitions/handler.UserLoginResponse'
         "400":
-          description: Bad Request
+          description: Validation error
           schema:
             $ref: '#/definitions/handler.ErrorResponse'
         "401":
@@ -141,11 +172,11 @@ paths:
           schema:
             $ref: '#/definitions/handler.UserRegistrationResponse'
         "400":
-          description: Bad Request
+          description: Validation error
           schema:
             $ref: '#/definitions/handler.ErrorResponse'
         "500":
-          description: Internal Server Error
+          description: Internal server error
           schema:
             $ref: '#/definitions/handler.ErrorResponse'
       summary: Registers a new user
@@ -212,7 +243,7 @@ paths:
         "204":
           description: No content
           schema:
-            type: string
+            $ref: '#/definitions/handler.SuccessResponse'
         "400":
           description: Bad Request
           schema:
@@ -291,7 +322,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: List of users
+          description: List of users with timestamps
           schema:
             items:
               $ref: '#/definitions/handler.UserResponse'
@@ -299,7 +330,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/response.ErrorResponse'
       summary: Get all users
       tags:
       - users
@@ -318,17 +349,17 @@ paths:
       - application/json
       responses:
         "201":
-          description: Created user details
+          description: Created user details with timestamps
           schema:
             $ref: '#/definitions/handler.UserResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/response.ErrorResponse'
       summary: Create a new user
       tags:
       - users
@@ -349,11 +380,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/response.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/response.ErrorResponse'
       summary: Delete a user by ID
       tags:
       - users
@@ -369,17 +400,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: User details
+          description: User details with timestamps
           schema:
             $ref: '#/definitions/handler.UserResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/response.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/response.ErrorResponse'
       summary: Get a user by ID
       tags:
       - users
@@ -403,17 +434,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: Updated user details
+          description: Updated user details with timestamps
           schema:
             $ref: '#/definitions/handler.UserResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/response.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/response.ErrorResponse'
       summary: Update an existing user
       tags:
       - users

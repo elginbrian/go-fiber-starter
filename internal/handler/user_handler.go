@@ -3,7 +3,9 @@ package handler
 import (
 	"fiber-starter/internal/domain"
 	"fiber-starter/internal/service"
+	"fiber-starter/pkg/response"
 	"strconv"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -17,9 +19,11 @@ func NewUserHandler(service service.UserService) *UserHandler {
 }
 
 type UserResponse struct {
-	ID       int    `json:"id"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
+	ID        int       `json:"id"`
+	Username  string    `json:"username"`
+	Email     string    `json:"email"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // GetAllUsers godoc
@@ -27,23 +31,27 @@ type UserResponse struct {
 // @Description Retrieves all users from the database
 // @Tags users
 // @Produce json
-// @Success 200 {array} UserResponse "List of users"
-// @Failure 500 {object} ErrorResponse
+// @Success 200 {array} UserResponse "List of users with timestamps"
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/users [get]
 func (h *UserHandler) GetAllUsers(c *fiber.Ctx) error {
 	users, err := h.userService.FetchAllUsers()
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{Error: err.Error()})
+		return response.Error(c, err.Error())
 	}
-	var response []UserResponse
+
+	var userResponses []UserResponse
 	for _, user := range users {
-		response = append(response, UserResponse{
-			ID:       user.ID,
-			Username: user.Name,
-			Email:    user.Email,
+		userResponses = append(userResponses, UserResponse{
+			ID:        user.ID,
+			Username:  user.Name,
+			Email:     user.Email,
+			CreatedAt: user.CreatedAt,
+			UpdatedAt: user.UpdatedAt,
 		})
 	}
-	return c.JSON(response)
+
+	return response.Success(c, userResponses)
 }
 
 // GetUserByID godoc
@@ -52,26 +60,31 @@ func (h *UserHandler) GetAllUsers(c *fiber.Ctx) error {
 // @Tags users
 // @Produce json
 // @Param id path int true "User ID"
-// @Success 200 {object} UserResponse "User details"
-// @Failure 400 {object} ErrorResponse
-// @Failure 404 {object} ErrorResponse
+// @Success 200 {object} UserResponse "User details with timestamps"
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
 // @Router /api/users/{id} [get]
 func (h *UserHandler) GetUserByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	userID, err := strconv.Atoi(id)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{Error: "Invalid user ID"})
+		return response.Error(c, "Invalid user ID")
 	}
+
 	user, err := h.userService.FetchUserByID(userID)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{Error: "User not found"})
+		return response.Error(c, "User not found")
 	}
-	response := UserResponse{
-		ID:       user.ID,
-		Username: user.Name,
-		Email:    user.Email,
+
+	userResponse := UserResponse{
+		ID:        user.ID,
+		Username:  user.Name,
+		Email:     user.Email,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
 	}
-	return c.JSON(response)
+
+	return response.Success(c, userResponse)
 }
 
 // CreateUser godoc
@@ -81,25 +94,34 @@ func (h *UserHandler) GetUserByID(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param user body domain.User true "User details"
-// @Success 201 {object} UserResponse "Created user details"
-// @Failure 400 {object} ErrorResponse
-// @Failure 500 {object} ErrorResponse
+// @Success 201 {object} UserResponse "Created user details with timestamps"
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/users [post]
 func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 	var user domain.User
 	if err := c.BodyParser(&user); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{Error: "Invalid input"})
+		return response.ValidationError(c, "Invalid input")
 	}
+
+	if validationErrs := response.ValidateStruct(user); validationErrs != nil {
+		return response.ValidationError(c, validationErrs)
+	}
+
 	createdUser, err := h.userService.CreateUser(user)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{Error: err.Error()})
+		return response.Error(c, err.Error())
 	}
-	response := UserResponse{
-		ID:       createdUser.ID,
-		Username: createdUser.Name,
-		Email:    createdUser.Email,
+
+	userResponse := UserResponse{
+		ID:        createdUser.ID,
+		Username:  createdUser.Name,
+		Email:     createdUser.Email,
+		CreatedAt: createdUser.CreatedAt,
+		UpdatedAt: createdUser.UpdatedAt,
 	}
-	return c.Status(fiber.StatusCreated).JSON(response)
+
+	return response.Success(c, userResponse)
 }
 
 // UpdateUser godoc
@@ -110,30 +132,40 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 // @Produce json
 // @Param id path int true "User ID"
 // @Param user body domain.User true "Updated user details"
-// @Success 200 {object} UserResponse "Updated user details"
-// @Failure 400 {object} ErrorResponse
-// @Failure 404 {object} ErrorResponse
+// @Success 200 {object} UserResponse "Updated user details with timestamps"
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
 // @Router /api/users/{id} [put]
 func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 	id := c.Params("id")
 	userID, err := strconv.Atoi(id)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{Error: "Invalid user ID"})
+		return response.Error(c, "Invalid user ID")
 	}
+
 	var user domain.User
 	if err := c.BodyParser(&user); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{Error: "Invalid input"})
+		return response.ValidationError(c, "Invalid input")
 	}
+
+	if validationErrs := response.ValidateStruct(user); validationErrs != nil {
+		return response.ValidationError(c, validationErrs)
+	}
+
 	updatedUser, err := h.userService.UpdateUser(userID, user)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{Error: "User not found"})
+		return response.Error(c, "User not found")
 	}
-	response := UserResponse{
-		ID:       updatedUser.ID,
-		Username: updatedUser.Name,
-		Email:    updatedUser.Email,
+
+	userResponse := UserResponse{
+		ID:        updatedUser.ID,
+		Username:  updatedUser.Name,
+		Email:     updatedUser.Email,
+		CreatedAt: updatedUser.CreatedAt,
+		UpdatedAt: updatedUser.UpdatedAt,
 	}
-	return c.JSON(response)
+
+	return response.Success(c, userResponse)
 }
 
 // DeleteUser godoc
@@ -141,19 +173,20 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 // @Description Deletes a user from the database by their ID
 // @Tags users
 // @Param id path int true "User ID"
-// @Success 204 {object} string "No content"
-// @Failure 400 {object} ErrorResponse
-// @Failure 404 {object} ErrorResponse
+// @Success 204 {string} string "No content"
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
 // @Router /api/users/{id} [delete]
 func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
 	id := c.Params("id")
 	userID, err := strconv.Atoi(id)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{Error: "Invalid user ID"})
+		return response.Error(c, "Invalid user ID")
 	}
-	err = h.userService.DeleteUser(userID)
-	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{Error: "User not found"})
+
+	if err := h.userService.DeleteUser(userID); err != nil {
+		return response.Error(c, "User not found")
 	}
-	return c.SendStatus(fiber.StatusNoContent)
+
+	return response.Success(c, "User deleted successfully")
 }

@@ -3,6 +3,7 @@ package handler
 import (
 	"fiber-starter/internal/domain"
 	"fiber-starter/internal/service"
+	"fiber-starter/pkg/response"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -17,9 +18,17 @@ func NewPostHandler(service service.PostService) *PostHandler {
 }
 
 type PostResponse struct {
-	ID      int    `json:"id"`
-	Title   string `json:"title"`
-	Content string `json:"content"`
+	ID        int    `json:"id"`
+	UserID    int    `json:"user_id"`
+	Caption   string `json:"caption,omitempty"`
+	ImageURL  string `json:"image_url,omitempty"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
+}
+
+type SuccessResponse struct {
+	Status string      `json:"status"`
+	Data   interface{} `json:"data"`
 }
 
 // GetAllPosts godoc
@@ -33,17 +42,22 @@ type PostResponse struct {
 func (h *PostHandler) GetAllPosts(c *fiber.Ctx) error {
 	posts, err := h.postService.FetchAllPosts()
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{Error: err.Error()})
+		return response.Error(c, err.Error(), fiber.StatusInternalServerError)
 	}
-	var response []PostResponse
+
+	var postResponse []PostResponse
 	for _, post := range posts {
-		response = append(response, PostResponse{
-			ID:      post.ID,
-			Title:   post.Caption,
-			Content: post.ImageURL,
+		postResponse = append(postResponse, PostResponse{
+			ID:        post.ID,
+			UserID:    post.UserID,
+			Caption:   post.Caption,
+			ImageURL:  post.ImageURL,
+			CreatedAt: post.CreatedAt.Format("2006-01-02 15:04:05"),
+			UpdatedAt: post.UpdatedAt.Format("2006-01-02 15:04:05"),
 		})
 	}
-	return c.JSON(response)
+	
+	return response.Success(c, fiber.Map{"data": postResponse}, fiber.StatusOK)
 }
 
 // GetPostByID godoc
@@ -60,18 +74,22 @@ func (h *PostHandler) GetPostByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	postID, err := strconv.Atoi(id)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{Error: "Invalid post ID"})
+		return response.Error(c, "Invalid post ID", fiber.StatusBadRequest)
 	}
 	post, err := h.postService.FetchPostByID(postID)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{Error: "Post not found"})
+		return response.Error(c, "Post not found", fiber.StatusNotFound)
 	}
-	response := PostResponse{
-		ID:      post.ID,
-		Title:   post.Caption,
-		Content: post.ImageURL,
+	
+	postResponse := PostResponse{
+		ID:        post.ID,
+		UserID:    post.UserID,
+		Caption:   post.Caption,
+		ImageURL:  post.ImageURL,
+		CreatedAt: post.CreatedAt.Format("2006-01-02 15:04:05"),
+		UpdatedAt: post.UpdatedAt.Format("2006-01-02 15:04:05"),
 	}
-	return c.JSON(response)
+	return response.Success(c, postResponse, fiber.StatusOK)
 }
 
 // CreatePost godoc
@@ -88,18 +106,21 @@ func (h *PostHandler) GetPostByID(c *fiber.Ctx) error {
 func (h *PostHandler) CreatePost(c *fiber.Ctx) error {
 	var post domain.Post
 	if err := c.BodyParser(&post); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{Error: "Invalid input"})
+		return response.ValidationError(c, "Invalid input")
 	}
 	createdPost, err := h.postService.CreatePost(post)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{Error: err.Error()})
+		return response.Error(c, err.Error(), fiber.StatusInternalServerError)
 	}
-	response := PostResponse{
-		ID:      createdPost.ID,
-		Title:   createdPost.Caption,
-		Content: createdPost.ImageURL,
+	postResponse := PostResponse{
+		ID:        createdPost.ID,
+		UserID:    createdPost.UserID,
+		Caption:   createdPost.Caption,
+		ImageURL:  createdPost.ImageURL,
+		CreatedAt: createdPost.CreatedAt.Format("2006-01-02 15:04:05"),
+		UpdatedAt: createdPost.UpdatedAt.Format("2006-01-02 15:04:05"),
 	}
-	return c.Status(fiber.StatusCreated).JSON(response)
+	return response.Success(c, postResponse, fiber.StatusCreated)
 }
 
 // UpdatePost godoc
@@ -118,22 +139,25 @@ func (h *PostHandler) UpdatePost(c *fiber.Ctx) error {
 	id := c.Params("id")
 	postID, err := strconv.Atoi(id)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{Error: "Invalid post ID"})
+		return response.Error(c, "Invalid post ID", fiber.StatusBadRequest)
 	}
 	var post domain.Post
 	if err := c.BodyParser(&post); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{Error: "Invalid input"})
+		return response.ValidationError(c, "Invalid input")
 	}
 	updatedPost, err := h.postService.UpdatePost(postID, post)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{Error: "Post not found"})
+		return response.Error(c, "Post not found", fiber.StatusNotFound)
 	}
-	response := PostResponse{
-		ID:      updatedPost.ID,
-		Title:   updatedPost.Caption,
-		Content: updatedPost.ImageURL,
+	postResponse := PostResponse{
+		ID:        updatedPost.ID,
+		UserID:    updatedPost.UserID,
+		Caption:   updatedPost.Caption,
+		ImageURL:  updatedPost.ImageURL,
+		CreatedAt: updatedPost.CreatedAt.Format("2006-01-02 15:04:05"),
+		UpdatedAt: updatedPost.UpdatedAt.Format("2006-01-02 15:04:05"),
 	}
-	return c.JSON(response)
+	return response.Success(c, postResponse)
 }
 
 // DeletePost godoc
@@ -141,7 +165,7 @@ func (h *PostHandler) UpdatePost(c *fiber.Ctx) error {
 // @Description Deletes a post from the database by its ID
 // @Tags posts
 // @Param id path int true "Post ID"
-// @Success 204 {object} string "No content"
+// @Success 204 {object} SuccessResponse "No content"
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
 // @Router /api/posts/{id} [delete]
@@ -149,11 +173,11 @@ func (h *PostHandler) DeletePost(c *fiber.Ctx) error {
 	id := c.Params("id")
 	postID, err := strconv.Atoi(id)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{Error: "Invalid post ID"})
+		return response.Error(c, "Invalid post ID", fiber.StatusBadRequest)
 	}
 	err = h.postService.DeletePost(postID)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{Error: "Post not found"})
+		return response.Error(c, "Post not found", fiber.StatusNotFound)
 	}
-	return c.SendStatus(fiber.StatusNoContent)
+	return response.Success(c, fiber.Map{"message": "Post deleted successfully"}, fiber.StatusNoContent)
 }

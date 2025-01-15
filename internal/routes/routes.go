@@ -33,12 +33,10 @@ func SetupRoutes(
 
 func setupUserRoutes(app *fiber.App, handler *handler.UserHandler) {
 	userGroup := app.Group("/api/users")
-	userGroup.Use(middleware.TokenValidationMiddleware)
-	
+	userGroup.Post("/", middleware.TokenValidationMiddleware, handler.CreateUser)
+	userGroup.Put("/:id", middleware.TokenValidationMiddleware, handler.UpdateUser)
+	userGroup.Delete("/:id", middleware.TokenValidationMiddleware, handler.DeleteUser)
 	userGroup.Get("/", handler.GetAllUsers)
-	userGroup.Post("/", handler.CreateUser)
-	userGroup.Put("/:id", handler.UpdateUser)
-	userGroup.Delete("/:id", handler.DeleteUser)
 }
 
 func setupAuthRoutes(app *fiber.App, handler *handler.AuthHandler) {
@@ -49,11 +47,7 @@ func setupAuthRoutes(app *fiber.App, handler *handler.AuthHandler) {
 
 func setupPostRoutes(app *fiber.App, handler *handler.PostHandler) {
 	postGroup := app.Group("/api/posts")
-	postGroup.Use(middleware.TokenValidationMiddleware)
-
-	postGroup.Get("/", handler.GetAllPosts)
-	postGroup.Get("/:id", handler.GetPostByID)
-	postGroup.Post("/", func(c *fiber.Ctx) error {
+	postGroup.Post("/", middleware.TokenValidationMiddleware, func(c *fiber.Ctx) error {
 		if c.Accepts("multipart/form-data") == "" {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"error": "Expected multipart/form-data",
@@ -61,6 +55,8 @@ func setupPostRoutes(app *fiber.App, handler *handler.PostHandler) {
 		}
 		return handler.CreatePost(c)
 	})
-	postGroup.Put("/:id", handler.UpdatePost)
-	postGroup.Delete("/:id", handler.DeletePost)
+	postGroup.Put("/:id", middleware.TokenValidationMiddleware, handler.UpdatePost)
+	postGroup.Delete("/:id", middleware.TokenValidationMiddleware, handler.DeletePost)
+	postGroup.Get("/", handler.GetAllPosts)
+	postGroup.Get("/:id", handler.GetPostByID)
 }

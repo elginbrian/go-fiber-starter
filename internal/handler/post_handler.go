@@ -26,11 +26,6 @@ type PostResponse struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-type SuccessResponse struct {
-	Status string      `json:"status"`
-	Data   interface{} `json:"data"`
-}
-
 // GetAllPosts godoc
 // @Summary Get all posts
 // @Description Retrieves all posts from the database
@@ -56,8 +51,8 @@ func (h *PostHandler) GetAllPosts(c *fiber.Ctx) error {
 			UpdatedAt: post.UpdatedAt.Format("2006-01-02 15:04:05"),
 		})
 	}
-	
-	return response.Success(c, fiber.Map{"data": postResponse}, fiber.StatusOK)
+
+	return response.Success(c, postResponse, fiber.StatusOK)
 }
 
 // GetPostByID godoc

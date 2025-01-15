@@ -13,27 +13,42 @@ func SetupRoutes(
 	authHandler *handler.AuthHandler,
 	postHandler *handler.PostHandler,
 ) {
-	app.Get("/api/docs/*", fiberSwagger.WrapHandler, func(c *fiber.Ctx) error {
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.Redirect("/api/docs/index.html")
+	})
+	app.Get("/api", func(c *fiber.Ctx) error {
+		return c.Redirect("/api/docs/index.html")
+	})
+	app.Get("/api/docs", func(c *fiber.Ctx) error {
 		return c.Redirect("/api/docs/index.html")
 	})
 
-	// User Routes
+	app.Get("/api/docs/*", fiberSwagger.WrapHandler)
+
+	setupUserRoutes(app, userHandler)
+	setupAuthRoutes(app, authHandler)
+	setupPostRoutes(app, postHandler)
+}
+
+func setupUserRoutes(app *fiber.App, handler *handler.UserHandler) {
 	userGroup := app.Group("/api/users")
-	userGroup.Get("/", userHandler.GetAllUsers)
-	userGroup.Post("/", userHandler.CreateUser)
-	userGroup.Put("/:id", userHandler.UpdateUser)
-	userGroup.Delete("/:id", userHandler.DeleteUser)
+	userGroup.Get("/", handler.GetAllUsers)
+	userGroup.Post("/", handler.CreateUser)
+	userGroup.Put("/:id", handler.UpdateUser)
+	userGroup.Delete("/:id", handler.DeleteUser)
+}
 
-	// Auth Routes
+func setupAuthRoutes(app *fiber.App, handler *handler.AuthHandler) {
 	authGroup := app.Group("/api/auth")
-	authGroup.Post("/register", authHandler.Register)
-	authGroup.Post("/login", authHandler.Login)
+	authGroup.Post("/register", handler.Register)
+	authGroup.Post("/login", handler.Login)
+}
 
-	// Post Routes
+func setupPostRoutes(app *fiber.App, handler *handler.PostHandler) {
 	postGroup := app.Group("/api/posts")
-	postGroup.Get("/", postHandler.GetAllPosts)
-	postGroup.Get("/:id", postHandler.GetPostByID)
-	postGroup.Post("/", postHandler.CreatePost)
-	postGroup.Put("/:id", postHandler.UpdatePost)
-	postGroup.Delete("/:id", postHandler.DeletePost)
+	postGroup.Get("/", handler.GetAllPosts)
+	postGroup.Get("/:id", handler.GetPostByID)
+	postGroup.Post("/", handler.CreatePost)
+	postGroup.Put("/:id", handler.UpdatePost)
+	postGroup.Delete("/:id", handler.DeletePost)
 }

@@ -5,7 +5,6 @@ import (
 	"fiber-starter/pkg/response"
 
 	"github.com/go-playground/validator/v10"
-
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -55,10 +54,11 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(&req); err != nil {
 		return response.ValidationError(c, "Invalid request format")
+	}
+
 	validate := validator.New()
 	if validationErrs := validate.Struct(req); validationErrs != nil {
 		return response.ValidationError(c, validationErrs.Error())
-	}
 	}
 
 	if err := h.authService.Register(req.Username, req.Email, req.Password); err != nil {
@@ -86,6 +86,7 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	if err := c.BodyParser(&req); err != nil {
 		return response.ValidationError(c, "Invalid request format")
 	}
+
 	validate := validator.New()
 	if validationErrs := validate.Struct(req); validationErrs != nil {
 		return response.ValidationError(c, validationErrs.Error())

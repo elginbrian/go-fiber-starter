@@ -12,7 +12,9 @@ import (
 func RunSQLMigrations(db *pgxpool.Pool) error {
 	var Migrations = []string{
 		migrations.CreateUsersTable,
+		migrations.InsertUsersData,
 		migrations.CreatePostsTable,
+		migrations.InsertPostsData,
 	}
 
 	for i, migration := range Migrations {

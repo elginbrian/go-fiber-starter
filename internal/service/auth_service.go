@@ -28,6 +28,7 @@ func NewAuthService(authRepo repository.AuthRepository, userRepo repository.User
 
 func (s *authService) Register(username, email, password string) error {
 	ctx := context.Background()
+	
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
@@ -45,6 +46,7 @@ func (s *authService) Register(username, email, password string) error {
 
 func (s *authService) Login(email, password string) (string, error) {
 	ctx := context.Background()
+
 	user, err := s.authRepo.GetUserByEmail(ctx, email)
 	if err != nil || user == nil {
 		return "", errors.New("invalid email or password")
@@ -68,7 +70,9 @@ func GenerateJWT(userID int, secret string) (string, error) {
 		"user_id": userID,
 		"exp":     expirationTime.Unix(),
 	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
 	signedToken, err := token.SignedString([]byte(secret))
 	if err != nil {
 		return "", err

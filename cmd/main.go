@@ -6,6 +6,7 @@ import (
 	"fiber-starter/internal/di"
 	"fiber-starter/internal/routes"
 	"log"
+	"os"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -61,6 +62,13 @@ func main() {
 
 	routes.SetupRoutes(app, container.UserHandler, container.AuthHandler, container.PostHandler, jwtSecret)
 	app.Static("/uploads", "./public/uploads")
+
+	vitePressDistPath := "./get-started/docs/.vitepress/dist"
+	if _, err := os.Stat(vitePressDistPath); !os.IsNotExist(err) {
+		app.Static("/get-started", vitePressDistPath)
+	} else {
+		log.Println("VitePress dist folder not found. Ensure you've run 'npm run build'.")
+	}
 
 	log.Printf("Server is running on port %s", serverPort)
 	if err := app.Listen(serverPort); err != nil {

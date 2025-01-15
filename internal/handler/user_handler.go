@@ -121,7 +121,7 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 		UpdatedAt: createdUser.UpdatedAt,
 	}
 
-	return response.Success(c, userResponse)
+	return response.Success(c.Status(fiber.StatusCreated), userResponse)
 }
 
 // UpdateUser godoc

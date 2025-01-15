@@ -27,16 +27,23 @@ type UserLoginRequest struct {
 	Password string `json:"password" validate:"required"`
 }
 
-type UserRegistrationResponse struct {
-	Message string `json:"message"`
+type RegisterResponse struct {
+	Status string `json:"status"`
+	Data   struct {
+		Message string `json:"message"`
+	} `json:"data"`
 }
 
-type UserLoginResponse struct {
-	Token string `json:"token"`
+type LoginResponse struct {
+	Status string `json:"status"`
+	Data   struct {
+		Token string `json:"token"`
+	} `json:"data"`
 }
 
 type ErrorResponse struct {
-	Error string `json:"error"`
+	Status  string `json:"status"`
+	Message string `json:"message"`
 }
 
 // @Summary Registers a new user
@@ -45,7 +52,7 @@ type ErrorResponse struct {
 // @Accept json
 // @Produce json
 // @Param request body UserRegistrationRequest true "User Registration Details"
-// @Success 201 {object} UserRegistrationResponse
+// @Success 201 {object} RegisterResponse
 // @Failure 400 {object} ErrorResponse "Validation error"
 // @Failure 500 {object} ErrorResponse "Internal server error"
 // @Router /api/auth/register [post]
@@ -65,8 +72,13 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 		return response.Error(c, err.Error())
 	}
 
-	return response.Success(c.Status(fiber.StatusCreated), UserRegistrationResponse{
-		Message: "User registered successfully",
+	return response.Success(c.Status(fiber.StatusCreated), RegisterResponse{
+		Status: "success",
+		Data: struct {
+			Message string `json:"message"`
+		}{
+			Message: "User registered successfully",
+		},
 	})
 }
 
@@ -76,7 +88,7 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param request body UserLoginRequest true "User Login Details"
-// @Success 200 {object} UserLoginResponse
+// @Success 200 {object} LoginResponse
 // @Failure 400 {object} ErrorResponse "Validation error"
 // @Failure 401 {object} ErrorResponse "Unauthorized"
 // @Router /api/auth/login [post]
@@ -97,7 +109,12 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 		return response.Error(c.Status(fiber.StatusUnauthorized), err.Error())
 	}
 
-	return response.Success(c, UserLoginResponse{
-		Token: token,
+	return response.Success(c, LoginResponse{
+		Status: "success",
+		Data: struct {
+			Token string `json:"token"`
+		}{
+			Token: token,
+		},
 	})
 }

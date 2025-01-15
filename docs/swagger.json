@@ -1,21 +1,8 @@
 {
     "swagger": "2.0",
     "info": {
-        "title": "Fiber API",
-        "termsOfService": "https://example.com/terms",
-        "contact": {
-            "name": "API Support",
-            "url": "https://www.example.com/support",
-            "email": "support@example.com"
-        },
-        "license": {
-            "name": "MIT",
-            "url": "https://opensource.org/licenses/MIT"
-        },
-        "version": "1.0"
+        "contact": {}
     },
-    "host": "localhost:8084",
-    "basePath": "/api",
     "paths": {
         "/api/auth/login": {
             "post": {
@@ -45,7 +32,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.UserLoginResponse"
+                            "$ref": "#/definitions/handler.LoginResponse"
                         }
                     },
                     "400": {
@@ -91,7 +78,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/handler.UserRegistrationResponse"
+                            "$ref": "#/definitions/handler.RegisterResponse"
                         }
                     },
                     "400": {
@@ -140,7 +127,7 @@
             "post": {
                 "description": "Creates a new post in the database",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -151,13 +138,18 @@
                 "summary": "Create a new post",
                 "parameters": [
                     {
-                        "description": "Post details",
-                        "name": "post",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/domain.Post"
-                        }
+                        "type": "string",
+                        "description": "Caption",
+                        "name": "caption",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Post image",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -559,7 +551,26 @@
         "handler.ErrorResponse": {
             "type": "object",
             "properties": {
-                "error": {
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "properties": {
+                        "token": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "status": {
                     "type": "string"
                 }
             }
@@ -587,6 +598,22 @@
                 }
             }
         },
+        "handler.RegisterResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "properties": {
+                        "message": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.SuccessResponse": {
             "type": "object",
             "properties": {
@@ -611,14 +638,6 @@
                 }
             }
         },
-        "handler.UserLoginResponse": {
-            "type": "object",
-            "properties": {
-                "token": {
-                    "type": "string"
-                }
-            }
-        },
         "handler.UserRegistrationRequest": {
             "type": "object",
             "required": [
@@ -635,14 +654,6 @@
                     "minLength": 6
                 },
                 "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.UserRegistrationResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
                     "type": "string"
                 }
             }

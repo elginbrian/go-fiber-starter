@@ -29,6 +29,11 @@ type PostResponse struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
+type SuccessResponse struct {
+	Status string      `json:"status"`
+	Data   interface{} `json:"data,omitempty"`
+}
+
 // GetAllPosts godoc
 // @Summary Get all posts
 // @Description Retrieves all posts from the database
@@ -102,66 +107,65 @@ func (h *PostHandler) GetPostByID(c *fiber.Ctx) error {
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
 // @Router /api/posts [post]
-func (h *PostHandler) CreatePost(c *fiber.Ctx) error {   
-    userID, ok := c.Locals("user_id").(int)
-    if !ok {
-        return response.ValidationError(c, "Invalid or missing user ID")
-    }
+func (h *PostHandler) CreatePost(c *fiber.Ctx) error {
+	userID, ok := c.Locals("user_id").(int)
+	if !ok {
+		return response.ValidationError(c, "Invalid or missing user ID")
+	}
 
-    caption := c.FormValue("caption")
-    if caption == "" {
-        return response.ValidationError(c, "Caption is required")
-    }
+	caption := c.FormValue("caption")
+	if caption == "" {
+		return response.ValidationError(c, "Caption is required")
+	}
 
-    var imageURL string
+	var imageURL string
 
-    file, err := c.FormFile("image")
-    if err == nil {
-        uploadDir := "./public/uploads/"
-        if _, err := os.Stat(uploadDir); os.IsNotExist(err) {
-            if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
-                return response.Error(c, "Failed to create upload directory", fiber.StatusInternalServerError)
-            }
-        }
+	file, err := c.FormFile("image")
+	if err == nil {
+		uploadDir := "./public/uploads/"
+		if _, err := os.Stat(uploadDir); os.IsNotExist(err) {
+			if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
+				return response.Error(c, "Failed to create upload directory", fiber.StatusInternalServerError)
+			}
+		}
 
-        sanitizedFileName := sanitizeFileName(file.Filename)
+		sanitizedFileName := sanitizeFileName(file.Filename)
 
-        savePath := uploadDir + sanitizedFileName
-        if err := c.SaveFile(file, savePath); err != nil {
-            return response.Error(c, "Failed to save image", fiber.StatusInternalServerError)
-        }
+		savePath := uploadDir + sanitizedFileName
+		if err := c.SaveFile(file, savePath); err != nil {
+			return response.Error(c, "Failed to save image", fiber.StatusInternalServerError)
+		}
 
-        imageURL = "http://localhost:8084" + "/uploads/" + sanitizedFileName
-    }
+		imageURL = "http://localhost:8084" + "/uploads/" + sanitizedFileName
+	}
 
-    post := domain.Post{
-        UserID:   userID,
-        Caption:  caption,
-        ImageURL: imageURL, 
-    }
+	post := domain.Post{
+		UserID:   userID,
+		Caption:  caption,
+		ImageURL: imageURL, 
+	}
 
-    createdPost, err := h.postService.CreatePost(post)
-    if err != nil {
-        return response.Error(c, err.Error(), fiber.StatusInternalServerError)
-    }
+	createdPost, err := h.postService.CreatePost(post)
+	if err != nil {
+		return response.Error(c, err.Error(), fiber.StatusInternalServerError)
+	}
 
-    postResponse := PostResponse{
-        ID:        createdPost.ID,
-        UserID:    createdPost.UserID,
-        Caption:   createdPost.Caption,
-        ImageURL:  createdPost.ImageURL,
-        CreatedAt: createdPost.CreatedAt.Format("2006-01-02 15:04:05"),
-        UpdatedAt: createdPost.UpdatedAt.Format("2006-01-02 15:04:05"),
-    }
+	postResponse := PostResponse{
+		ID:        createdPost.ID,
+		UserID:    createdPost.UserID,
+		Caption:   createdPost.Caption,
+		ImageURL:  createdPost.ImageURL,
+		CreatedAt: createdPost.CreatedAt.Format("2006-01-02 15:04:05"),
+		UpdatedAt: createdPost.UpdatedAt.Format("2006-01-02 15:04:05"),
+	}
 
-    return response.Success(c, postResponse, fiber.StatusCreated)
+	return response.Success(c, postResponse, fiber.StatusCreated)
 }
 
 func sanitizeFileName(fileName string) string {
-    
-    sanitized := strings.ReplaceAll(fileName, " ", "_")
-    sanitized = regexp.MustCompile(`[^a-zA-Z0-9\._-]`).ReplaceAllString(sanitized, "")
-    return sanitized
+	sanitized := strings.ReplaceAll(fileName, " ", "_")
+	sanitized = regexp.MustCompile(`[^a-zA-Z0-9\._-]`).ReplaceAllString(sanitized, "")
+	return sanitized
 }
 
 // UpdatePost godoc

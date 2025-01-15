@@ -1,4 +1,3 @@
-basePath: /api
 definitions:
   domain.Post:
     properties:
@@ -30,7 +29,19 @@ definitions:
     type: object
   handler.ErrorResponse:
     properties:
-      error:
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  handler.LoginResponse:
+    properties:
+      data:
+        properties:
+          token:
+            type: string
+        type: object
+      status:
         type: string
     type: object
   handler.PostResponse:
@@ -48,6 +59,16 @@ definitions:
       user_id:
         type: integer
     type: object
+  handler.RegisterResponse:
+    properties:
+      data:
+        properties:
+          message:
+            type: string
+        type: object
+      status:
+        type: string
+    type: object
   handler.SuccessResponse:
     properties:
       data: {}
@@ -64,11 +85,6 @@ definitions:
     - email
     - password
     type: object
-  handler.UserLoginResponse:
-    properties:
-      token:
-        type: string
-    type: object
   handler.UserRegistrationRequest:
     properties:
       email:
@@ -82,11 +98,6 @@ definitions:
     - email
     - password
     - username
-    type: object
-  handler.UserRegistrationResponse:
-    properties:
-      message:
-        type: string
     type: object
   handler.UserResponse:
     properties:
@@ -108,18 +119,8 @@ definitions:
       status:
         type: string
     type: object
-host: localhost:8084
 info:
-  contact:
-    email: support@example.com
-    name: API Support
-    url: https://www.example.com/support
-  license:
-    name: MIT
-    url: https://opensource.org/licenses/MIT
-  termsOfService: https://example.com/terms
-  title: Fiber API
-  version: "1.0"
+  contact: {}
 paths:
   /api/auth/login:
     post:
@@ -140,7 +141,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handler.UserLoginResponse'
+            $ref: '#/definitions/handler.LoginResponse'
         "400":
           description: Validation error
           schema:
@@ -170,7 +171,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/handler.UserRegistrationResponse'
+            $ref: '#/definitions/handler.RegisterResponse'
         "400":
           description: Validation error
           schema:
@@ -203,15 +204,19 @@ paths:
       - posts
     post:
       consumes:
-      - application/json
+      - multipart/form-data
       description: Creates a new post in the database
       parameters:
-      - description: Post details
-        in: body
-        name: post
+      - description: Caption
+        in: formData
+        name: caption
         required: true
-        schema:
-          $ref: '#/definitions/domain.Post'
+        type: string
+      - description: Post image
+        in: formData
+        name: image
+        required: true
+        type: file
       produces:
       - application/json
       responses:

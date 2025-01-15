@@ -4,6 +4,7 @@ import (
 	"fiber-starter/internal/domain"
 	"fiber-starter/internal/service"
 	"fiber-starter/pkg/response"
+	"os"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -75,7 +76,7 @@ func (h *PostHandler) GetPostByID(c *fiber.Ctx) error {
 	if err != nil {
 		return response.Error(c, "Post not found", fiber.StatusNotFound)
 	}
-	
+
 	postResponse := PostResponse{
 		ID:        post.ID,
 		UserID:    post.UserID,
@@ -91,22 +92,52 @@ func (h *PostHandler) GetPostByID(c *fiber.Ctx) error {
 // @Summary Create a new post
 // @Description Creates a new post in the database
 // @Tags posts
-// @Accept json
+// @Accept multipart/form-data
 // @Produce json
-// @Param post body domain.Post true "Post details"
+// @Param caption formData string true "Caption"
+// @Param image formData file true "Post image"
 // @Success 201 {object} PostResponse "Created post details"
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
 // @Router /api/posts [post]
 func (h *PostHandler) CreatePost(c *fiber.Ctx) error {
-	var post domain.Post
-	if err := c.BodyParser(&post); err != nil {
-		return response.ValidationError(c, "Invalid input")
+	userID := c.Locals("userID").(int)
+
+	caption := c.FormValue("caption")
+	if caption == "" {
+		return response.ValidationError(c, "Caption is required")
 	}
+
+	file, err := c.FormFile("file")
+	if err != nil {
+		return response.Error(c, "Failed to upload image", fiber.StatusBadRequest)
+	}
+
+	if _, err := os.Stat("./public/uploads/"); os.IsNotExist(err) {
+		err := os.MkdirAll("./public/uploads/", os.ModePerm)
+		if err != nil {
+			return response.Error(c, "Failed to create upload directory", fiber.StatusInternalServerError)
+		}
+	}
+
+	savePath := "./public/uploads/" + file.Filename
+	if err := c.SaveFile(file, savePath); err != nil {
+		return response.Error(c, "Failed to save image", fiber.StatusInternalServerError)
+	}
+
+	imageURL := "http://localhost:8084" + "/uploads/" + file.Filename
+
+	post := domain.Post{
+		UserID:   userID,
+		Caption:  caption,
+		ImageURL: imageURL,
+	}
+
 	createdPost, err := h.postService.CreatePost(post)
 	if err != nil {
 		return response.Error(c, err.Error(), fiber.StatusInternalServerError)
 	}
+
 	postResponse := PostResponse{
 		ID:        createdPost.ID,
 		UserID:    createdPost.UserID,
@@ -115,6 +146,7 @@ func (h *PostHandler) CreatePost(c *fiber.Ctx) error {
 		CreatedAt: createdPost.CreatedAt.Format("2006-01-02 15:04:05"),
 		UpdatedAt: createdPost.UpdatedAt.Format("2006-01-02 15:04:05"),
 	}
+
 	return response.Success(c, postResponse, fiber.StatusCreated)
 }
 
@@ -131,19 +163,28 @@ func (h *PostHandler) CreatePost(c *fiber.Ctx) error {
 // @Failure 404 {object} ErrorResponse
 // @Router /api/posts/{id} [put]
 func (h *PostHandler) UpdatePost(c *fiber.Ctx) error {
+	userID := c.Locals("userID").(int)
+
 	id := c.Params("id")
 	postID, err := strconv.Atoi(id)
 	if err != nil {
 		return response.Error(c, "Invalid post ID", fiber.StatusBadRequest)
 	}
+
 	var post domain.Post
 	if err := c.BodyParser(&post); err != nil {
 		return response.ValidationError(c, "Invalid input")
 	}
+
+	if post.UserID != userID {
+		return response.Error(c, "Unauthorized to update this post", fiber.StatusUnauthorized)
+	}
+
 	updatedPost, err := h.postService.UpdatePost(postID, post)
 	if err != nil {
 		return response.Error(c, "Post not found", fiber.StatusNotFound)
 	}
+
 	postResponse := PostResponse{
 		ID:        updatedPost.ID,
 		UserID:    updatedPost.UserID,
@@ -165,11 +206,23 @@ func (h *PostHandler) UpdatePost(c *fiber.Ctx) error {
 // @Failure 404 {object} ErrorResponse
 // @Router /api/posts/{id} [delete]
 func (h *PostHandler) DeletePost(c *fiber.Ctx) error {
+	userID := c.Locals("userID").(int)
+
 	id := c.Params("id")
 	postID, err := strconv.Atoi(id)
 	if err != nil {
 		return response.Error(c, "Invalid post ID", fiber.StatusBadRequest)
 	}
+
+	post, err := h.postService.FetchPostByID(postID)
+	if err != nil {
+		return response.Error(c, "Post not found", fiber.StatusNotFound)
+	}
+
+	if post.UserID != userID {
+		return response.Error(c, "Unauthorized to delete this post", fiber.StatusUnauthorized)
+	}
+
 	err = h.postService.DeletePost(postID)
 	if err != nil {
 		return response.Error(c, "Post not found", fiber.StatusNotFound)

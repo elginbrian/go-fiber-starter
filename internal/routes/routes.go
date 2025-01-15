@@ -2,6 +2,7 @@ package routes
 
 import (
 	"fiber-starter/internal/handler"
+	"fiber-starter/internal/middleware"
 
 	"github.com/gofiber/fiber/v2"
 	fiberSwagger "github.com/swaggo/fiber-swagger"
@@ -32,6 +33,8 @@ func SetupRoutes(
 
 func setupUserRoutes(app *fiber.App, handler *handler.UserHandler) {
 	userGroup := app.Group("/api/users")
+	userGroup.Use(middleware.TokenValidationMiddleware)
+	
 	userGroup.Get("/", handler.GetAllUsers)
 	userGroup.Post("/", handler.CreateUser)
 	userGroup.Put("/:id", handler.UpdateUser)
@@ -46,9 +49,18 @@ func setupAuthRoutes(app *fiber.App, handler *handler.AuthHandler) {
 
 func setupPostRoutes(app *fiber.App, handler *handler.PostHandler) {
 	postGroup := app.Group("/api/posts")
+	postGroup.Use(middleware.TokenValidationMiddleware)
+
 	postGroup.Get("/", handler.GetAllPosts)
 	postGroup.Get("/:id", handler.GetPostByID)
-	postGroup.Post("/", handler.CreatePost)
+	postGroup.Post("/", func(c *fiber.Ctx) error {
+		if c.Accepts("multipart/form-data") == "" {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "Expected multipart/form-data",
+			})
+		}
+		return handler.CreatePost(c)
+	})
 	postGroup.Put("/:id", handler.UpdatePost)
 	postGroup.Delete("/:id", handler.DeletePost)
 }

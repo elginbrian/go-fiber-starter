@@ -56,6 +56,7 @@ func main() {
 	app.Use(cors.New())
 
 	routes.SetupRoutes(app, container.UserHandler, container.AuthHandler, container.PostHandler)
+	app.Static("/uploads", "./public/uploads")
 
 	log.Printf("Server is running on port %s", serverPort)
 	if err := app.Listen(serverPort); err != nil {

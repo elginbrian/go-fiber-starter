@@ -7,7 +7,7 @@ import (
 	"fiber-starter/internal/repository"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -28,15 +28,15 @@ func NewAuthService(authRepo repository.AuthRepository, userRepo repository.User
 
 func (s *authService) Register(username, email, password string) error {
 	ctx := context.Background()
-	
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
 
 	user := domain.User{
-		Name:        username,
-		Email:       email,
+		Name:         username,
+		Email:        email,
 		PasswordHash: string(hashedPassword),
 	}
 
@@ -72,7 +72,6 @@ func GenerateJWT(userID int, secret string) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
 	signedToken, err := token.SignedString([]byte(secret))
 	if err != nil {
 		return "", err

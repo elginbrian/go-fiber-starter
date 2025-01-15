@@ -17,8 +17,8 @@ func SetupRoutes(
 ) {
 	app.Get("/", redirectToDocs)
 	app.Get("/api", redirectToDocs)
-	app.Get("/api/docs", redirectToDocs)
-	app.Get("/api/docs/*", fiberSwagger.WrapHandler)
+	app.Get("/docs", redirectToDocs)
+	app.Get("/docs/*", fiberSwagger.WrapHandler)
 
 	setupUserRoutes(app, userHandler, jwtSecret)
 	setupAuthRoutes(app, authHandler)
@@ -26,7 +26,7 @@ func SetupRoutes(
 }
 
 func redirectToDocs(c *fiber.Ctx) error {
-	return c.Redirect("/api/docs/index.html")
+	return c.Redirect("/docs/index.html")
 }
 
 func setupUserRoutes(app *fiber.App, handler *handler.UserHandler, jwtSecret string) {

@@ -19,17 +19,17 @@ import (
 
 // @title Fiber Starter API
 // @version 1.0
-// @description This is a RESTful API for managing posts, users, and authentication using JWT. The API is built using the Fiber framework and interacts with a PostgreSQL database.
+// @description This is a RESTful API for a simple social media application. It allows users to manage their posts, including creating, updating, and deleting posts, and provides authentication using JWT. The API is built using the Fiber framework and interacts with a PostgreSQL database.
 // @termsOfService http://swagger.io/terms/
 
 // @contact.name Elgin Brian Wahyu Bramadhika
-// @contact.url https://elginbrian.com
-// @contact.email https://wa.me/6285749806571
+// @contact.email elginbrian49@student.ub.ac.id
+// @contact.url https://wa.me/6285749806571
 
 // @license.name MIT
 // @license.url https://opensource.org/licenses/MIT
 
-// @host localhost:8084
+// @host http://178.128.61.145:8084
 // @BasePath /
 func main() {
 	serverPort := config.GetServerPort()

@@ -12,8 +12,8 @@ const docTemplate = `{
         "termsOfService": "http://swagger.io/terms/",
         "contact": {
             "name": "Elgin Brian Wahyu Bramadhika",
-            "url": "https://elginbrian.com",
-            "email": "https://wa.me/6285749806571"
+            "url": "https://wa.me/6285749806571",
+            "email": "elginbrian49@student.ub.ac.id"
         },
         "license": {
             "name": "MIT",
@@ -416,11 +416,11 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8084",
+	Host:             "http://178.128.61.145:8084",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Fiber Starter API",
-	Description:      "This is a RESTful API for managing posts, users, and authentication using JWT. The API is built using the Fiber framework and interacts with a PostgreSQL database.",
+	Description:      "This is a RESTful API for a simple social media application. It allows users to manage their posts, including creating, updating, and deleting posts, and provides authentication using JWT. The API is built using the Fiber framework and interacts with a PostgreSQL database.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

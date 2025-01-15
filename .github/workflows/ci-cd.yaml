@@ -70,5 +70,4 @@ jobs:
             git reset --hard origin/main
             go mod vendor
             docker-compose down -v
-            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
             docker-compose up --build -d

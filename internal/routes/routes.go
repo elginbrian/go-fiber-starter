@@ -13,29 +13,27 @@ func SetupRoutes(
 	userHandler *handler.UserHandler,
 	authHandler *handler.AuthHandler,
 	postHandler *handler.PostHandler,
+	jwtSecret string,
 ) {
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.Redirect("/api/docs/index.html")
-	})
-	app.Get("/api", func(c *fiber.Ctx) error {
-		return c.Redirect("/api/docs/index.html")
-	})
-	app.Get("/api/docs", func(c *fiber.Ctx) error {
-		return c.Redirect("/api/docs/index.html")
-	})
-
+	app.Get("/", redirectToDocs)
+	app.Get("/api", redirectToDocs)
+	app.Get("/api/docs", redirectToDocs)
 	app.Get("/api/docs/*", fiberSwagger.WrapHandler)
 
-	setupUserRoutes(app, userHandler)
+	setupUserRoutes(app, userHandler, jwtSecret)
 	setupAuthRoutes(app, authHandler)
-	setupPostRoutes(app, postHandler)
+	setupPostRoutes(app, postHandler, jwtSecret)
 }
 
-func setupUserRoutes(app *fiber.App, handler *handler.UserHandler) {
+func redirectToDocs(c *fiber.Ctx) error {
+	return c.Redirect("/api/docs/index.html")
+}
+
+func setupUserRoutes(app *fiber.App, handler *handler.UserHandler, jwtSecret string) {
 	userGroup := app.Group("/api/users")
-	userGroup.Post("/", middleware.TokenValidationMiddleware, handler.CreateUser)
-	userGroup.Put("/:id", middleware.TokenValidationMiddleware, handler.UpdateUser)
-	userGroup.Delete("/:id", middleware.TokenValidationMiddleware, handler.DeleteUser)
+	userGroup.Post("/", middleware.TokenValidationMiddleware(jwtSecret), handler.CreateUser)
+	userGroup.Put("/:id", middleware.TokenValidationMiddleware(jwtSecret), handler.UpdateUser)
+	userGroup.Delete("/:id", middleware.TokenValidationMiddleware(jwtSecret), handler.DeleteUser)
 	userGroup.Get("/", handler.GetAllUsers)
 }
 
@@ -45,9 +43,9 @@ func setupAuthRoutes(app *fiber.App, handler *handler.AuthHandler) {
 	authGroup.Post("/login", handler.Login)
 }
 
-func setupPostRoutes(app *fiber.App, handler *handler.PostHandler) {
+func setupPostRoutes(app *fiber.App, handler *handler.PostHandler, jwtSecret string) {
 	postGroup := app.Group("/api/posts")
-	postGroup.Post("/", middleware.TokenValidationMiddleware, func(c *fiber.Ctx) error {
+	postGroup.Post("/", middleware.TokenValidationMiddleware(jwtSecret), func(c *fiber.Ctx) error {
 		if c.Accepts("multipart/form-data") == "" {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"error": "Expected multipart/form-data",
@@ -55,8 +53,8 @@ func setupPostRoutes(app *fiber.App, handler *handler.PostHandler) {
 		}
 		return handler.CreatePost(c)
 	})
-	postGroup.Put("/:id", middleware.TokenValidationMiddleware, handler.UpdatePost)
-	postGroup.Delete("/:id", middleware.TokenValidationMiddleware, handler.DeletePost)
+	postGroup.Put("/:id", middleware.TokenValidationMiddleware(jwtSecret), handler.UpdatePost)
+	postGroup.Delete("/:id", middleware.TokenValidationMiddleware(jwtSecret), handler.DeletePost)
 	postGroup.Get("/", handler.GetAllPosts)
 	postGroup.Get("/:id", handler.GetPostByID)
 }

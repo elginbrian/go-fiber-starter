@@ -55,7 +55,7 @@ func main() {
 	app.Use(logger.New())
 	app.Use(cors.New())
 
-	routes.SetupRoutes(app, container.UserHandler, container.AuthHandler, container.PostHandler)
+	routes.SetupRoutes(app, container.UserHandler, container.AuthHandler, container.PostHandler, jwtSecret)
 	app.Static("/uploads", "./public/uploads")
 
 	log.Printf("Server is running on port %s", serverPort)

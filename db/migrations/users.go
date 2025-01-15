@@ -11,11 +11,11 @@ CREATE TABLE IF NOT EXISTS users (
 );
 `
 const InsertUsersData = `
-INSERT INTO users (name, email, password_hash, created_at, updated_at)
+INSERT INTO IF NOT EXIST users (name, email, password_hash, created_at, updated_at)
 VALUES 
     ('John Doe', 'john.doe@example.com', '$2a$10$D1g0OZLqH1rO5Gp2f9D5Fq2tqJb1h0B0VJhgV9AqE6qL6q8XgXy8G', NOW(), NOW());
 
-INSERT INTO users (name, email, password_hash, created_at, updated_at)
+INSERT INTO IF NOT EXIST users (name, email, password_hash, created_at, updated_at)
 VALUES 
     ('Jane Smith', 'jane.smith@example.com', '$2a$10$E1g0OZLqH1rO5Gp2f9D5Fq2tqJb1h0B0VJhgV9AqE6qL6q8XgXy8G', NOW(), NOW());
 `

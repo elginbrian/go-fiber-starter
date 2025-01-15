@@ -52,7 +52,7 @@ definitions:
     - password
     - username
     type: object
-host: http://178.128.61.145:8084
+host: 178.128.61.145:8084
 info:
   contact:
     email: elginbrian49@student.ub.ac.id

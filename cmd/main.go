@@ -29,7 +29,7 @@ import (
 // @license.name MIT
 // @license.url https://opensource.org/licenses/MIT
 
-// @host http://178.128.61.145:8084
+// @host 178.128.61.145:8084
 // @BasePath /
 func main() {
 	serverPort := config.GetServerPort()

@@ -15,7 +15,7 @@
         },
         "version": "1.0"
     },
-    "host": "http://178.128.61.145:8084",
+    "host": "178.128.61.145:8084",
     "basePath": "/",
     "paths": {
         "/api/auth/login": {

@@ -95,7 +95,7 @@ func (h *PostHandler) GetPostByID(c *fiber.Ctx) error {
 // @Accept multipart/form-data
 // @Produce json
 // @Param caption formData string true "Caption"
-// @Param image formData file true "Post image"
+// @Param image formData file true "Post image"  
 // @Success 201 {object} PostResponse "Created post details"
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
@@ -108,19 +108,20 @@ func (h *PostHandler) CreatePost(c *fiber.Ctx) error {
 		return response.ValidationError(c, "Caption is required")
 	}
 
-	file, err := c.FormFile("file")
+	file, err := c.FormFile("image") 
 	if err != nil {
 		return response.Error(c, "Failed to upload image", fiber.StatusBadRequest)
 	}
 
-	if _, err := os.Stat("./public/uploads/"); os.IsNotExist(err) {
-		err := os.MkdirAll("./public/uploads/", os.ModePerm)
+	uploadDir := "./public/uploads/"
+	if _, err := os.Stat(uploadDir); os.IsNotExist(err) {
+		err := os.MkdirAll(uploadDir, os.ModePerm)
 		if err != nil {
 			return response.Error(c, "Failed to create upload directory", fiber.StatusInternalServerError)
 		}
 	}
 
-	savePath := "./public/uploads/" + file.Filename
+	savePath := uploadDir + file.Filename
 	if err := c.SaveFile(file, savePath); err != nil {
 		return response.Error(c, "Failed to save image", fiber.StatusInternalServerError)
 	}

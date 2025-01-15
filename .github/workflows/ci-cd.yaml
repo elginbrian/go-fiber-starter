@@ -66,7 +66,8 @@ jobs:
           port: ${{ secrets.SERVER_PORT }}
           script: |
             cd github/go-fiber-starter
-            git pull https://github.com/elginbrian/go-fiber-starter.git
+            git fetch origin
+            git reset --hard origin/main
             go mod vendor
             docker-compose down -v
             echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env

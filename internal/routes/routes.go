@@ -9,28 +9,25 @@ import (
 )
 
 func SetupRoutes(
-    app *fiber.App,
-    userHandler *handler.UserHandler,
-    authHandler *handler.AuthHandler,
-    postHandler *handler.PostHandler,
-    jwtSecret string,
+	app *fiber.App,
+	userHandler *handler.UserHandler,
+	authHandler *handler.AuthHandler,
+	postHandler *handler.PostHandler,
+	jwtSecret string,
 ) {
-    app.Get("/", redirectToDocs)  
-    app.Get("/api", redirectToDocs) 
-    app.Get("/docs", redirectToDocs)
-    app.Get("/docs/*", fiberSwagger.WrapHandler)
+	app.Get("/", redirectToDocs)
+	app.Get("/api", redirectToDocs)
+	app.Get("/docs", redirectToDocs)
+	app.Get("/docs/*", fiberSwagger.WrapHandler)
 
-    app.Static("/docs", "./docs")
-
-    setupUserRoutes(app, userHandler, jwtSecret)
-    setupAuthRoutes(app, authHandler)
-    setupPostRoutes(app, postHandler, jwtSecret)
+	setupUserRoutes(app, userHandler, jwtSecret)
+	setupAuthRoutes(app, authHandler)
+	setupPostRoutes(app, postHandler, jwtSecret)
 }
 
 func redirectToDocs(c *fiber.Ctx) error {
-    return c.Redirect("/docs")
+	return c.Redirect("/docs/index.html")
 }
-
 
 func setupUserRoutes(app *fiber.App, handler *handler.UserHandler, jwtSecret string) {
 	userGroup := app.Group("/api/users")

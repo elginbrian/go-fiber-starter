@@ -100,15 +100,18 @@ func (h *PostHandler) GetPostByID(c *fiber.Ctx) error {
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
 // @Router /api/posts [post]
-func (h *PostHandler) CreatePost(c *fiber.Ctx) error {
-	userID := c.Locals("userID").(int)
+func (h *PostHandler) CreatePost(c *fiber.Ctx) error { 
+	userID, ok := c.Locals("user_id").(int)
+	if !ok {
+		return response.ValidationError(c, "Invalid or missing user ID")
+	}
 
 	caption := c.FormValue("caption")
 	if caption == "" {
 		return response.ValidationError(c, "Caption is required")
 	}
 
-	file, err := c.FormFile("image") 
+	file, err := c.FormFile("image")
 	if err != nil {
 		return response.Error(c, "Failed to upload image", fiber.StatusBadRequest)
 	}

@@ -68,6 +68,6 @@ jobs:
             cd github/go-fiber-starter
             git pull https://github.com/elginbrian/go-fiber-starter.git
             go mod vendor
-            docker-compose down
+            docker-compose down -v
             echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
             docker-compose up --build -d

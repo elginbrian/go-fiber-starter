@@ -38,7 +38,7 @@ COPY wait-for-it.sh /wait-for-it.sh
 RUN chmod +x /wait-for-it.sh
 
 # Expose the port
-EXPOSE 3000
+EXPOSE 8080
 
 # Set the command to run the Go application with wait-for-it
 CMD ["/wait-for-it.sh", "db:5432", "--", "/app/fiber-starter"]

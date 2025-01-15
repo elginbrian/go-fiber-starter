@@ -1,8 +1,6 @@
 package config
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"log"
 	"os"
 )
@@ -21,15 +19,5 @@ func GetDatabaseURL() string {
 }
 
 func GetJWTSecret() string {
-	log.Println("Generating a random JWT secret.")
-	return generateRandomSecret(32) 
-}
-
-func generateRandomSecret(length int) string {
-	bytes := make([]byte, length)
-	_, err := rand.Read(bytes)
-	if err != nil {
-		log.Fatalf("Failed to generate random secret: %v", err)
-	}
-	return hex.EncodeToString(bytes)
+    return "my-very-secure-secret"
 }

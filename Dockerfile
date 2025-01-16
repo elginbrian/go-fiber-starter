@@ -1,4 +1,4 @@
-# Step 1: Build the Go application   
+# Step 1: Build the Go application    
 FROM golang:1.23-alpine as builder
 
 RUN apk add --no-cache git bash
@@ -18,9 +18,10 @@ COPY . .
 # Copy the migrations directory
 COPY db/migrations /app/db/migrations
 
-# Copy the public directory into the container
-COPY public /app/public
+# Ensure the public directory exists and copy it
+COPY public/ /app/public/
 
+# Copy the cmd directory into the container
 COPY cmd/index.html /app/cmd/index.html
 
 # Build the Go application

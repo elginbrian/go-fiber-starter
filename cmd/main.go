@@ -11,7 +11,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/gofiber/fiber/v2/middleware/proxy"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 
@@ -61,13 +60,9 @@ func main() {
 	app.Use(cors.New())
 
 	routes.SetupRoutes(app, container.UserHandler, container.AuthHandler, container.PostHandler, jwtSecret)
-	app.Static("/uploads", "./public/uploads")
 
-	app.All("/get-started/*", proxy.New(proxy.Config{
-		Servers: []string{
-			"http://localhost:3003",
-		},
-	}))
+	app.Static("/uploads", "./public/uploads")
+	app.Static("/get-started", "./cmd")
 
 	log.Printf("Server is running on port %s", serverPort)
 	if err := app.Listen(serverPort); err != nil {

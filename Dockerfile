@@ -1,12 +1,12 @@
-# Step 1: Build the Go application
+# Step 1: Build the Go application   
 FROM golang:1.23-alpine as builder
 
-RUN apk add --no-cache git bash npm
+RUN apk add --no-cache git bash
 
 WORKDIR /app
 
 # Copy Go modules and dependencies
-COPY go.mod go.sum ./
+COPY go.mod go.sum ./ 
 RUN go mod download
 
 # Copy vendor folder if you are using vendoring
@@ -18,27 +18,24 @@ COPY . .
 # Copy the migrations directory
 COPY db/migrations /app/db/migrations
 
+# Copy the public directory into the container
+COPY public /app/public
+
+COPY cmd/index.html /app/cmd/index.html
+
 # Build the Go application
 RUN go build -mod=vendor -o /app/fiber-starter ./cmd/main.go
 
-# Step 2: Build the VitePress site
-WORKDIR /app/get-started/docs
-RUN npm install
-RUN npm run build
-
-# Step 3: Create the final image
+# Step 2: Create the final image
 FROM alpine:latest
 
 WORKDIR /app
 
-# Install bash and dependencies for VitePress files (if needed)
+# Install bash
 RUN apk add --no-cache bash
 
 # Copy the Go executable from the builder stage
 COPY --from=builder /app/fiber-starter /app/fiber-starter
-
-# Copy the built VitePress static files from the builder stage
-COPY --from=builder /app/get-started/docs/.vitepress/dist /app/get-started/docs/.vitepress/dist
 
 # Copy the wait-for-it.sh script into the final image
 COPY wait-for-it.sh /wait-for-it.sh

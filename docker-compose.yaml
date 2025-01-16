@@ -17,6 +17,21 @@ services:
       sh -c "/wait-for-it.sh db:5432 -- ./fiber-starter"
     volumes:
       - ./public/uploads:/app/public/uploads
+      - ./cmd:/app/cmd
+
+  vp:
+    build:
+      context: ./get-started
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    networks:
+      - fiber-network
+    command: >
+      sh -c "npm run dev"
+    volumes:
+      - ./get-started:/app
+      - /app/node_modules
 
   db:
     image: postgres:15
@@ -33,20 +48,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
-  vp:
-    build:
-      context: .
-      dockerfile: Dockerfile.vitepress
-    ports:
-      - "3003:3000"
-    environment:
-      - NODE_ENV=development
-    networks:
-      - fiber-network
-    volumes:
-      - ./get-started:/app
-    command: npm run dev
 
 networks:
   fiber-network:

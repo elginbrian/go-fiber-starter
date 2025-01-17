@@ -205,12 +205,18 @@ func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
 // @Router /api/users/search [get]
 func (h *UserHandler) SearchUsers(c *fiber.Ctx) error {
     query := c.Query("query")
+
     if query == "" {
         return response.Error(c, "Query parameter is required", fiber.StatusBadRequest)
     }
+    
+    fmt.Println("Received search query:", query)
 
     users, err := h.userService.SearchUsers(query)
     if err != nil {
+        if err.Error() == "no users found" {
+            return response.Error(c, "No users found for the given search query", fiber.StatusNotFound)
+        }
         return response.Error(c, err.Error(), fiber.StatusInternalServerError)
     }
 

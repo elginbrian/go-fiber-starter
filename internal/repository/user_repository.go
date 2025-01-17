@@ -112,9 +112,9 @@ func (r *userRepository) DeleteUser(ctx context.Context, id int) error {
 }
 
 func (r *userRepository) SearchUsers(ctx context.Context, query string) ([]domain.User, error) {
-    rows, err := r.db.Query(ctx, 
-        "SELECT id, name, email, created_at, updated_at FROM users WHERE name ILIKE $1 OR email ILIKE $1", 
-        "%"+query+"%")
+	rows, err := r.db.Query(ctx, 
+		"SELECT id, name, email, created_at, updated_at FROM users WHERE LOWER(name) LIKE LOWER($1) OR LOWER(email) LIKE LOWER($1)", 
+		"%"+query+"%")	
     if err != nil {
         return nil, fmt.Errorf("error searching users: %w", err)
     }

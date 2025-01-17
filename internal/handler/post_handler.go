@@ -26,6 +26,7 @@ func NewPostHandler(service service.PostService) *PostHandler {
 // @Description Retrieves all posts, including the user who created them, the caption, image URL, and timestamps.
 // @Tags posts
 // @Produce json
+// @Success 200 {object} map[string]interface{} "Successful fetch posts response" example({"status": "success", "data": [{"id": 1, "user_id": 1, "caption": "A beautiful view of the fjords", "image_url": "https://www.w3schools.com/w3images/fjords.jpg", "created_at": "2025-01-17 06:23:03", "updated_at": "2025-01-17 06:23:03"}, {"id": 2, "user_id": 2, "caption": "The city lights at night", "image_url": "https://www.w3schools.com/w3images/lights.jpg", "created_at": "2025-01-17 06:23:03", "updated_at": "2025-01-17 06:23:03"}]})
 // @Router /api/posts [get]
 func (h *PostHandler) GetAllPosts(c *fiber.Ctx) error {
 	posts, err := h.postService.FetchAllPosts()
@@ -54,6 +55,7 @@ func (h *PostHandler) GetAllPosts(c *fiber.Ctx) error {
 // @Tags posts
 // @Produce json
 // @Param id path int true "Post ID"
+// @Success 200 {object} map[string]interface{} "Successful fetch post response" example({"status": "success", "data": {"id": 1, "user_id": 1, "caption": "A beautiful view of the fjords", "image_url": "https://www.w3schools.com/w3images/fjords.jpg", "created_at": "2025-01-17 06:23:03", "updated_at": "2025-01-17 06:23:03"}})
 // @Router /api/posts/{id} [get]
 func (h *PostHandler) GetPostByID(c *fiber.Ctx) error {
 	id := c.Params("id")

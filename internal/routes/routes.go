@@ -44,14 +44,7 @@ func setupAuthRoutes(app *fiber.App, handler *handler.AuthHandler) {
 
 func setupPostRoutes(app *fiber.App, handler *handler.PostHandler, jwtSecret string) {
 	postGroup := app.Group("/api/posts")
-	postGroup.Post("/", middleware.TokenValidationMiddleware(jwtSecret), func(c *fiber.Ctx) error {
-		if c.Accepts("multipart/form-data") == "" {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "Expected multipart/form-data",
-			})
-		}
-		return handler.CreatePost(c)
-	})
+	postGroup.Post("/", middleware.TokenValidationMiddleware(jwtSecret), handler.CreatePost)
 	postGroup.Put("/:id", middleware.TokenValidationMiddleware(jwtSecret), handler.UpdatePost)
 	postGroup.Delete("/:id", middleware.TokenValidationMiddleware(jwtSecret), handler.DeletePost)
 	postGroup.Get("/", handler.GetAllPosts)

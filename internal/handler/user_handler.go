@@ -145,7 +145,16 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
         return response.Error(c, "You are not authorized to update this user", fiber.StatusForbidden)
     }
 
-	var payload request.UpdateUserRequest
+    existingUser, err := h.userService.FetchUserByID(userID)
+    if err != nil {
+        return response.Error(c, fmt.Sprintf("Error fetching user: %v", err), fiber.StatusInternalServerError)
+    }
+
+	if existingUser.ID == 0 {
+        return response.Error(c, "User not found", fiber.StatusNotFound)
+    }
+
+    var payload request.UpdateUserRequest
 
     if err := c.BodyParser(&payload); err != nil {
         return response.ValidationError(c, "Invalid input, expected JSON with 'username'")
@@ -155,10 +164,14 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
         return response.ValidationError(c, "Username must be between 3 and 50 characters")
     }
 
-    updatedUser, err := h.userService.UpdateUser(userID, domain.User{
+    updatedUser := domain.User{
         ID:   userID,
         Name: payload.Username,
-    })
+		Email: existingUser.Email,
+		CreatedAt: existingUser.CreatedAt,
+    }
+
+    updatedUser, err = h.userService.UpdateUser(userID, updatedUser)
     if err != nil {
         return response.Error(c, fmt.Sprintf("Error updating user: %v", err), fiber.StatusInternalServerError)
     }

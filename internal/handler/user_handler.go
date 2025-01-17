@@ -202,7 +202,7 @@ func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
 // @Success 200 {array} domain.UserResponse "Successful search response"
 // @Failure 400 {object} response.ErrorResponse "Bad request"
 // @Failure 500 {object} response.ErrorResponse "Internal server error"
-// @Router /api/users/search [get]
+// @Router /api/search/users [get]
 func (h *UserHandler) SearchUsers(c *fiber.Ctx) error {
     query := c.Query("query")
 

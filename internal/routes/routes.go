@@ -19,13 +19,20 @@ func SetupRoutes(
 	app.Get("/docs", redirectToDocs)
 	app.Get("/docs/*", fiberSwagger.WrapHandler)
 
+
 	setupUserRoutes(app, userHandler, jwtSecret)
 	setupAuthRoutes(app, authHandler, jwtSecret)
 	setupPostRoutes(app, postHandler, jwtSecret)
+	setupSearchRoutes(app, userHandler)
 }
 
 func redirectToDocs(c *fiber.Ctx) error {
 	return c.Redirect("/docs/index.html")
+}
+
+func setupSearchRoutes(app *fiber.App, handler *handler.UserHandler){
+	searchGroup := app.Group("/api/search")
+	searchGroup.Get("/users", handler.SearchUsers)
 }
 
 func setupUserRoutes(app *fiber.App, handler *handler.UserHandler, jwtSecret string) { 
@@ -33,7 +40,6 @@ func setupUserRoutes(app *fiber.App, handler *handler.UserHandler, jwtSecret str
     userGroup.Put("/:id", middleware.TokenValidationMiddleware(jwtSecret), handler.UpdateUser)
     userGroup.Get("/", handler.GetAllUsers)
     userGroup.Get("/:id", handler.GetUserByID)
-    userGroup.Get("/search", handler.SearchUsers)
 }
 
 func setupAuthRoutes(app *fiber.App, handler *handler.AuthHandler, jwtSecret string) {

@@ -425,39 +425,7 @@
                 }
             }
         },
-        "/api/users": {
-            "get": {
-                "description": "Fetches all user records from the database and returns them with timestamps for creation and update.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "users"
-                ],
-                "summary": "Retrieve a list of all users",
-                "responses": {
-                    "200": {
-                        "description": "Successful fetch users response",
-                        "schema": {
-                            "$ref": "#/definitions/response.GetAllUsersResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/users/search": {
+        "/api/search/users": {
             "get": {
                 "description": "Retrieves users that match the given search query in name or email.",
                 "produces": [
@@ -484,6 +452,38 @@
                             "items": {
                                 "$ref": "#/definitions/domain.UserResponse"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users": {
+            "get": {
+                "description": "Fetches all user records from the database and returns them with timestamps for creation and update.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Retrieve a list of all users",
+                "responses": {
+                    "200": {
+                        "description": "Successful fetch users response",
+                        "schema": {
+                            "$ref": "#/definitions/response.GetAllUsersResponse"
                         }
                     },
                     "400": {

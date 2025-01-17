@@ -76,7 +76,7 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	}
 
 	return response.Success(c, response.LoginData{
-		Token: token,
+		Token: "Bearer " + token,
 	})
 }
 
@@ -104,11 +104,7 @@ func (h *AuthHandler) ChangePassword(c *fiber.Ctx) error {
 	}
 
 	userID, ok := c.Locals("user_id").(int)
-	if !ok {
-		return response.ValidationError(c, "Invalid or missing user ID")
-	}
-
-	if userID == 0 {
+	if !ok || userID == 0 {
 		return response.Error(c.Status(fiber.StatusUnauthorized), "Unauthorized")
 	}
 

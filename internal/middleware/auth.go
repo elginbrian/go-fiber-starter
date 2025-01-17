@@ -26,7 +26,7 @@ func TokenValidationMiddleware(secret string) fiber.Handler {
 		tokenString := parts[1]
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, errors.New("unexpected signing method")
+				return nil, errors.New("unexpected signing method, expected HMAC")
 			}
 			return []byte(secret), nil
 		})
@@ -42,7 +42,7 @@ func TokenValidationMiddleware(secret string) fiber.Handler {
 		}
 
 		if exp, ok := claims["exp"].(float64); ok {
-			if time.Unix(int64(exp), 0).Before(time.Now()) {
+			if time.Unix(int64(exp), 0).Before(time.Now().Add(-time.Minute)) {
 				return response.Error(c, "Token has expired", fiber.StatusUnauthorized)
 			}
 		} else {

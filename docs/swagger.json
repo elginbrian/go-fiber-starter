@@ -38,7 +38,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.UserLoginRequest"
+                            "$ref": "#/definitions/request.UserLoginRequest"
                         }
                     }
                 ],
@@ -84,7 +84,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.UserRegistrationRequest"
+                            "$ref": "#/definitions/request.UserRegistrationRequest"
                         }
                     }
                 ],
@@ -241,7 +241,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Updates the details of a post (caption and/or image). Only the creator of the post is allowed to update it.",
+                "description": "Updates only the caption of a post. Only the creator of the post is allowed to update it.",
                 "consumes": [
                     "application/json"
                 ],
@@ -251,7 +251,7 @@
                 "tags": [
                     "posts"
                 ],
-                "summary": "Update an existing post",
+                "summary": "Update the caption of an existing post",
                 "parameters": [
                     {
                         "type": "integer",
@@ -261,16 +261,22 @@
                         "required": true
                     },
                     {
-                        "description": "Updated post details",
-                        "name": "post",
+                        "description": "New caption",
+                        "name": "caption",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.Post"
+                            "type": "string"
                         }
                     }
                 ],
                 "responses": {
+                    "200": {
+                        "description": "Successful update response",
+                        "schema": {
+                            "$ref": "#/definitions/response.UpdatePostResponse"
+                        }
+                    },
                     "400": {
                         "description": "Bad request",
                         "schema": {
@@ -399,7 +405,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Accepts the user ID as a path parameter, along with updated user data in the request body, and updates the user record in the database. Returns the updated user's details with timestamps.",
+                "description": "Updates the user's account details. Users can only modify their own account.",
                 "consumes": [
                     "application/json"
                 ],
@@ -449,7 +455,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Accepts the user ID as a path parameter and deletes the user record from the database. Returns a success message upon deletion.",
+                "description": "Deletes the user's own account. Users can only delete their own account.",
                 "tags": [
                     "users"
                 ],
@@ -476,6 +482,12 @@
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
@@ -487,29 +499,6 @@
         }
     },
     "definitions": {
-        "domain.Post": {
-            "type": "object",
-            "properties": {
-                "caption": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "image_url": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
         "domain.User": {
             "type": "object",
             "properties": {
@@ -530,7 +519,7 @@
                 }
             }
         },
-        "domain.UserLoginRequest": {
+        "request.UserLoginRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -545,7 +534,7 @@
                 }
             }
         },
-        "domain.UserRegistrationRequest": {
+        "request.UserRegistrationRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -703,6 +692,17 @@
             "properties": {
                 "data": {
                     "$ref": "#/definitions/response.RegisterData"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.UpdatePostResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/response.Post"
                 },
                 "status": {
                     "type": "string"

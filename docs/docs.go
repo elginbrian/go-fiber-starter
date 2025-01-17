@@ -44,7 +44,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.UserLoginRequest"
+                            "$ref": "#/definitions/request.UserLoginRequest"
                         }
                     }
                 ],
@@ -90,7 +90,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.UserRegistrationRequest"
+                            "$ref": "#/definitions/request.UserRegistrationRequest"
                         }
                     }
                 ],
@@ -247,7 +247,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Updates the details of a post (caption and/or image). Only the creator of the post is allowed to update it.",
+                "description": "Updates only the caption of a post. Only the creator of the post is allowed to update it.",
                 "consumes": [
                     "application/json"
                 ],
@@ -257,7 +257,7 @@ const docTemplate = `{
                 "tags": [
                     "posts"
                 ],
-                "summary": "Update an existing post",
+                "summary": "Update the caption of an existing post",
                 "parameters": [
                     {
                         "type": "integer",
@@ -267,16 +267,22 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Updated post details",
-                        "name": "post",
+                        "description": "New caption",
+                        "name": "caption",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.Post"
+                            "type": "string"
                         }
                     }
                 ],
                 "responses": {
+                    "200": {
+                        "description": "Successful update response",
+                        "schema": {
+                            "$ref": "#/definitions/response.UpdatePostResponse"
+                        }
+                    },
                     "400": {
                         "description": "Bad request",
                         "schema": {
@@ -405,7 +411,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Accepts the user ID as a path parameter, along with updated user data in the request body, and updates the user record in the database. Returns the updated user's details with timestamps.",
+                "description": "Updates the user's account details. Users can only modify their own account.",
                 "consumes": [
                     "application/json"
                 ],
@@ -455,7 +461,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Accepts the user ID as a path parameter and deletes the user record from the database. Returns a success message upon deletion.",
+                "description": "Deletes the user's own account. Users can only delete their own account.",
                 "tags": [
                     "users"
                 ],
@@ -482,6 +488,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
@@ -493,29 +505,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "domain.Post": {
-            "type": "object",
-            "properties": {
-                "caption": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "image_url": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
         "domain.User": {
             "type": "object",
             "properties": {
@@ -536,7 +525,7 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.UserLoginRequest": {
+        "request.UserLoginRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -551,7 +540,7 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.UserRegistrationRequest": {
+        "request.UserRegistrationRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -709,6 +698,17 @@ const docTemplate = `{
             "properties": {
                 "data": {
                     "$ref": "#/definitions/response.RegisterData"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.UpdatePostResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/response.Post"
                 },
                 "status": {
                     "type": "string"

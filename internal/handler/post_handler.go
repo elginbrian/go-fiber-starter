@@ -158,49 +158,62 @@ func sanitizeFileName(fileName string) string {
 }
 
 // UpdatePost godoc
-// @Summary Update an existing post
-// @Description Updates the details of a post (caption and/or image). Only the creator of the post is allowed to update it.
+// @Summary Update the caption of an existing post
+// @Description Updates only the caption of a post. Only the creator of the post is allowed to update it.
 // @Tags posts
 // @Accept json
 // @Produce json
 // @Param id path int true "Post ID"
-// @Param post body domain.Post true "Updated post details"
+// @Param caption body string true "New caption"
 // @Security BearerAuth
+// @Success 200 {object} response.UpdatePostResponse "Successful update response"
 // @Failure 400 {object} response.ErrorResponse "Bad request"
 // @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /api/posts/{id} [put]
 func (h *PostHandler) UpdatePost(c *fiber.Ctx) error {
-	userID := c.Locals("user_id").(int)
+    userID := c.Locals("user_id").(int)
 
-	id := c.Params("id")
-	postID, err := strconv.Atoi(id)
-	if err != nil {
-		return response.Error(c, "Invalid post ID", fiber.StatusBadRequest)
-	}
+    id := c.Params("id")
+    postID, err := strconv.Atoi(id)
+    if err != nil {
+        return response.Error(c, "Invalid post ID", fiber.StatusBadRequest)
+    }
 
-	var post domain.Post
-	if err := c.BodyParser(&post); err != nil {
-		return response.ValidationError(c, "Invalid input")
-	}
+    existingPost, err := h.postService.FetchPostByID(postID)
+    if err != nil {
+        return response.Error(c, "Post not found", fiber.StatusNotFound)
+    }
 
-	if post.UserID != userID {
-		return response.Error(c, "Unauthorized to update this post", fiber.StatusUnauthorized)
-	}
+    if existingPost.UserID != userID {
+        return response.Error(c, "Unauthorized to update this post", fiber.StatusUnauthorized)
+    }
 
-	updatedPost, err := h.postService.UpdatePost(postID, post)
-	if err != nil {
-		return response.Error(c, "Post not found", fiber.StatusNotFound)
-	}
+    var input struct {
+        Caption string `json:"caption"`
+    }
+    if err := c.BodyParser(&input); err != nil {
+        return response.ValidationError(c, "Invalid input")
+    }
 
-	postResponse := domain.PostResponse{
-		ID:        updatedPost.ID,
-		UserID:    updatedPost.UserID,
-		Caption:   updatedPost.Caption,
-		ImageURL:  updatedPost.ImageURL,
-		CreatedAt: updatedPost.CreatedAt.Format("2006-01-02 15:04:05"),
-		UpdatedAt: updatedPost.UpdatedAt.Format("2006-01-02 15:04:05"),
-	}
-	return response.Success(c, postResponse)
+    if input.Caption == "" {
+        return response.ValidationError(c, "Caption cannot be empty")
+    }
+
+    existingPost.Caption = input.Caption
+    updatedPost, err := h.postService.UpdatePost(postID, existingPost)
+    if err != nil {
+        return response.Error(c, "Failed to update post", fiber.StatusInternalServerError)
+    }
+
+    postResponse := domain.PostResponse{
+        ID:        updatedPost.ID,
+        UserID:    updatedPost.UserID,
+        Caption:   updatedPost.Caption,
+        ImageURL:  updatedPost.ImageURL,
+        CreatedAt: updatedPost.CreatedAt.Format("2006-01-02 15:04:05"),
+        UpdatedAt: updatedPost.UpdatedAt.Format("2006-01-02 15:04:05"),
+    }
+    return response.Success(c, postResponse, fiber.StatusOK)
 }
 
 // DeletePost godoc

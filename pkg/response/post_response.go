@@ -17,6 +17,20 @@ type CreatePostResponse struct {
 	Data   Post   `json:"data"`
 }
 
+type UpdatePostResponse struct {
+	Status string `json:"status"`
+	Data   Post   `json:"data"`
+}
+
+type DeletePostResponse struct {
+	Status string       `json:"status"`
+	Data   RegisterData `json:"data"`
+}
+
+type DeletePostData struct {
+	Message string `json:"message"`
+}
+
 type Post struct {
 	ID        int       `json:"id"`
 	UserID    int       `json:"user_id"`

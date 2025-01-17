@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"fiber-starter/internal/domain"
 	"fiber-starter/internal/service"
+	"fiber-starter/pkg/request"
 	"fiber-starter/pkg/response"
 
 	"github.com/go-playground/validator/v10"
@@ -22,13 +22,13 @@ func NewAuthHandler(authService service.AuthService) *AuthHandler {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param request body domain.UserRegistrationRequest true "User registration details"
+// @Param request body request.UserRegistrationRequest true "User registration details"
 // @Success 201 {object} response.RegisterResponse "Successful registration response"
 // @Failure 400 {object} response.ErrorResponse "Bad request"
 // @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /api/auth/register [post]
 func (h *AuthHandler) Register(c *fiber.Ctx) error {
-	var req domain.UserRegistrationRequest
+	var req request.UserRegistrationRequest
 
 	if err := c.BodyParser(&req); err != nil {
 		return response.ValidationError(c, "Invalid request format")
@@ -43,7 +43,7 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 		return response.Error(c, err.Error())
 	}
 
-	return response.Success(c.Status(fiber.StatusCreated), domain.UserRegistrationResponse{
+	return response.Success(c.Status(fiber.StatusCreated), response.RegisterData{
 		Message: "User registered successfully",
 	})
 }
@@ -53,13 +53,13 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param request body domain.UserLoginRequest true "User login details"
+// @Param request body request.UserLoginRequest true "User login details"
 // @Success 201 {object} response.LoginResponse "Successful registration response"
 // @Failure 400 {object} response.ErrorResponse "Bad request"
 // @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /api/auth/login [post]
 func (h *AuthHandler) Login(c *fiber.Ctx) error {
-	var req domain.UserLoginRequest
+	var req request.UserLoginRequest
 
 	if err := c.BodyParser(&req); err != nil {
 		return response.ValidationError(c, "Invalid request format")
@@ -75,7 +75,7 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 		return response.Error(c.Status(fiber.StatusUnauthorized), err.Error())
 	}
 
-	return response.Success(c, domain.UserLoginResponse{
+	return response.Success(c, response.LoginData{
 		Token: token,
 	})
 }

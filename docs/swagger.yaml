@@ -1,20 +1,5 @@
 basePath: /
 definitions:
-  domain.Post:
-    properties:
-      caption:
-        type: string
-      created_at:
-        type: string
-      id:
-        type: integer
-      image_url:
-        type: string
-      updated_at:
-        type: string
-      user_id:
-        type: integer
-    type: object
   domain.User:
     properties:
       created:
@@ -28,7 +13,7 @@ definitions:
       updated:
         type: string
     type: object
-  domain.UserLoginRequest:
+  request.UserLoginRequest:
     properties:
       email:
         type: string
@@ -38,7 +23,7 @@ definitions:
     - email
     - password
     type: object
-  domain.UserRegistrationRequest:
+  request.UserRegistrationRequest:
     properties:
       email:
         type: string
@@ -144,6 +129,13 @@ definitions:
       status:
         type: string
     type: object
+  response.UpdatePostResponse:
+    properties:
+      data:
+        $ref: '#/definitions/response.Post'
+      status:
+        type: string
+    type: object
   response.User:
     properties:
       created_at:
@@ -187,7 +179,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/domain.UserLoginRequest'
+          $ref: '#/definitions/request.UserLoginRequest'
       produces:
       - application/json
       responses:
@@ -219,7 +211,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/domain.UserRegistrationRequest'
+          $ref: '#/definitions/request.UserRegistrationRequest'
       produces:
       - application/json
       responses:
@@ -350,23 +342,27 @@ paths:
     put:
       consumes:
       - application/json
-      description: Updates the details of a post (caption and/or image). Only the
-        creator of the post is allowed to update it.
+      description: Updates only the caption of a post. Only the creator of the post
+        is allowed to update it.
       parameters:
       - description: Post ID
         in: path
         name: id
         required: true
         type: integer
-      - description: Updated post details
+      - description: New caption
         in: body
-        name: post
+        name: caption
         required: true
         schema:
-          $ref: '#/definitions/domain.Post'
+          type: string
       produces:
       - application/json
       responses:
+        "200":
+          description: Successful update response
+          schema:
+            $ref: '#/definitions/response.UpdatePostResponse'
         "400":
           description: Bad request
           schema:
@@ -377,7 +373,7 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Update an existing post
+      summary: Update the caption of an existing post
       tags:
       - posts
   /api/users:
@@ -404,8 +400,8 @@ paths:
       - users
   /api/users/{id}:
     delete:
-      description: Accepts the user ID as a path parameter and deletes the user record
-        from the database. Returns a success message upon deletion.
+      description: Deletes the user's own account. Users can only delete their own
+        account.
       parameters:
       - description: User ID
         in: path
@@ -419,6 +415,10 @@ paths:
             $ref: '#/definitions/response.DeleteUserResponse'
         "400":
           description: Bad request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "500":
@@ -460,9 +460,8 @@ paths:
     put:
       consumes:
       - application/json
-      description: Accepts the user ID as a path parameter, along with updated user
-        data in the request body, and updates the user record in the database. Returns
-        the updated user's details with timestamps.
+      description: Updates the user's account details. Users can only modify their
+        own account.
       parameters:
       - description: User ID
         in: path

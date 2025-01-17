@@ -12,6 +12,11 @@ type GetUserByIDResponse struct {
 	Data   User   `json:"data"`
 }
 
+type UpdateUserResponse struct {
+	Status string `json:"status"`
+	Data   User   `json:"data"`
+}
+
 type DeleteUserResponse struct {
 	Status string `json:"status"`
 	Data   string `json:"data"`

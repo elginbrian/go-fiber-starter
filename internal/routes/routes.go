@@ -23,16 +23,17 @@ func SetupRoutes(
 	setupUserRoutes(app, userHandler, jwtSecret)
 	setupAuthRoutes(app, authHandler, jwtSecret)
 	setupPostRoutes(app, postHandler, jwtSecret)
-	setupSearchRoutes(app, userHandler)
+	setupSearchRoutes(app, userHandler, postHandler)
 }
 
 func redirectToDocs(c *fiber.Ctx) error {
 	return c.Redirect("/docs/index.html")
 }
 
-func setupSearchRoutes(app *fiber.App, handler *handler.UserHandler){
+func setupSearchRoutes(app *fiber.App, userHandler *handler.UserHandler, postHandler *handler.PostHandler) {
 	searchGroup := app.Group("/api/search")
-	searchGroup.Get("/users", handler.SearchUsers)
+	searchGroup.Get("/users", userHandler.SearchUsers)
+	searchGroup.Get("/posts", postHandler.SearchPosts)
 }
 
 func setupUserRoutes(app *fiber.App, handler *handler.UserHandler, jwtSecret string) { 
@@ -46,7 +47,7 @@ func setupAuthRoutes(app *fiber.App, handler *handler.AuthHandler, jwtSecret str
 	authGroup := app.Group("/api/auth")
 	authGroup.Post("/register", handler.Register)
 	authGroup.Post("/login", handler.Login)
-	authGroup.Get("/me", handler.GetUserInfo, middleware.TokenValidationMiddleware(jwtSecret))
+	authGroup.Get("/current-user", handler.GetUserInfo, middleware.TokenValidationMiddleware(jwtSecret))
 	// authGroup.Post("/change-password", handler.ChangePassword, middleware.TokenValidationMiddleware(jwtSecret))
 }
 

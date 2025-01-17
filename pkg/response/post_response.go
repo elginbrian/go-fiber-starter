@@ -7,6 +7,11 @@ type GetAllPostsResponse struct {
 	Data   []Post `json:"data"`
 }
 
+type SearchPostsResponse struct {
+	Status string `json:"status"`
+	Data   []Post `json:"data"`
+}
+
 type GetPostByIDResponse struct {
 	Status string `json:"status"`
 	Data   Post   `json:"data"`

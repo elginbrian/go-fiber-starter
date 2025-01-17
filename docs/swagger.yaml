@@ -13,20 +13,6 @@ definitions:
       username:
         type: string
     type: object
-  request.ChangePasswordRequest:
-    properties:
-      new_password:
-        minLength: 6
-        type: string
-      old_password:
-        minLength: 6
-        type: string
-      user_id:
-        type: string
-    required:
-    - new_password
-    - old_password
-    type: object
   request.UpdatePostRequest:
     properties:
       caption:
@@ -67,13 +53,6 @@ definitions:
     - email
     - password
     - username
-    type: object
-  response.ChangePasswordResponse:
-    properties:
-      data:
-        $ref: '#/definitions/response.RegisterData'
-      status:
-        type: string
     type: object
   response.CreatePostResponse:
     properties:
@@ -174,6 +153,15 @@ definitions:
       status:
         type: string
     type: object
+  response.SearchPostsResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/response.Post'
+        type: array
+      status:
+        type: string
+    type: object
   response.UpdatePostResponse:
     properties:
       data:
@@ -218,29 +206,21 @@ info:
   title: Fiber Starter API
   version: "1.0"
 paths:
-  /api/auth/change-password:
-    post:
+  /api/auth/current-user:
+    get:
       consumes:
       - application/json
-      description: This endpoint allows a user to change their password by providing
-        their old password, new password, and user ID. The request requires authentication
-        via a JWT token.
-      parameters:
-      - description: User change password details
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/request.ChangePasswordRequest'
+      description: This endpoint retrieves the details of the authenticated user using
+        the JWT token provided in the Authorization header.
       produces:
       - application/json
       responses:
         "200":
-          description: Password changed successfully
+          description: User information retrieved successfully
           schema:
-            $ref: '#/definitions/response.ChangePasswordResponse'
-        "400":
-          description: Bad request
+            $ref: '#/definitions/response.GetCurrentUserResponse'
+        "401":
+          description: Unauthorized or invalid token
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "500":
@@ -249,7 +229,7 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Changes a user's password
+      summary: Retrieves information about the currently logged-in user
       tags:
       - auth
   /api/auth/login:
@@ -282,32 +262,6 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrorResponse'
       summary: Logs in an existing user
-      tags:
-      - auth
-  /api/auth/me:
-    get:
-      consumes:
-      - application/json
-      description: This endpoint retrieves the details of the authenticated user using
-        the JWT token provided in the Authorization header.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: User information retrieved successfully
-          schema:
-            $ref: '#/definitions/response.GetCurrentUserResponse'
-        "401":
-          description: Unauthorized or invalid token
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Retrieves information about the currently logged-in user
       tags:
       - auth
   /api/auth/register:
@@ -518,6 +472,31 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrorResponse'
       summary: Get all posts by a specific user
+      tags:
+      - posts
+  /api/search/posts:
+    get:
+      description: Retrieves posts that match the search query.
+      parameters:
+      - description: Search query
+        in: query
+        name: query
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful search response
+          schema:
+            items:
+              $ref: '#/definitions/response.SearchPostsResponse'
+            type: array
+        "400":
+          description: Invalid query parameter
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Search posts by title or content
       tags:
       - posts
   /api/search/users:

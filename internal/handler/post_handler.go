@@ -292,3 +292,39 @@ func (h *PostHandler) DeletePost(c *fiber.Ctx) error {
 	}
 	return response.Success(c, fiber.Map{"message": "Post deleted successfully"}, fiber.StatusNoContent)
 }
+
+// SearchPosts godoc
+// @Summary Search posts by title or content
+// @Description Retrieves posts that match the search query.
+// @Tags posts
+// @Produce json
+// @Param query query string true "Search query"
+// @Success 200 {array} response.SearchPostsResponse "Successful search response"
+// @Failure 400 {object} response.ErrorResponse "Invalid query parameter"
+// @Router /api/search/posts [get]
+func (h *PostHandler) SearchPosts(c *fiber.Ctx) error {
+	query := c.Query("query")
+
+	if query == "" {
+		return response.Error(c, "Query parameter is required", fiber.StatusBadRequest)
+	}
+
+	posts, err := h.postService.SearchPosts(query)
+	if err != nil {
+		return response.Error(c, "No posts found", fiber.StatusNotFound)
+	}
+
+	var postResponses []domain.PostResponse
+	for _, post := range posts {
+		postResponses = append(postResponses, domain.PostResponse{
+			ID:        post.ID,
+			UserID:    post.UserID,
+			Caption:   post.Caption,
+			ImageURL:  post.ImageURL,
+			CreatedAt: post.CreatedAt.Format("2006-01-02 15:04:05"),
+			UpdatedAt: post.UpdatedAt.Format("2006-01-02 15:04:05"),
+		})
+	}
+
+	return response.Success(c, postResponses)
+}

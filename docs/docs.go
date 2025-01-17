@@ -24,14 +24,14 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/auth/change-password": {
-            "post": {
+        "/api/auth/current-user": {
+            "get": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "This endpoint allows a user to change their password by providing their old password, new password, and user ID. The request requires authentication via a JWT token.",
+                "description": "This endpoint retrieves the details of the authenticated user using the JWT token provided in the Authorization header.",
                 "consumes": [
                     "application/json"
                 ],
@@ -41,27 +41,16 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Changes a user's password",
-                "parameters": [
-                    {
-                        "description": "User change password details",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.ChangePasswordRequest"
-                        }
-                    }
-                ],
+                "summary": "Retrieves information about the currently logged-in user",
                 "responses": {
                     "200": {
-                        "description": "Password changed successfully",
+                        "description": "User information retrieved successfully",
                         "schema": {
-                            "$ref": "#/definitions/response.ChangePasswordResponse"
+                            "$ref": "#/definitions/response.GetCurrentUserResponse"
                         }
                     },
-                    "400": {
-                        "description": "Bad request",
+                    "401": {
+                        "description": "Unauthorized or invalid token",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
@@ -108,46 +97,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad request",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/auth/me": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "This endpoint retrieves the details of the authenticated user using the JWT token provided in the Authorization header.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Retrieves information about the currently logged-in user",
-                "responses": {
-                    "200": {
-                        "description": "User information retrieved successfully",
-                        "schema": {
-                            "$ref": "#/definitions/response.GetCurrentUserResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized or invalid token",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
@@ -471,6 +420,44 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/search/posts": {
+            "get": {
+                "description": "Retrieves posts that match the search query.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "posts"
+                ],
+                "summary": "Search posts by title or content",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search query",
+                        "name": "query",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful search response",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.SearchPostsResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid query parameter",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/search/users": {
             "get": {
                 "description": "Retrieves users that match the given search query in name or email.",
@@ -666,26 +653,6 @@ const docTemplate = `{
                 }
             }
         },
-        "request.ChangePasswordRequest": {
-            "type": "object",
-            "required": [
-                "new_password",
-                "old_password"
-            ],
-            "properties": {
-                "new_password": {
-                    "type": "string",
-                    "minLength": 6
-                },
-                "old_password": {
-                    "type": "string",
-                    "minLength": 6
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
         "request.UpdatePostRequest": {
             "type": "object",
             "required": [
@@ -742,17 +709,6 @@ const docTemplate = `{
                     "minLength": 6
                 },
                 "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "response.ChangePasswordResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "$ref": "#/definitions/response.RegisterData"
-                },
-                "status": {
                     "type": "string"
                 }
             }
@@ -906,6 +862,20 @@ const docTemplate = `{
             "properties": {
                 "data": {
                     "$ref": "#/definitions/response.RegisterData"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.SearchPostsResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.Post"
+                    }
                 },
                 "status": {
                     "type": "string"

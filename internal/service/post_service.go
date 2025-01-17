@@ -13,6 +13,7 @@ type PostService interface {
 	CreatePost(post domain.Post) (domain.Post, error)
 	UpdatePost(id int, post domain.Post) (domain.Post, error)
 	DeletePost(id int) error
+	SearchPosts(query string) ([]domain.Post, error)
 }
 
 type postService struct {
@@ -83,4 +84,16 @@ func (s *postService) DeletePost(id int) error {
 		return err
 	}
 	return nil
+}
+
+func (s *postService) SearchPosts(query string) ([]domain.Post, error) {
+	ctx := context.Background()
+	posts, err := s.postRepo.SearchPosts(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	if len(posts) == 0 {
+		return nil, domain.ErrNotFound 
+	}
+	return posts, nil
 }

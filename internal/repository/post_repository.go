@@ -17,6 +17,7 @@ type PostRepository interface {
 	CreatePost(ctx context.Context, post domain.Post) (*domain.Post, error)
 	UpdatePost(ctx context.Context, postID int, post domain.Post) (*domain.Post, error)
 	DeletePost(ctx context.Context, postID int) error
+	SearchPosts(ctx context.Context, query string) ([]domain.Post, error)
 }
 
 type postRepository struct {
@@ -124,4 +125,36 @@ func (r *postRepository) DeletePost(ctx context.Context, postID int) error {
 		return pgx.ErrNoRows
 	}
 	return nil
+}
+
+func (r *postRepository) SearchPosts(ctx context.Context, query string) ([]domain.Post, error) {
+	queryText := `
+		SELECT id, user_id, caption, image_url, created_at, updated_at 
+		FROM posts 
+		WHERE LOWER(caption) LIKE LOWER($1) OR LOWER(image_url) LIKE LOWER($1)
+	`
+	rows, err := r.db.Query(ctx, queryText, "%"+query+"%")
+	if err != nil {
+		return nil, fmt.Errorf("error searching posts: %w", err)
+	}
+	defer rows.Close()
+
+	var posts []domain.Post
+	for rows.Next() {
+		var post domain.Post
+		if err := rows.Scan(&post.ID, &post.UserID, &post.Caption, &post.ImageURL, &post.CreatedAt, &post.UpdatedAt); err != nil {
+			return nil, fmt.Errorf("error scanning post row: %w", err)
+		}
+		posts = append(posts, post)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating over rows: %w", err)
+	}
+
+	if len(posts) == 0 {
+		return nil, fmt.Errorf("no posts found matching query: %s", query)
+	}
+
+	return posts, nil
 }

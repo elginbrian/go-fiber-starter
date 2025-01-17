@@ -89,7 +89,7 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 // @Success 200 {object} response.GetCurrentUserResponse "User information retrieved successfully"
 // @Failure 401 {object} response.ErrorResponse "Unauthorized or invalid token"
 // @Failure 500 {object} response.ErrorResponse "Internal server error"
-// @Router /api/auth/me [get]
+// @Router /api/auth/current-user [get]
 func (h *AuthHandler) GetUserInfo(c *fiber.Ctx) error {
     authHeader := c.Get("Authorization")
     if authHeader == "" || len(authHeader) <= len("Bearer ") {
@@ -113,17 +113,6 @@ func (h *AuthHandler) GetUserInfo(c *fiber.Ctx) error {
     })
 }
 
-// @Summary Changes a user's password 
-// @Description This endpoint allows a user to change their password by providing their old password, new password, and user ID. The request requires authentication via a JWT token.
-// @Tags auth
-// @Accept json
-// @Produce json
-// @Param request body request.ChangePasswordRequest true "User change password details"
-// @Security BearerAuth
-// @Success 200 {object} response.ChangePasswordResponse "Password changed successfully"
-// @Failure 400 {object} response.ErrorResponse "Bad request"
-// @Failure 500 {object} response.ErrorResponse "Internal server error"
-// @Router /api/auth/change-password [post]
 func (h *AuthHandler) ChangePassword(c *fiber.Ctx) error {
 	var req request.ChangePasswordRequest
 

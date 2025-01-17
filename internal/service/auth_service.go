@@ -14,7 +14,7 @@ import (
 type AuthService interface {
 	Register(username, email, password string) error
 	Login(email, password string) (string, error)
-	ChangePassword(userID int, oldPassword, newPassword string) error
+	ChangePassword(userID string, oldPassword, newPassword string) error
 }
 
 type authService struct {
@@ -72,7 +72,7 @@ func (s *authService) Login(email, password string) (string, error) {
 	return token, nil
 }
 
-func (s *authService) ChangePassword(userID int, oldPassword, newPassword string) error {
+func (s *authService) ChangePassword(userID string, oldPassword, newPassword string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -98,7 +98,7 @@ func (s *authService) ChangePassword(userID int, oldPassword, newPassword string
 	return nil
 }
 
-func GenerateJWT(userID int, secret string) (string, error) {
+func GenerateJWT(userID string, secret string) (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour)
 	claims := jwt.MapClaims{
 		"user_id": userID,

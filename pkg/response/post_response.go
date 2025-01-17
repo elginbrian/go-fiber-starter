@@ -32,8 +32,8 @@ type DeletePostData struct {
 }
 
 type Post struct {
-	ID        int       `json:"id"`
-	UserID    int       `json:"user_id"`
+	ID        string       `json:"id"`
+	UserID    string     `json:"user_id"`
 	Caption   string    `json:"caption"`
 	ImageURL  string    `json:"image_url"`
 	CreatedAt time.Time `json:"created_at"`

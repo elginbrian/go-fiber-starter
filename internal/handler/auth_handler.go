@@ -103,13 +103,13 @@ func (h *AuthHandler) ChangePassword(c *fiber.Ctx) error {
 		return response.ValidationError(c, validationErrs.Error())
 	}
 
-	if req.UserID == 0 {
+	if req.UserID == "" {
 		return response.ValidationError(c, "User ID is required")
 	}
 
 	userID := req.UserID
 
-	if userID != c.Locals("user_id").(int) {
+	if userID != c.Locals("user_id").(string) {
 		return response.Error(c.Status(fiber.StatusUnauthorized), "Unauthorized to change this password")
 	}
 

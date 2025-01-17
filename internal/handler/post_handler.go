@@ -57,7 +57,7 @@ func (h *PostHandler) GetAllPosts(c *fiber.Ctx) error {
 // @Description Retrieves a specific post by its ID, including its caption, image URL, and timestamps.
 // @Tags posts
 // @Produce json
-// @Param id path int true "Post ID"
+// @Param id path string true "Post ID"
 // @Success 200 {object} response.GetPostByIDResponse "Successful fetch post response" 
 // @Failure 400 {object} response.ErrorResponse "Bad request"
 // @Failure 500 {object} response.ErrorResponse "Internal server error"
@@ -89,7 +89,7 @@ func (h *PostHandler) GetPostByID(c *fiber.Ctx) error {
 // @Description Retrieves all posts created by a specific user, including the caption, image URL, and timestamps.
 // @Tags posts
 // @Produce json
-// @Param user_id path int true "User ID"
+// @Param user_id path string true "User ID"
 // @Success 200 {object} response.GetAllPostsResponse "Successful fetch posts by user response"
 // @Failure 400 {object} response.ErrorResponse "Bad request"
 // @Failure 500 {object} response.ErrorResponse "Internal server error"
@@ -138,10 +138,11 @@ func (h *PostHandler) GetPostsByUserID(c *fiber.Ctx) error {
 // @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /api/posts [post]
 func (h *PostHandler) CreatePost(c *fiber.Ctx) error {
-	userID, ok := c.Locals("user_id").(int)
-	if !ok {
-		return response.ValidationError(c, "Invalid or missing user ID")
-	}
+	userID := c.Locals("user_id").(string)
+
+	if userID == "" {
+        return response.Error(c, "Unauthorized", fiber.StatusUnauthorized)
+    }
 
 	caption := c.FormValue("caption")
 	if caption == "" {
@@ -204,7 +205,7 @@ func sanitizeFileName(fileName string) string {
 // @Tags posts
 // @Accept json
 // @Produce json
-// @Param id path int true "Post ID"
+// @Param id path string true "Post ID"
 // @Param request body request.UpdatePostRequest true "Request body with updated caption"
 // @Security BearerAuth
 // @Success 200 {object} response.UpdatePostResponse "Successful update response"
@@ -212,7 +213,7 @@ func sanitizeFileName(fileName string) string {
 // @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /api/posts/{id} [put]
 func (h *PostHandler) UpdatePost(c *fiber.Ctx) error {
-    userID := c.Locals("user_id").(int)
+    userID := c.Locals("user_id").(string)
 
     id := c.Params("id")
     postID, err := strconv.Atoi(id)
@@ -261,14 +262,14 @@ func (h *PostHandler) UpdatePost(c *fiber.Ctx) error {
 // @Summary Delete a post
 // @Description Deletes a post by its ID. Only the creator of the post is authorized to delete it.
 // @Tags posts
-// @Param id path int true "Post ID"
+// @Param id path string true "Post ID"
 // @Security BearerAuth
 // @Success 204 {object} response.DeletePostResponse "Successful delete post response"
 // @Failure 400 {object} response.ErrorResponse "Bad request"
 // @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /api/posts/{id} [delete]
 func (h *PostHandler) DeletePost(c *fiber.Ctx) error {
-	userID := c.Locals("user_id").(int)
+	userID := c.Locals("user_id").(string)
 
 	id := c.Params("id")
 	postID, err := strconv.Atoi(id)

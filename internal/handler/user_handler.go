@@ -7,8 +7,6 @@ import (
 	"fiber-starter/pkg/response"
 	"fmt"
 
-	"strconv"
-
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -20,13 +18,9 @@ func NewUserHandler(service service.UserService) *UserHandler {
 	return &UserHandler{userService: service}
 }
 
-func parseUserID(c *fiber.Ctx) (int, error) {
+func parseUserID(c *fiber.Ctx) (string, error) {
 	id := c.Params("id")
-	userID, err := strconv.Atoi(id)
-	if err != nil {
-		return 0, fiber.NewError(fiber.StatusBadRequest, "Invalid User ID provided")
-	}
-	return userID, nil
+	return id, nil
 }
 
 // GetAllUsers godoc
@@ -63,19 +57,15 @@ func (h *UserHandler) GetAllUsers(c *fiber.Ctx) error {
 // @Description Fetches a specific user record from the database by the provided ID and returns the user's details, including timestamps.
 // @Tags users
 // @Produce json
-// @Param id path int true "User ID"
+// @Param id path string true "User ID"
 // @Success 200 {object} response.GetUserByIDResponse "Successful fetch user by ID response" 
 // @Failure 400 {object} response.ErrorResponse "Bad request"
 // @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /api/users/{id} [get]
 func (h *UserHandler) GetUserByID(c *fiber.Ctx) error {
 	id := c.Params("id")
-	userID, err := strconv.Atoi(id)
-	if err != nil {
-		return response.Error(c, "Invalid user ID")
-	}
 
-	user, err := h.userService.FetchUserByID(userID)
+	user, err := h.userService.FetchUserByID(id)
 	if err != nil {
 		return response.Error(c, "User not found")
 	}
@@ -123,7 +113,7 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param id path int true "User ID"
+// @Param id path string true "User ID"
 // @Param request body request.UpdateUserRequest true "Request body with updated username"
 // @Security BearerAuth
 // @Success 200 {object} response.UpdateUserResponse "Successful update user response"
@@ -136,7 +126,7 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
         return response.Error(c, err.Error(), fiber.StatusBadRequest)
     }
 
-    authenticatedUserID, ok := c.Locals("user_id").(int)
+    authenticatedUserID, ok := c.Locals("user_id").(string)
     if !ok {
         return response.Error(c, "Unauthorized access", fiber.StatusUnauthorized)
     }
@@ -150,7 +140,7 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
         return response.Error(c, fmt.Sprintf("Error fetching user: %v", err), fiber.StatusInternalServerError)
     }
 
-	if existingUser.ID == 0 {
+	if existingUser.ID == "" {
         return response.Error(c, "User not found", fiber.StatusNotFound)
     }
 
@@ -193,7 +183,7 @@ func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
 		return response.Error(c, err.Error(), fiber.StatusBadRequest)
 	}
 
-	authenticatedUserID := c.Locals("userID").(int)
+	authenticatedUserID := c.Locals("userID").(string)
 
 	if authenticatedUserID != userID {
 		return response.Error(c, "You are not authorized to delete this user", fiber.StatusForbidden)

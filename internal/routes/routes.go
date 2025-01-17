@@ -21,7 +21,7 @@ func SetupRoutes(
 
 
 	setupUserRoutes(app, userHandler, jwtSecret)
-	setupAuthRoutes(app, authHandler, jwtSecret)
+	setupAuthRoutes(app, authHandler)
 	setupPostRoutes(app, postHandler, jwtSecret)
 	setupSearchRoutes(app, userHandler)
 }
@@ -42,11 +42,11 @@ func setupUserRoutes(app *fiber.App, handler *handler.UserHandler, jwtSecret str
     userGroup.Get("/:id", handler.GetUserByID)
 }
 
-func setupAuthRoutes(app *fiber.App, handler *handler.AuthHandler, jwtSecret string) {
+func setupAuthRoutes(app *fiber.App, handler *handler.AuthHandler) {
 	authGroup := app.Group("/api/auth")
 	authGroup.Post("/register", handler.Register)
 	authGroup.Post("/login", handler.Login)
-	authGroup.Post("/change-password", handler.ChangePassword, middleware.TokenValidationMiddleware(jwtSecret))
+	// authGroup.Post("/change-password", handler.ChangePassword, middleware.TokenValidationMiddleware(jwtSecret))
 }
 
 func setupPostRoutes(app *fiber.App, handler *handler.PostHandler, jwtSecret string) {

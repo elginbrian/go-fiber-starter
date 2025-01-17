@@ -13,10 +13,10 @@ import (
 
 type UserRepository interface {
 	GetAllUsers(ctx context.Context) ([]domain.User, error)
-	GetUserByID(ctx context.Context, id int) (domain.User, error)
+	GetUserByID(ctx context.Context, id string) (domain.User, error)
 	CreateUser(ctx context.Context, user domain.User) (domain.User, error)
-	UpdateUser(ctx context.Context, id int, user domain.User) (domain.User, error)
-	DeleteUser(ctx context.Context, id int) error
+	UpdateUser(ctx context.Context, id string, user domain.User) (domain.User, error)
+	DeleteUser(ctx context.Context, id string) error
 	SearchUsers(ctx context.Context, query string) ([]domain.User, error)
 }
 
@@ -51,7 +51,7 @@ func (r *userRepository) GetAllUsers(ctx context.Context) ([]domain.User, error)
 	return users, nil
 }
 
-func (r *userRepository) GetUserByID(ctx context.Context, id int) (domain.User, error) {
+func (r *userRepository) GetUserByID(ctx context.Context, id string) (domain.User, error) {
 	var user domain.User
 	err := r.db.QueryRow(ctx, "SELECT id, name, email, created_at, updated_at FROM users WHERE id = $1", id).
 		Scan(&user.ID, &user.Name, &user.Email, &user.CreatedAt, &user.UpdatedAt)
@@ -81,7 +81,7 @@ func (r *userRepository) CreateUser(ctx context.Context, user domain.User) (doma
 	return user, errors.New("failed to create user")
 }
 
-func (r *userRepository) UpdateUser(ctx context.Context, id int, user domain.User) (domain.User, error) {
+func (r *userRepository) UpdateUser(ctx context.Context, id string, user domain.User) (domain.User, error) {
 	commandTag, err := r.db.Exec(ctx, 
 		"UPDATE users SET name = $1, email = $2, password_hash = $3, updated_at = NOW() WHERE id = $4", 
 		user.Name, user.Email, user.PasswordHash, id)
@@ -98,7 +98,7 @@ func (r *userRepository) UpdateUser(ctx context.Context, id int, user domain.Use
 	return user, nil
 }
 
-func (r *userRepository) DeleteUser(ctx context.Context, id int) error {
+func (r *userRepository) DeleteUser(ctx context.Context, id string) error {
 	commandTag, err := r.db.Exec(ctx, "DELETE FROM users WHERE id = $1", id)
 	if err != nil {
 		return fmt.Errorf("error deleting user: %w", err)

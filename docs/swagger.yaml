@@ -1,5 +1,22 @@
 basePath: /
 definitions:
+  request.UpdatePostRequest:
+    properties:
+      caption:
+        minLength: 1
+        type: string
+    required:
+    - caption
+    type: object
+  request.UpdateUserRequest:
+    properties:
+      username:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - username
+    type: object
   request.UserLoginRequest:
     properties:
       email:
@@ -348,12 +365,12 @@ paths:
         name: id
         required: true
         type: integer
-      - description: New caption
+      - description: Request body with updated caption
         in: body
-        name: caption
+        name: request
         required: true
         schema:
-          type: string
+          $ref: '#/definitions/request.UpdatePostRequest'
       produces:
       - application/json
       responses:
@@ -370,7 +387,7 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrorResponse'
       security:
-      - BearerAuth: []
+      - BearerAuth // Authentication required (JWT or session): []
       summary: Update the caption of an existing post
       tags:
       - posts
@@ -426,7 +443,7 @@ paths:
       - users
     put:
       consumes:
-      - text/plain
+      - application/json
       description: Updates the user's username. Users can only modify their own account.
       parameters:
       - description: User ID
@@ -434,12 +451,12 @@ paths:
         name: id
         required: true
         type: integer
-      - description: Updated username
+      - description: Request body with updated username
         in: body
-        name: username
+        name: request
         required: true
         schema:
-          type: string
+          $ref: '#/definitions/request.UpdateUserRequest'
       produces:
       - application/json
       responses:

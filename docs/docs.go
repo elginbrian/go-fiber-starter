@@ -244,7 +244,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "BearerAuth // Authentication required (JWT or session)": []
                     }
                 ],
                 "description": "Updates only the caption of a post. Only the creator of the post is allowed to update it.",
@@ -267,12 +267,12 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "New caption",
-                        "name": "caption",
+                        "description": "Request body with updated caption",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/request.UpdatePostRequest"
                         }
                     }
                 ],
@@ -419,7 +419,7 @@ const docTemplate = `{
                 ],
                 "description": "Updates the user's username. Users can only modify their own account.",
                 "consumes": [
-                    "text/plain"
+                    "application/json"
                 ],
                 "produces": [
                     "application/json"
@@ -437,12 +437,12 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Updated username",
-                        "name": "username",
+                        "description": "Request body with updated username",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/request.UpdateUserRequest"
                         }
                     }
                 ],
@@ -470,6 +470,31 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "request.UpdatePostRequest": {
+            "type": "object",
+            "required": [
+                "caption"
+            ],
+            "properties": {
+                "caption": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            }
+        },
+        "request.UpdateUserRequest": {
+            "type": "object",
+            "required": [
+                "username"
+            ],
+            "properties": {
+                "username": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
+                }
+            }
+        },
         "request.UserLoginRequest": {
             "type": "object",
             "required": [

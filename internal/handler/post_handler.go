@@ -3,6 +3,7 @@ package handler
 import (
 	"fiber-starter/internal/domain"
 	"fiber-starter/internal/service"
+	"fiber-starter/pkg/request"
 	"fiber-starter/pkg/response"
 	"os"
 	"regexp"
@@ -164,10 +165,10 @@ func sanitizeFileName(fileName string) string {
 // @Accept json
 // @Produce json
 // @Param id path int true "Post ID"
-// @Param caption body string true "New caption"
-// @Security BearerAuth
+// @Param request body request.UpdatePostRequest true "Request body with updated caption"
+// @Security BearerAuth // Authentication required (JWT or session)
 // @Success 200 {object} response.UpdatePostResponse "Successful update response"
-// @Failure 400 {object} response.ErrorResponse "Bad request"
+// @Failure 400 {object} response.ErrorResponse "Bad request
 // @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /api/posts/{id} [put]
 func (h *PostHandler) UpdatePost(c *fiber.Ctx) error {
@@ -188,9 +189,7 @@ func (h *PostHandler) UpdatePost(c *fiber.Ctx) error {
         return response.Error(c, "Unauthorized to update this post", fiber.StatusUnauthorized)
     }
 
-    var input struct {
-        Caption string `json:"caption"`
-    }
+    var input request.UpdatePostRequest
     if err := c.BodyParser(&input); err != nil {
         return response.ValidationError(c, "Invalid input")
     }
@@ -213,8 +212,10 @@ func (h *PostHandler) UpdatePost(c *fiber.Ctx) error {
         CreatedAt: updatedPost.CreatedAt.Format("2006-01-02 15:04:05"),
         UpdatedAt: updatedPost.UpdatedAt.Format("2006-01-02 15:04:05"),
     }
+
     return response.Success(c, postResponse, fiber.StatusOK)
 }
+
 
 // DeletePost godoc
 // @Summary Delete a post

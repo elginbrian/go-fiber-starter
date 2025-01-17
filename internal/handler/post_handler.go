@@ -222,6 +222,7 @@ func (h *PostHandler) UpdatePost(c *fiber.Ctx) error {
 // @Tags posts
 // @Param id path int true "Post ID"
 // @Security BearerAuth
+// @Success 204 {object} response.DeletePostResponse "Successful delete post response"
 // @Failure 400 {object} response.ErrorResponse "Bad request"
 // @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /api/posts/{id} [delete]

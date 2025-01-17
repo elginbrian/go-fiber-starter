@@ -318,6 +318,12 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
+                    "204": {
+                        "description": "Successful delete post response",
+                        "schema": {
+                            "$ref": "#/definitions/response.DeletePostResponse"
+                        }
+                    },
                     "400": {
                         "description": "Bad request",
                         "schema": {
@@ -460,47 +466,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Deletes the user's own account. Users can only delete their own account.",
-                "tags": [
-                    "users"
-                ],
-                "summary": "Delete a user record by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful delete user by ID response",
-                        "schema": {
-                            "$ref": "#/definitions/response.DeleteUserResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    }
-                }
             }
         }
     },
@@ -551,11 +516,11 @@ const docTemplate = `{
                 }
             }
         },
-        "response.DeleteUserResponse": {
+        "response.DeletePostResponse": {
             "type": "object",
             "properties": {
                 "data": {
-                    "type": "string"
+                    "$ref": "#/definitions/response.RegisterData"
                 },
                 "status": {
                     "type": "string"

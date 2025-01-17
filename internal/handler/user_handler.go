@@ -168,16 +168,6 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 	return response.Success(c, userResponse)
 }
 
-// DeleteUser godoc
-// @Summary Delete a user record by ID 
-// @Description Deletes the user's own account. Users can only delete their own account.
-// @Tags users
-// @Param id path int true "User ID"
-// @Security BearerAuth
-// @Success 200 {object} response.DeleteUserResponse "Successful delete user by ID response"
-// @Failure 400 {object} response.ErrorResponse "Bad request"
-// @Failure 500 {object} response.ErrorResponse "Internal server error"
-// @Router /api/users/{id} [delete]
 func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
 	userID, err := parseUserID(c)
 	if err != nil {

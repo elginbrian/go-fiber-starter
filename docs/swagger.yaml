@@ -31,10 +31,10 @@ definitions:
       status:
         type: string
     type: object
-  response.DeleteUserResponse:
+  response.DeletePostResponse:
     properties:
       data:
-        type: string
+        $ref: '#/definitions/response.RegisterData'
       status:
         type: string
     type: object
@@ -293,6 +293,10 @@ paths:
         required: true
         type: integer
       responses:
+        "204":
+          description: Successful delete post response
+          schema:
+            $ref: '#/definitions/response.DeletePostResponse'
         "400":
           description: Bad request
           schema:
@@ -393,33 +397,6 @@ paths:
       tags:
       - users
   /api/users/{id}:
-    delete:
-      description: Deletes the user's own account. Users can only delete their own
-        account.
-      parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: Successful delete user by ID response
-          schema:
-            $ref: '#/definitions/response.DeleteUserResponse'
-        "400":
-          description: Bad request
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Delete a user record by ID
-      tags:
-      - users
     get:
       description: Fetches a specific user record from the database by the provided
         ID and returns the user's details, including timestamps.

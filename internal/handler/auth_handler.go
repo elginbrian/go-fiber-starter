@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fiber-starter/internal/domain"
 	"fiber-starter/internal/service"
 	"fiber-starter/pkg/response"
 
@@ -16,38 +17,15 @@ func NewAuthHandler(authService service.AuthService) *AuthHandler {
 	return &AuthHandler{authService: authService}
 }
 
-type UserRegistrationRequest struct {
-	Username string `json:"username" validate:"required"`
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required,min=6"`
-}
-
-type UserLoginRequest struct {
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required"`
-}
-
-type UserRegistrationResponse struct {
-	Message string `json:"message"`
-}
-
-type UserLoginResponse struct {
-	Token string `json:"token"`
-}
-
-type ErrorResponse struct {
-	Error string `json:"error"`
-}
-
 // @Summary Registers a new user
 // @Description This endpoint allows users to create a new account by providing a username, email, and password. The registration data is validated, and upon successful registration, a success message is returned.
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param request body UserRegistrationRequest true "User registration details"
+// @Param request body domain.UserRegistrationRequest true "User registration details"
 // @Router /api/auth/register [post]
 func (h *AuthHandler) Register(c *fiber.Ctx) error {
-	var req UserRegistrationRequest
+	var req domain.UserRegistrationRequest
 
 	if err := c.BodyParser(&req); err != nil {
 		return response.ValidationError(c, "Invalid request format")
@@ -62,7 +40,7 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 		return response.Error(c, err.Error())
 	}
 
-	return response.Success(c.Status(fiber.StatusCreated), UserRegistrationResponse{
+	return response.Success(c.Status(fiber.StatusCreated), domain.UserRegistrationResponse{
 		Message: "User registered successfully",
 	})
 }
@@ -72,10 +50,10 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param request body UserLoginRequest true "User login details"
+// @Param request body domain.UserLoginRequest true "User login details"
 // @Router /api/auth/login [post]
 func (h *AuthHandler) Login(c *fiber.Ctx) error {
-	var req UserLoginRequest
+	var req domain.UserLoginRequest
 
 	if err := c.BodyParser(&req); err != nil {
 		return response.ValidationError(c, "Invalid request format")
@@ -91,7 +69,7 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 		return response.Error(c.Status(fiber.StatusUnauthorized), err.Error())
 	}
 
-	return response.Success(c, UserLoginResponse{
+	return response.Success(c, domain.UserLoginResponse{
 		Token: token,
 	})
 }

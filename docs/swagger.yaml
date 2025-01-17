@@ -28,7 +28,7 @@ definitions:
       updated:
         type: string
     type: object
-  handler.UserLoginRequest:
+  domain.UserLoginRequest:
     properties:
       email:
         type: string
@@ -38,7 +38,7 @@ definitions:
     - email
     - password
     type: object
-  handler.UserRegistrationRequest:
+  domain.UserRegistrationRequest:
     properties:
       email:
         type: string
@@ -82,7 +82,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handler.UserLoginRequest'
+          $ref: '#/definitions/domain.UserLoginRequest'
       produces:
       - application/json
       responses: {}
@@ -102,7 +102,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handler.UserRegistrationRequest'
+          $ref: '#/definitions/domain.UserRegistrationRequest'
       produces:
       - application/json
       responses: {}
@@ -287,4 +287,9 @@ paths:
       summary: Update an existing user's details
       tags:
       - users
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

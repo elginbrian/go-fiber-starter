@@ -29,6 +29,10 @@ import (
 // @license.name MIT
 // @license.url https://opensource.org/licenses/MIT
 
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+
 // @host 178.128.61.145:8084
 // @BasePath /
 func main() {
@@ -62,7 +66,7 @@ func main() {
 	routes.SetupRoutes(app, container.UserHandler, container.AuthHandler, container.PostHandler, jwtSecret)
 
 	app.Static("/uploads", "./public/uploads")
-	app.Static("/get-started", "./cmd")
+	app.Static("/", "./cmd")
 
 	log.Printf("Server is running on port %s", serverPort)
 	if err := app.Listen(serverPort); err != nil {

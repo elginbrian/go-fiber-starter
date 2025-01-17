@@ -4,8 +4,8 @@ import (
 	"fiber-starter/internal/domain"
 	"fiber-starter/internal/service"
 	"fiber-starter/pkg/response"
+
 	"strconv"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -18,13 +18,6 @@ func NewUserHandler(service service.UserService) *UserHandler {
 	return &UserHandler{userService: service}
 }
 
-type UserResponse struct {
-	ID        int       `json:"id"`
-	Username  string    `json:"username"`
-	Email     string    `json:"email"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-}
 
 // GetAllUsers godoc
 // @Summary Retrieve a list of all users
@@ -38,9 +31,9 @@ func (h *UserHandler) GetAllUsers(c *fiber.Ctx) error {
 		return response.Error(c, err.Error())
 	}
 
-	var userResponses []UserResponse
+	var userResponses []domain.UserResponse
 	for _, user := range users {
-		userResponses = append(userResponses, UserResponse{
+		userResponses = append(userResponses, domain.UserResponse{
 			ID:        user.ID,
 			Username:  user.Name,
 			Email:     user.Email,
@@ -71,7 +64,7 @@ func (h *UserHandler) GetUserByID(c *fiber.Ctx) error {
 		return response.Error(c, "User not found")
 	}
 
-	userResponse := UserResponse{
+	userResponse := domain.UserResponse{
 		ID:        user.ID,
 		Username:  user.Name,
 		Email:     user.Email,
@@ -106,7 +99,7 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 		return response.Error(c, err.Error())
 	}
 
-	userResponse := UserResponse{
+	userResponse := domain.UserResponse{
 		ID:        createdUser.ID,
 		Username:  createdUser.Name,
 		Email:     createdUser.Email,
@@ -148,7 +141,7 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 		return response.Error(c, "User not found")
 	}
 
-	userResponse := UserResponse{
+	userResponse := domain.UserResponse{
 		ID:        updatedUser.ID,
 		Username:  updatedUser.Name,
 		Email:     updatedUser.Email,

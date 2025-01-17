@@ -20,19 +20,6 @@ func NewPostHandler(service service.PostService) *PostHandler {
 	return &PostHandler{postService: service}
 }
 
-type PostResponse struct {
-	ID        int    `json:"id"`
-	UserID    int    `json:"user_id"`
-	Caption   string `json:"caption,omitempty"`
-	ImageURL  string `json:"image_url,omitempty"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
-}
-
-type SuccessResponse struct {
-	Status string      `json:"status"`
-	Data   interface{} `json:"data,omitempty"`
-}
 
 // GetAllPosts godoc
 // @Summary Get all posts
@@ -46,9 +33,9 @@ func (h *PostHandler) GetAllPosts(c *fiber.Ctx) error {
 		return response.Error(c, err.Error(), fiber.StatusInternalServerError)
 	}
 
-	var postResponse []PostResponse
+	var postResponse []domain.PostResponse
 	for _, post := range posts {
-		postResponse = append(postResponse, PostResponse{
+		postResponse = append(postResponse, domain.PostResponse{
 			ID:        post.ID,
 			UserID:    post.UserID,
 			Caption:   post.Caption,
@@ -79,7 +66,7 @@ func (h *PostHandler) GetPostByID(c *fiber.Ctx) error {
 		return response.Error(c, "Post not found", fiber.StatusNotFound)
 	}
 
-	postResponse := PostResponse{
+	postResponse := domain.PostResponse{
 		ID:        post.ID,
 		UserID:    post.UserID,
 		Caption:   post.Caption,
@@ -143,7 +130,7 @@ func (h *PostHandler) CreatePost(c *fiber.Ctx) error {
 		return response.Error(c, err.Error(), fiber.StatusInternalServerError)
 	}
 
-	postResponse := PostResponse{
+	postResponse := domain.PostResponse{
 		ID:        createdPost.ID,
 		UserID:    createdPost.UserID,
 		Caption:   createdPost.Caption,
@@ -194,7 +181,7 @@ func (h *PostHandler) UpdatePost(c *fiber.Ctx) error {
 		return response.Error(c, "Post not found", fiber.StatusNotFound)
 	}
 
-	postResponse := PostResponse{
+	postResponse := domain.PostResponse{
 		ID:        updatedPost.ID,
 		UserID:    updatedPost.UserID,
 		Caption:   updatedPost.Caption,

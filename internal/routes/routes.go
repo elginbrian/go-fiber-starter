@@ -15,7 +15,6 @@ func SetupRoutes(
 	postHandler *handler.PostHandler,
 	jwtSecret string,
 ) {
-	app.Get("/", redirectToDocs)
 	app.Get("/api", redirectToDocs)
 	app.Get("/docs", redirectToDocs)
 	app.Get("/docs/*", fiberSwagger.WrapHandler)

@@ -21,7 +21,7 @@ services:
 
   vp:
     build:
-      context: ./get-started
+      context: ./vitepress
       dockerfile: Dockerfile
     ports:
       - "5173:5173"
@@ -30,7 +30,7 @@ services:
     command: >
       sh -c "npm run dev"
     volumes:
-      - ./get-started:/app
+      - ./vitepress:/app
       - /app/node_modules
 
   db:

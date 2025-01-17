@@ -44,7 +44,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UserLoginRequest"
+                            "$ref": "#/definitions/domain.UserLoginRequest"
                         }
                     }
                 ],
@@ -71,7 +71,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UserRegistrationRequest"
+                            "$ref": "#/definitions/domain.UserRegistrationRequest"
                         }
                     }
                 ],
@@ -375,7 +375,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.UserLoginRequest": {
+        "domain.UserLoginRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -390,7 +390,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.UserRegistrationRequest": {
+        "domain.UserRegistrationRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -409,6 +409,13 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

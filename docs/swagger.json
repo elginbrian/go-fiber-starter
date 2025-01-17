@@ -38,7 +38,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UserLoginRequest"
+                            "$ref": "#/definitions/domain.UserLoginRequest"
                         }
                     }
                 ],
@@ -65,7 +65,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UserRegistrationRequest"
+                            "$ref": "#/definitions/domain.UserRegistrationRequest"
                         }
                     }
                 ],
@@ -369,7 +369,7 @@
                 }
             }
         },
-        "handler.UserLoginRequest": {
+        "domain.UserLoginRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -384,7 +384,7 @@
                 }
             }
         },
-        "handler.UserRegistrationRequest": {
+        "domain.UserRegistrationRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -403,6 +403,13 @@
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }

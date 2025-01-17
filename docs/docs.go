@@ -54,6 +54,18 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/response.LoginResponse"
                         }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
                     }
                 }
             }
@@ -88,6 +100,18 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/response.RegisterResponse"
                         }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
                     }
                 }
             }
@@ -107,6 +131,18 @@ const docTemplate = `{
                         "description": "Successful fetch posts response",
                         "schema": {
                             "$ref": "#/definitions/response.GetAllPostsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
                 }
@@ -149,6 +185,18 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/response.CreatePostResponse"
                         }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
                     }
                 }
             }
@@ -177,6 +225,18 @@ const docTemplate = `{
                         "description": "Successful fetch post response",
                         "schema": {
                             "$ref": "#/definitions/response.GetPostByIDResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
                 }
@@ -216,7 +276,20 @@ const docTemplate = `{
                         }
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
             },
             "delete": {
                 "security": [
@@ -238,7 +311,20 @@ const docTemplate = `{
                         "required": true
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
             }
         },
         "/api/users": {
@@ -253,10 +339,21 @@ const docTemplate = `{
                 "summary": "Retrieve a list of all users",
                 "responses": {
                     "200": {
-                        "description": "Successful fetch users response\" example({\"status\": \"success\", \"data\": [{\"id\": 1, \"username\": \"John Doe\", \"email\": \"john.doe@example.com\", \"created_at\": \"2025-01-17T06:44:04.376387Z\", \"updated_at\": \"2025-01-17T06:44:04.376387Z\"}, {\"id\": 2, \"username\": \"Jane Smith\", \"email\": \"jane.smith@example.com\", \"created_at\": \"2025-01-17T06:44:04.376387Z\", \"updated_at\": \"2025-01-17T06:44:04.376387Z\"}]})",
+                        "description": "Successful fetch users response",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/response.GetAllUsersResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
                 }
@@ -281,7 +378,26 @@ const docTemplate = `{
                         "required": true
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "Successful fetch user by ID response",
+                        "schema": {
+                            "$ref": "#/definitions/response.GetUserByIDResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
             },
             "put": {
                 "security": [
@@ -318,7 +434,20 @@ const docTemplate = `{
                         }
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
             },
             "delete": {
                 "security": [
@@ -340,7 +469,26 @@ const docTemplate = `{
                         "required": true
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "Successful delete user by ID response",
+                        "schema": {
+                            "$ref": "#/definitions/response.DeleteUserResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
             }
         }
     },
@@ -434,6 +582,28 @@ const docTemplate = `{
                 }
             }
         },
+        "response.DeleteUserResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "response.GetAllPostsResponse": {
             "type": "object",
             "properties": {
@@ -448,11 +618,36 @@ const docTemplate = `{
                 }
             }
         },
+        "response.GetAllUsersResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.User"
+                    }
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "response.GetPostByIDResponse": {
             "type": "object",
             "properties": {
                 "data": {
                     "$ref": "#/definitions/response.Post"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.GetUserByIDResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/response.User"
                 },
                 "status": {
                     "type": "string"
@@ -516,6 +711,26 @@ const docTemplate = `{
                     "$ref": "#/definitions/response.RegisterData"
                 },
                 "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.User": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }

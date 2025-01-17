@@ -59,6 +59,20 @@ definitions:
       status:
         type: string
     type: object
+  response.DeleteUserResponse:
+    properties:
+      data:
+        type: string
+      status:
+        type: string
+    type: object
+  response.ErrorResponse:
+    properties:
+      message:
+        type: string
+      status:
+        type: string
+    type: object
   response.GetAllPostsResponse:
     properties:
       data:
@@ -68,10 +82,26 @@ definitions:
       status:
         type: string
     type: object
+  response.GetAllUsersResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/response.User'
+        type: array
+      status:
+        type: string
+    type: object
   response.GetPostByIDResponse:
     properties:
       data:
         $ref: '#/definitions/response.Post'
+      status:
+        type: string
+    type: object
+  response.GetUserByIDResponse:
+    properties:
+      data:
+        $ref: '#/definitions/response.User'
       status:
         type: string
     type: object
@@ -114,6 +144,19 @@ definitions:
       status:
         type: string
     type: object
+  response.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
 host: 178.128.61.145:8084
 info:
   contact:
@@ -152,6 +195,14 @@ paths:
           description: Successful registration response
           schema:
             $ref: '#/definitions/response.LoginResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       summary: Logs in an existing user
       tags:
       - auth
@@ -176,6 +227,14 @@ paths:
           description: Successful registration response
           schema:
             $ref: '#/definitions/response.RegisterResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       summary: Registers a new user
       tags:
       - auth
@@ -190,6 +249,14 @@ paths:
           description: Successful fetch posts response
           schema:
             $ref: '#/definitions/response.GetAllPostsResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       summary: Get all posts
       tags:
       - posts
@@ -216,6 +283,14 @@ paths:
           description: Successful image upload response
           schema:
             $ref: '#/definitions/response.CreatePostResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Create a new post
@@ -231,7 +306,15 @@ paths:
         name: id
         required: true
         type: integer
-      responses: {}
+      responses:
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Delete a post
@@ -253,6 +336,14 @@ paths:
           description: Successful fetch post response
           schema:
             $ref: '#/definitions/response.GetPostByIDResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       summary: Get a post by ID
       tags:
       - posts
@@ -275,7 +366,15 @@ paths:
           $ref: '#/definitions/domain.Post'
       produces:
       - application/json
-      responses: {}
+      responses:
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update an existing post
@@ -289,14 +388,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: 'Successful fetch users response" example({"status": "success",
-            "data": [{"id": 1, "username": "John Doe", "email": "john.doe@example.com",
-            "created_at": "2025-01-17T06:44:04.376387Z", "updated_at": "2025-01-17T06:44:04.376387Z"},
-            {"id": 2, "username": "Jane Smith", "email": "jane.smith@example.com",
-            "created_at": "2025-01-17T06:44:04.376387Z", "updated_at": "2025-01-17T06:44:04.376387Z"}]})'
+          description: Successful fetch users response
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.GetAllUsersResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       summary: Retrieve a list of all users
       tags:
       - users
@@ -310,7 +412,19 @@ paths:
         name: id
         required: true
         type: integer
-      responses: {}
+      responses:
+        "200":
+          description: Successful delete user by ID response
+          schema:
+            $ref: '#/definitions/response.DeleteUserResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Delete a user record by ID
@@ -327,7 +441,19 @@ paths:
         type: integer
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: Successful fetch user by ID response
+          schema:
+            $ref: '#/definitions/response.GetUserByIDResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       summary: Retrieve user details by user ID
       tags:
       - users
@@ -351,7 +477,15 @@ paths:
           $ref: '#/definitions/domain.User'
       produces:
       - application/json
-      responses: {}
+      responses:
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update an existing user's details

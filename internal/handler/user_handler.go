@@ -24,7 +24,9 @@ func NewUserHandler(service service.UserService) *UserHandler {
 // @Description Fetches all user records from the database and returns them with timestamps for creation and update.
 // @Tags users
 // @Produce json
-// @Success 200 {object} map[string]interface{} "Successful fetch users response" example({"status": "success", "data": [{"id": 1, "username": "John Doe", "email": "john.doe@example.com", "created_at": "2025-01-17T06:44:04.376387Z", "updated_at": "2025-01-17T06:44:04.376387Z"}, {"id": 2, "username": "Jane Smith", "email": "jane.smith@example.com", "created_at": "2025-01-17T06:44:04.376387Z", "updated_at": "2025-01-17T06:44:04.376387Z"}]})
+// @Success 200 {object} response.GetAllUsersResponse "Successful fetch users response" 
+// @Failure 400 {object} response.ErrorResponse "Bad request"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /api/users [get]
 func (h *UserHandler) GetAllUsers(c *fiber.Ctx) error {
 	users, err := h.userService.FetchAllUsers()
@@ -52,6 +54,9 @@ func (h *UserHandler) GetAllUsers(c *fiber.Ctx) error {
 // @Tags users
 // @Produce json
 // @Param id path int true "User ID"
+// @Success 200 {object} response.GetUserByIDResponse "Successful fetch user by ID response" 
+// @Failure 400 {object} response.ErrorResponse "Bad request"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /api/users/{id} [get]
 func (h *UserHandler) GetUserByID(c *fiber.Ctx) error {
 	id := c.Params("id")
@@ -111,6 +116,8 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 // @Param id path int true "User ID"
 // @Param user body domain.User true "Updated user details"
 // @Security BearerAuth
+// @Failure 400 {object} response.ErrorResponse "Bad request"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /api/users/{id} [put]
 func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 	id := c.Params("id")
@@ -150,6 +157,9 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 // @Tags users
 // @Param id path int true "User ID"
 // @Security BearerAuth
+// @Success 200 {object} response.DeleteUserResponse "Successful delete user by ID response" 
+// @Failure 400 {object} response.ErrorResponse "Bad request"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /api/users/{id} [delete]
 func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
 	id := c.Params("id")

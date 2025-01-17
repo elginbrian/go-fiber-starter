@@ -24,6 +24,8 @@ func NewAuthHandler(authService service.AuthService) *AuthHandler {
 // @Produce json
 // @Param request body domain.UserRegistrationRequest true "User registration details"
 // @Success 201 {object} response.RegisterResponse "Successful registration response"
+// @Failure 400 {object} response.ErrorResponse "Bad request"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /api/auth/register [post]
 func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	var req domain.UserRegistrationRequest
@@ -53,6 +55,8 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 // @Produce json
 // @Param request body domain.UserLoginRequest true "User login details"
 // @Success 201 {object} response.LoginResponse "Successful registration response"
+// @Failure 400 {object} response.ErrorResponse "Bad request"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /api/auth/login [post]
 func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	var req domain.UserLoginRequest

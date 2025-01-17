@@ -27,6 +27,8 @@ func NewPostHandler(service service.PostService) *PostHandler {
 // @Tags posts
 // @Produce json
 // @Success 200 {object} response.GetAllPostsResponse "Successful fetch posts response"
+// @Failure 400 {object} response.ErrorResponse "Bad request"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /api/posts [get]
 func (h *PostHandler) GetAllPosts(c *fiber.Ctx) error {
 	posts, err := h.postService.FetchAllPosts()
@@ -56,6 +58,8 @@ func (h *PostHandler) GetAllPosts(c *fiber.Ctx) error {
 // @Produce json
 // @Param id path int true "Post ID"
 // @Success 200 {object} response.GetPostByIDResponse "Successful fetch post response" 
+// @Failure 400 {object} response.ErrorResponse "Bad request"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /api/posts/{id} [get]
 func (h *PostHandler) GetPostByID(c *fiber.Ctx) error {
 	id := c.Params("id")
@@ -89,6 +93,8 @@ func (h *PostHandler) GetPostByID(c *fiber.Ctx) error {
 // @Param image formData file false "Post image (optional)"
 // @Security BearerAuth
 // @Success 201 {object} response.CreatePostResponse "Successful image upload response"
+// @Failure 400 {object} response.ErrorResponse "Bad request"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /api/posts [post]
 func (h *PostHandler) CreatePost(c *fiber.Ctx) error {
 	userID, ok := c.Locals("user_id").(int)
@@ -160,6 +166,8 @@ func sanitizeFileName(fileName string) string {
 // @Param id path int true "Post ID"
 // @Param post body domain.Post true "Updated post details"
 // @Security BearerAuth
+// @Failure 400 {object} response.ErrorResponse "Bad request"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /api/posts/{id} [put]
 func (h *PostHandler) UpdatePost(c *fiber.Ctx) error {
 	userID := c.Locals("user_id").(int)
@@ -201,6 +209,8 @@ func (h *PostHandler) UpdatePost(c *fiber.Ctx) error {
 // @Tags posts
 // @Param id path int true "Post ID"
 // @Security BearerAuth
+// @Failure 400 {object} response.ErrorResponse "Bad request"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /api/posts/{id} [delete]
 func (h *PostHandler) DeletePost(c *fiber.Ctx) error {
 	userID := c.Locals("user_id").(int)

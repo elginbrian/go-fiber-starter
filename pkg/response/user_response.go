@@ -7,6 +7,16 @@ type GetAllUsersResponse struct {
 	Data   []User `json:"data"`
 }
 
+type GetUserByIDResponse struct {
+	Status string `json:"status"`
+	Data   User   `json:"data"`
+}
+
+type DeleteUserResponse struct {
+	Status string `json:"status"`
+	Data   string `json:"data"`
+}
+
 type User struct {
 	ID        int       `json:"id"`
 	Username  string    `json:"username"`

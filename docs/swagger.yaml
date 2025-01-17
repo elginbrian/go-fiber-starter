@@ -21,6 +21,8 @@ definitions:
       old_password:
         minLength: 6
         type: string
+      user_id:
+        type: integer
     required:
     - new_password
     - old_password
@@ -214,7 +216,7 @@ paths:
       consumes:
       - application/json
       description: This endpoint allows a user to change their password by providing
-        their old password and a new password. The request requires authentication
+        their old password, new password, and user ID. The request requires authentication
         via a JWT token.
       parameters:
       - description: User change password details
@@ -453,7 +455,7 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrorResponse'
       security:
-      - BearerAuth // Authentication required (JWT or session): []
+      - BearerAuth: []
       summary: Update the caption of an existing post
       tags:
       - posts

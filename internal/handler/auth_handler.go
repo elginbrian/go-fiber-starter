@@ -80,8 +80,8 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	})
 }
 
-// @Summary Changes a user's password
-// @Description This endpoint allows a user to change their password by providing their old password and a new password. The request requires authentication via a JWT token.
+// @Summary Changes a user's password 
+// @Description This endpoint allows a user to change their password by providing their old password, new password, and user ID. The request requires authentication via a JWT token.
 // @Tags auth
 // @Accept json
 // @Produce json
@@ -103,9 +103,14 @@ func (h *AuthHandler) ChangePassword(c *fiber.Ctx) error {
 		return response.ValidationError(c, validationErrs.Error())
 	}
 
-	userID, ok := c.Locals("user_id").(int)
-	if !ok || userID == 0 {
-		return response.Error(c.Status(fiber.StatusUnauthorized), "Unauthorized")
+	if req.UserID == 0 {
+		return response.ValidationError(c, "User ID is required")
+	}
+
+	userID := req.UserID
+
+	if userID != c.Locals("user_id") {
+		return response.Error(c.Status(fiber.StatusUnauthorized), "Unauthorized to change this password")
 	}
 
 	if err := h.authService.ChangePassword(userID, req.OldPassword, req.NewPassword); err != nil {

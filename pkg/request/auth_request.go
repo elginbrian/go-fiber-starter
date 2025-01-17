@@ -12,6 +12,7 @@ type UserLoginRequest struct {
 }
 
 type ChangePasswordRequest struct {
+	UserID      int    `json:"user_id" validate:"required`
 	OldPassword string `json:"old_password" validate:"required,min=6"`
 	NewPassword string `json:"new_password" validate:"required,min=6"`
 }

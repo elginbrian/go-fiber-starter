@@ -206,7 +206,7 @@ func sanitizeFileName(fileName string) string {
 // @Produce json
 // @Param id path int true "Post ID"
 // @Param request body request.UpdatePostRequest true "Request body with updated caption"
-// @Security BearerAuth // Authentication required (JWT or session)
+// @Security BearerAuth
 // @Success 200 {object} response.UpdatePostResponse "Successful update response"
 // @Failure 400 {object} response.ErrorResponse "Bad request
 // @Failure 500 {object} response.ErrorResponse "Internal server error"

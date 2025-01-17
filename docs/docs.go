@@ -31,7 +31,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "This endpoint allows a user to change their password by providing their old password and a new password. The request requires authentication via a JWT token.",
+                "description": "This endpoint allows a user to change their password by providing their old password, new password, and user ID. The request requires authentication via a JWT token.",
                 "consumes": [
                     "application/json"
                 ],
@@ -336,7 +336,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
-                        "BearerAuth // Authentication required (JWT or session)": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Updates only the caption of a post. Only the creator of the post is allowed to update it.",
@@ -640,6 +640,9 @@ const docTemplate = `{
                 "old_password": {
                     "type": "string",
                     "minLength": 6
+                },
+                "user_id": {
+                    "type": "integer"
                 }
             }
         },

@@ -27,6 +27,13 @@ func NewAuthService(authRepo repository.AuthRepository, userRepo repository.User
 	return &authService{authRepo: authRepo, userRepo: userRepo, jwtSecret: jwtSecret}
 }
 
+var (
+	ErrUserNotFound       = errors.New("user not found")
+	ErrIncorrectPassword  = errors.New("incorrect old password")
+	ErrPasswordHashing    = errors.New("error hashing new password")
+	ErrUpdatingUser       = errors.New("error updating user in database")
+)
+
 func (s *authService) Register(username, email, password string) error {
 	ctx := context.Background()
 
@@ -66,25 +73,26 @@ func (s *authService) Login(email, password string) (string, error) {
 }
 
 func (s *authService) ChangePassword(userID int, oldPassword, newPassword string) error {
-	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
 	user, err := s.userRepo.GetUserByID(ctx, userID)
 	if err != nil {
-		return errors.New("user not found")
+		return ErrUserNotFound
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(oldPassword)); err != nil {
-		return errors.New("incorrect old password")
+		return ErrIncorrectPassword
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
 	if err != nil {
-		return err
+		return ErrPasswordHashing
 	}
 
 	user.PasswordHash = string(hashedPassword)
 	if _, err := s.userRepo.UpdateUser(ctx, user.ID, user); err != nil {
-		return err
+		return ErrUpdatingUser
 	}
 
 	return nil

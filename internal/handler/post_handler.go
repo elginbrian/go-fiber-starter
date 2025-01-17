@@ -88,6 +88,7 @@ func (h *PostHandler) GetPostByID(c *fiber.Ctx) error {
 // @Param caption formData string true "Post caption"
 // @Param image formData file false "Post image (optional)"
 // @Security BearerAuth
+// @Success 201 {object} map[string]interface{} "Successful image upload response" example({"status": "success", "data": {"id": 3, "user_id": 3, "caption": "hi there", "image_url": "http://localhost:8084/uploads/background.jpg", "created_at": "2025-01-17 06:47:16", "updated_at": "2025-01-17 06:47:16"}})
 // @Router /api/posts [post]
 func (h *PostHandler) CreatePost(c *fiber.Ctx) error {
 	userID, ok := c.Locals("user_id").(int)
@@ -161,7 +162,7 @@ func sanitizeFileName(fileName string) string {
 // @Security BearerAuth
 // @Router /api/posts/{id} [put]
 func (h *PostHandler) UpdatePost(c *fiber.Ctx) error {
-	userID := c.Locals("userID").(int)
+	userID := c.Locals("user_id").(int)
 
 	id := c.Params("id")
 	postID, err := strconv.Atoi(id)
@@ -202,7 +203,7 @@ func (h *PostHandler) UpdatePost(c *fiber.Ctx) error {
 // @Security BearerAuth
 // @Router /api/posts/{id} [delete]
 func (h *PostHandler) DeletePost(c *fiber.Ctx) error {
-	userID := c.Locals("userID").(int)
+	userID := c.Locals("user_id").(int)
 
 	id := c.Params("id")
 	postID, err := strconv.Atoi(id)

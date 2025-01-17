@@ -24,6 +24,7 @@ func NewUserHandler(service service.UserService) *UserHandler {
 // @Description Fetches all user records from the database and returns them with timestamps for creation and update.
 // @Tags users
 // @Produce json
+// @Success 200 {object} map[string]interface{} "Successful fetch users response" example({"status": "success", "data": [{"id": 1, "username": "John Doe", "email": "john.doe@example.com", "created_at": "2025-01-17T06:44:04.376387Z", "updated_at": "2025-01-17T06:44:04.376387Z"}, {"id": 2, "username": "Jane Smith", "email": "jane.smith@example.com", "created_at": "2025-01-17T06:44:04.376387Z", "updated_at": "2025-01-17T06:44:04.376387Z"}]})
 // @Router /api/users [get]
 func (h *UserHandler) GetAllUsers(c *fiber.Ctx) error {
 	users, err := h.userService.FetchAllUsers()
@@ -75,15 +76,6 @@ func (h *UserHandler) GetUserByID(c *fiber.Ctx) error {
 	return response.Success(c, userResponse)
 }
 
-// CreateUser godoc
-// @Summary Create a new user record
-// @Description Accepts user details from the request body, validates the input, and creates a new user in the database. Returns the created user's details along with timestamps.
-// @Tags users
-// @Accept json
-// @Produce json
-// @Param user body domain.User true "User details"
-// @Security BearerAuth
-// @Router /api/users [post]
 func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 	var user domain.User
 	if err := c.BodyParser(&user); err != nil {

@@ -3,6 +3,7 @@ version: "3.8"
 services:
   app:
     build: .
+    restart: always
     ports:
       - "8084:8080"
     environment:
@@ -23,6 +24,7 @@ services:
     build:
       context: ./vitepress
       dockerfile: Dockerfile
+    restart: always
     ports:
       - "5173:5173"
     networks:
@@ -35,6 +37,7 @@ services:
 
   db:
     image: postgres:15
+    restart: always
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password

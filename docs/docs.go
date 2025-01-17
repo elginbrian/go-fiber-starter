@@ -48,7 +48,15 @@ const docTemplate = `{
                         }
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "201": {
+                        "description": "Successful registration response\" example({\"status\": \"success\", \"data\": {\"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzcxODE2NTAsInVzZXJfaWQiOjN9.nd-wN002UeYukRVwSY1jsNVAz9hcB2p24eHuvV5Pe6E\"}})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
             }
         },
         "/api/auth/register": {
@@ -75,7 +83,15 @@ const docTemplate = `{
                         }
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "201": {
+                        "description": "Successful registration response\" example({\"status\": \"success\", \"data\": {\"message\": \"User registered successfully\"}})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
             }
         },
         "/api/posts": {
@@ -88,7 +104,15 @@ const docTemplate = `{
                     "posts"
                 ],
                 "summary": "Get all posts",
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "Successful fetch posts response\" example({\"status\": \"success\", \"data\": [{\"id\": 1, \"user_id\": 1, \"caption\": \"A beautiful view of the fjords\", \"image_url\": \"https://www.w3schools.com/w3images/fjords.jpg\", \"created_at\": \"2025-01-17 06:23:03\", \"updated_at\": \"2025-01-17 06:23:03\"}, {\"id\": 2, \"user_id\": 2, \"caption\": \"The city lights at night\", \"image_url\": \"https://www.w3schools.com/w3images/lights.jpg\", \"created_at\": \"2025-01-17 06:23:03\", \"updated_at\": \"2025-01-17 06:23:03\"}]})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
             },
             "post": {
                 "security": [
@@ -122,7 +146,15 @@ const docTemplate = `{
                         "in": "formData"
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "201": {
+                        "description": "Successful image upload response\" example({\"status\": \"success\", \"data\": {\"id\": 3, \"user_id\": 3, \"caption\": \"hi there\", \"image_url\": \"http://localhost:8084/uploads/background.jpg\", \"created_at\": \"2025-01-17 06:47:16\", \"updated_at\": \"2025-01-17 06:47:16\"}})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
             }
         },
         "/api/posts/{id}": {
@@ -144,7 +176,15 @@ const docTemplate = `{
                         "required": true
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "Successful fetch post response\" example({\"status\": \"success\", \"data\": {\"id\": 1, \"user_id\": 1, \"caption\": \"A beautiful view of the fjords\", \"image_url\": \"https://www.w3schools.com/w3images/fjords.jpg\", \"created_at\": \"2025-01-17 06:23:03\", \"updated_at\": \"2025-01-17 06:23:03\"}})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
             },
             "put": {
                 "security": [
@@ -216,37 +256,15 @@ const docTemplate = `{
                     "users"
                 ],
                 "summary": "Retrieve a list of all users",
-                "responses": {}
-            },
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Accepts user details from the request body, validates the input, and creates a new user in the database. Returns the created user's details along with timestamps.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "users"
-                ],
-                "summary": "Create a new user record",
-                "parameters": [
-                    {
-                        "description": "User details",
-                        "name": "user",
-                        "in": "body",
-                        "required": true,
+                "responses": {
+                    "200": {
+                        "description": "Successful fetch users response\" example({\"status\": \"success\", \"data\": [{\"id\": 1, \"username\": \"John Doe\", \"email\": \"john.doe@example.com\", \"created_at\": \"2025-01-17T06:44:04.376387Z\", \"updated_at\": \"2025-01-17T06:44:04.376387Z\"}, {\"id\": 2, \"username\": \"Jane Smith\", \"email\": \"jane.smith@example.com\", \"created_at\": \"2025-01-17T06:44:04.376387Z\", \"updated_at\": \"2025-01-17T06:44:04.376387Z\"}]})",
                         "schema": {
-                            "$ref": "#/definitions/domain.User"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
-                ],
-                "responses": {}
+                }
             }
         },
         "/api/users/{id}": {

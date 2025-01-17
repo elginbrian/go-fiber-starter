@@ -30,10 +30,10 @@ func redirectToDocs(c *fiber.Ctx) error {
 
 func setupUserRoutes(app *fiber.App, handler *handler.UserHandler, jwtSecret string) {
 	userGroup := app.Group("/api/users")
-	userGroup.Post("/", middleware.TokenValidationMiddleware(jwtSecret), handler.CreateUser)
 	userGroup.Put("/:id", middleware.TokenValidationMiddleware(jwtSecret), handler.UpdateUser)
 	userGroup.Delete("/:id", middleware.TokenValidationMiddleware(jwtSecret), handler.DeleteUser)
 	userGroup.Get("/", handler.GetAllUsers)
+	userGroup.Get("/:id", handler.GetUserByID)
 }
 
 func setupAuthRoutes(app *fiber.App, handler *handler.AuthHandler) {

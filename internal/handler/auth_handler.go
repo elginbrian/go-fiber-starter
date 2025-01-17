@@ -109,7 +109,7 @@ func (h *AuthHandler) ChangePassword(c *fiber.Ctx) error {
 
 	userID := req.UserID
 
-	if userID != c.Locals("user_id") {
+	if userID != c.Locals("user_id").(int) {
 		return response.Error(c.Status(fiber.StatusUnauthorized), "Unauthorized to change this password")
 	}
 

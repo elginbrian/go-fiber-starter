@@ -69,5 +69,5 @@ jobs:
             git fetch origin
             git reset --hard origin/main
             go mod vendor
-            docker-compose down -v
+            docker-compose down
             docker-compose up --build -d

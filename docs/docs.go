@@ -50,10 +50,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Successful registration response\" example({\"status\": \"success\", \"data\": {\"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzcxODE2NTAsInVzZXJfaWQiOjN9.nd-wN002UeYukRVwSY1jsNVAz9hcB2p24eHuvV5Pe6E\"}})",
+                        "description": "Successful registration response",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/response.LoginResponse"
                         }
                     }
                 }
@@ -85,10 +84,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Successful registration response\" example({\"status\": \"success\", \"data\": {\"message\": \"User registered successfully\"}})",
+                        "description": "Successful registration response",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/response.RegisterResponse"
                         }
                     }
                 }
@@ -106,10 +104,9 @@ const docTemplate = `{
                 "summary": "Get all posts",
                 "responses": {
                     "200": {
-                        "description": "Successful fetch posts response\" example({\"status\": \"success\", \"data\": [{\"id\": 1, \"user_id\": 1, \"caption\": \"A beautiful view of the fjords\", \"image_url\": \"https://www.w3schools.com/w3images/fjords.jpg\", \"created_at\": \"2025-01-17 06:23:03\", \"updated_at\": \"2025-01-17 06:23:03\"}, {\"id\": 2, \"user_id\": 2, \"caption\": \"The city lights at night\", \"image_url\": \"https://www.w3schools.com/w3images/lights.jpg\", \"created_at\": \"2025-01-17 06:23:03\", \"updated_at\": \"2025-01-17 06:23:03\"}]})",
+                        "description": "Successful fetch posts response",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/response.GetAllPostsResponse"
                         }
                     }
                 }
@@ -148,10 +145,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Successful image upload response\" example({\"status\": \"success\", \"data\": {\"id\": 3, \"user_id\": 3, \"caption\": \"hi there\", \"image_url\": \"http://localhost:8084/uploads/background.jpg\", \"created_at\": \"2025-01-17 06:47:16\", \"updated_at\": \"2025-01-17 06:47:16\"}})",
+                        "description": "Successful image upload response",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/response.CreatePostResponse"
                         }
                     }
                 }
@@ -178,10 +174,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful fetch post response\" example({\"status\": \"success\", \"data\": {\"id\": 1, \"user_id\": 1, \"caption\": \"A beautiful view of the fjords\", \"image_url\": \"https://www.w3schools.com/w3images/fjords.jpg\", \"created_at\": \"2025-01-17 06:23:03\", \"updated_at\": \"2025-01-17 06:23:03\"}})",
+                        "description": "Successful fetch post response",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/response.GetPostByIDResponse"
                         }
                     }
                 }
@@ -424,6 +419,103 @@ const docTemplate = `{
                     "minLength": 6
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.CreatePostResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/response.Post"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.GetAllPostsResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.Post"
+                    }
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.GetPostByIDResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/response.Post"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.LoginData": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/response.LoginData"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Post": {
+            "type": "object",
+            "properties": {
+                "caption": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.RegisterData": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.RegisterResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/response.RegisterData"
+                },
+                "status": {
                     "type": "string"
                 }
             }

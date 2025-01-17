@@ -23,7 +23,7 @@ func NewAuthHandler(authService service.AuthService) *AuthHandler {
 // @Accept json
 // @Produce json
 // @Param request body domain.UserRegistrationRequest true "User registration details"
-// @Success 201 {object} map[string]interface{} "Successful registration response" example({"status": "success", "data": {"message": "User registered successfully"}})
+// @Success 201 {object} response.RegisterResponse "Successful registration response"
 // @Router /api/auth/register [post]
 func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	var req domain.UserRegistrationRequest
@@ -52,7 +52,7 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param request body domain.UserLoginRequest true "User login details"
-// @Success 201 {object} map[string]interface{} "Successful registration response" example({"status": "success", "data": {"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzcxODE2NTAsInVzZXJfaWQiOjN9.nd-wN002UeYukRVwSY1jsNVAz9hcB2p24eHuvV5Pe6E"}})
+// @Success 201 {object} response.LoginResponse "Successful registration response"
 // @Router /api/auth/login [post]
 func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	var req domain.UserLoginRequest

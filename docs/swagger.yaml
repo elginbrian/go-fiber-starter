@@ -52,6 +52,68 @@ definitions:
     - password
     - username
     type: object
+  response.CreatePostResponse:
+    properties:
+      data:
+        $ref: '#/definitions/response.Post'
+      status:
+        type: string
+    type: object
+  response.GetAllPostsResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/response.Post'
+        type: array
+      status:
+        type: string
+    type: object
+  response.GetPostByIDResponse:
+    properties:
+      data:
+        $ref: '#/definitions/response.Post'
+      status:
+        type: string
+    type: object
+  response.LoginData:
+    properties:
+      token:
+        type: string
+    type: object
+  response.LoginResponse:
+    properties:
+      data:
+        $ref: '#/definitions/response.LoginData'
+      status:
+        type: string
+    type: object
+  response.Post:
+    properties:
+      caption:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      image_url:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  response.RegisterData:
+    properties:
+      message:
+        type: string
+    type: object
+  response.RegisterResponse:
+    properties:
+      data:
+        $ref: '#/definitions/response.RegisterData'
+      status:
+        type: string
+    type: object
 host: 178.128.61.145:8084
 info:
   contact:
@@ -87,11 +149,9 @@ paths:
       - application/json
       responses:
         "201":
-          description: 'Successful registration response" example({"status": "success",
-            "data": {"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzcxODE2NTAsInVzZXJfaWQiOjN9.nd-wN002UeYukRVwSY1jsNVAz9hcB2p24eHuvV5Pe6E"}})'
+          description: Successful registration response
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.LoginResponse'
       summary: Logs in an existing user
       tags:
       - auth
@@ -113,11 +173,9 @@ paths:
       - application/json
       responses:
         "201":
-          description: 'Successful registration response" example({"status": "success",
-            "data": {"message": "User registered successfully"}})'
+          description: Successful registration response
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.RegisterResponse'
       summary: Registers a new user
       tags:
       - auth
@@ -129,15 +187,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: 'Successful fetch posts response" example({"status": "success",
-            "data": [{"id": 1, "user_id": 1, "caption": "A beautiful view of the fjords",
-            "image_url": "https://www.w3schools.com/w3images/fjords.jpg", "created_at":
-            "2025-01-17 06:23:03", "updated_at": "2025-01-17 06:23:03"}, {"id": 2,
-            "user_id": 2, "caption": "The city lights at night", "image_url": "https://www.w3schools.com/w3images/lights.jpg",
-            "created_at": "2025-01-17 06:23:03", "updated_at": "2025-01-17 06:23:03"}]})'
+          description: Successful fetch posts response
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.GetAllPostsResponse'
       summary: Get all posts
       tags:
       - posts
@@ -161,12 +213,9 @@ paths:
       - application/json
       responses:
         "201":
-          description: 'Successful image upload response" example({"status": "success",
-            "data": {"id": 3, "user_id": 3, "caption": "hi there", "image_url": "http://localhost:8084/uploads/background.jpg",
-            "created_at": "2025-01-17 06:47:16", "updated_at": "2025-01-17 06:47:16"}})'
+          description: Successful image upload response
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.CreatePostResponse'
       security:
       - BearerAuth: []
       summary: Create a new post
@@ -201,13 +250,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: 'Successful fetch post response" example({"status": "success",
-            "data": {"id": 1, "user_id": 1, "caption": "A beautiful view of the fjords",
-            "image_url": "https://www.w3schools.com/w3images/fjords.jpg", "created_at":
-            "2025-01-17 06:23:03", "updated_at": "2025-01-17 06:23:03"}})'
+          description: Successful fetch post response
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.GetPostByIDResponse'
       summary: Get a post by ID
       tags:
       - posts

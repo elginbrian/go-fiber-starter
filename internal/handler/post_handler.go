@@ -26,7 +26,7 @@ func NewPostHandler(service service.PostService) *PostHandler {
 // @Description Retrieves all posts, including the user who created them, the caption, image URL, and timestamps.
 // @Tags posts
 // @Produce json
-// @Success 200 {object} map[string]interface{} "Successful fetch posts response" example({"status": "success", "data": [{"id": 1, "user_id": 1, "caption": "A beautiful view of the fjords", "image_url": "https://www.w3schools.com/w3images/fjords.jpg", "created_at": "2025-01-17 06:23:03", "updated_at": "2025-01-17 06:23:03"}, {"id": 2, "user_id": 2, "caption": "The city lights at night", "image_url": "https://www.w3schools.com/w3images/lights.jpg", "created_at": "2025-01-17 06:23:03", "updated_at": "2025-01-17 06:23:03"}]})
+// @Success 200 {object} response.GetAllPostsResponse "Successful fetch posts response"
 // @Router /api/posts [get]
 func (h *PostHandler) GetAllPosts(c *fiber.Ctx) error {
 	posts, err := h.postService.FetchAllPosts()
@@ -55,7 +55,7 @@ func (h *PostHandler) GetAllPosts(c *fiber.Ctx) error {
 // @Tags posts
 // @Produce json
 // @Param id path int true "Post ID"
-// @Success 200 {object} map[string]interface{} "Successful fetch post response" example({"status": "success", "data": {"id": 1, "user_id": 1, "caption": "A beautiful view of the fjords", "image_url": "https://www.w3schools.com/w3images/fjords.jpg", "created_at": "2025-01-17 06:23:03", "updated_at": "2025-01-17 06:23:03"}})
+// @Success 200 {object} response.GetPostByIDResponse "Successful fetch post response" 
 // @Router /api/posts/{id} [get]
 func (h *PostHandler) GetPostByID(c *fiber.Ctx) error {
 	id := c.Params("id")
@@ -88,7 +88,7 @@ func (h *PostHandler) GetPostByID(c *fiber.Ctx) error {
 // @Param caption formData string true "Post caption"
 // @Param image formData file false "Post image (optional)"
 // @Security BearerAuth
-// @Success 201 {object} map[string]interface{} "Successful image upload response" example({"status": "success", "data": {"id": 3, "user_id": 3, "caption": "hi there", "image_url": "http://localhost:8084/uploads/background.jpg", "created_at": "2025-01-17 06:47:16", "updated_at": "2025-01-17 06:47:16"}})
+// @Success 201 {object} response.CreatePostResponse "Successful image upload response"
 // @Router /api/posts [post]
 func (h *PostHandler) CreatePost(c *fiber.Ctx) error {
 	userID, ok := c.Locals("user_id").(int)

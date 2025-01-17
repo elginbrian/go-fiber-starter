@@ -79,3 +79,44 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 		Token: token,
 	})
 }
+
+// @Summary Changes a user's password
+// @Description This endpoint allows a user to change their password by providing their old password and a new password. The request requires authentication via a JWT token.
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body request.ChangePasswordRequest true "User change password details"
+// @Security BearerAuth
+// @Success 200 {object} response.ChangePasswordResponse "Password changed successfully"
+// @Failure 400 {object} response.ErrorResponse "Bad request"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
+// @Router /api/auth/change-password [post]
+func (h *AuthHandler) ChangePassword(c *fiber.Ctx) error {
+	var req request.ChangePasswordRequest
+
+	if err := c.BodyParser(&req); err != nil {
+		return response.ValidationError(c, "Invalid request format")
+	}
+
+	validate := validator.New()
+	if validationErrs := validate.Struct(req); validationErrs != nil {
+		return response.ValidationError(c, validationErrs.Error())
+	}
+
+	userID, ok := c.Locals("user_id").(int)
+	if !ok {
+		return response.ValidationError(c, "Invalid or missing user ID")
+	}
+
+	if userID == 0 {
+		return response.Error(c.Status(fiber.StatusUnauthorized), "Unauthorized")
+	}
+
+	if err := h.authService.ChangePassword(userID, req.OldPassword, req.NewPassword); err != nil {
+		return response.Error(c, err.Error())
+	}
+
+	return response.Success(c, response.ChangePasswordData{
+		Message: "Password changed successfully",
+	})
+}

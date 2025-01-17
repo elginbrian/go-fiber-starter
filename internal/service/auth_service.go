@@ -14,6 +14,7 @@ import (
 type AuthService interface {
 	Register(username, email, password string) error
 	Login(email, password string) (string, error)
+	ChangePassword(userID int, oldPassword, newPassword string) error
 }
 
 type authService struct {
@@ -62,6 +63,31 @@ func (s *authService) Login(email, password string) (string, error) {
 	}
 
 	return token, nil
+}
+
+func (s *authService) ChangePassword(userID int, oldPassword, newPassword string) error {
+	ctx := context.Background()
+
+	user, err := s.userRepo.GetUserByID(ctx, userID)
+	if err != nil {
+		return errors.New("user not found")
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(oldPassword)); err != nil {
+		return errors.New("incorrect old password")
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	user.PasswordHash = string(hashedPassword)
+	if _, err := s.userRepo.UpdateUser(ctx, user.ID, user); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func GenerateJWT(userID int, secret string) (string, error) {

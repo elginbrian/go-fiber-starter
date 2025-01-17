@@ -20,7 +20,7 @@ func SetupRoutes(
 	app.Get("/docs/*", fiberSwagger.WrapHandler)
 
 	setupUserRoutes(app, userHandler, jwtSecret)
-	setupAuthRoutes(app, authHandler)
+	setupAuthRoutes(app, authHandler, jwtSecret)
 	setupPostRoutes(app, postHandler, jwtSecret)
 }
 
@@ -28,18 +28,19 @@ func redirectToDocs(c *fiber.Ctx) error {
 	return c.Redirect("/docs/index.html")
 }
 
-func setupUserRoutes(app *fiber.App, handler *handler.UserHandler, jwtSecret string) {
-	userGroup := app.Group("/api/users")
-	userGroup.Put("/:id", middleware.TokenValidationMiddleware(jwtSecret), handler.UpdateUser)
-	userGroup.Get("/", handler.GetAllUsers)
-	userGroup.Get("/:id", handler.GetUserByID)
-	app.Get("/search", handler.SearchUsers)
+func setupUserRoutes(app *fiber.App, handler *handler.UserHandler, jwtSecret string) { 
+    userGroup := app.Group("/api/users")
+    userGroup.Put("/:id", middleware.TokenValidationMiddleware(jwtSecret), handler.UpdateUser)
+    userGroup.Get("/", handler.GetAllUsers)
+    userGroup.Get("/:id", handler.GetUserByID)
+    userGroup.Get("/search", handler.SearchUsers)
 }
 
-func setupAuthRoutes(app *fiber.App, handler *handler.AuthHandler) {
+func setupAuthRoutes(app *fiber.App, handler *handler.AuthHandler, jwtSecret string) {
 	authGroup := app.Group("/api/auth")
 	authGroup.Post("/register", handler.Register)
 	authGroup.Post("/login", handler.Login)
+	authGroup.Post("/change-password", handler.ChangePassword, middleware.TokenValidationMiddleware(jwtSecret))
 }
 
 func setupPostRoutes(app *fiber.App, handler *handler.PostHandler, jwtSecret string) {

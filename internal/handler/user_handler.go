@@ -116,21 +116,23 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 }
 
 // UpdateUser godoc
-// @Summary Update an existing user's details
-// @Description Updates the user's account details. Users can only modify their own account.
+// @Summary Update an existing user's username
+// @Description Updates the user's username. Users can only modify their own account.
 // @Tags users
-// @Accept json
+// @Accept plain
 // @Produce json
 // @Param id path int true "User ID"
-// @Param user body domain.User true "Updated user details"
+// @Param username body string true "Updated username"
 // @Security BearerAuth
+// @Success 200 {object} response.UpdateUserResponse "Successful update user response"
 // @Failure 400 {object} response.ErrorResponse "Bad request"
 // @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /api/users/{id} [put]
 func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
-	userID, err := parseUserID(c)
+	id := c.Params("id")
+	userID, err := strconv.Atoi(id)
 	if err != nil {
-		return response.Error(c, err.Error(), fiber.StatusBadRequest)
+		return response.Error(c, "Invalid user ID", fiber.StatusBadRequest)
 	}
 
 	authenticatedUserID := c.Locals("userID").(int)
@@ -139,18 +141,20 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 		return response.Error(c, "You are not authorized to update this user", fiber.StatusForbidden)
 	}
 
-	var user domain.User
-	if err := c.BodyParser(&user); err != nil {
-		return response.ValidationError(c, "Invalid input data")
-	}
-
-	if validationErrs := response.ValidateStruct(user); validationErrs != nil {
-		return response.ValidationError(c, validationErrs)
-	}
-
-	updatedUser, err := h.userService.UpdateUser(userID, user)
+	user, err := h.userService.FetchUserByID(userID)
 	if err != nil {
 		return response.Error(c, "User not found", fiber.StatusNotFound)
+	}
+
+	username := string(c.Body())
+	if len(username) < 3 || len(username) > 50 {
+		return response.ValidationError(c, "Username must be between 3 and 50 characters")
+	}
+
+	user.Name = username
+	updatedUser, err := h.userService.UpdateUser(userID, user)
+	if err != nil {
+		return response.Error(c, err.Error(), fiber.StatusInternalServerError)
 	}
 
 	userResponse := domain.UserResponse{
@@ -172,7 +176,6 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 // @Security BearerAuth
 // @Success 200 {object} response.DeleteUserResponse "Successful delete user by ID response"
 // @Failure 400 {object} response.ErrorResponse "Bad request"
-// @Failure 403 {object} response.ErrorResponse "Forbidden"
 // @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /api/users/{id} [delete]
 func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {

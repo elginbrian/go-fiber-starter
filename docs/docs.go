@@ -411,9 +411,9 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Updates the user's account details. Users can only modify their own account.",
+                "description": "Updates the user's username. Users can only modify their own account.",
                 "consumes": [
-                    "application/json"
+                    "text/plain"
                 ],
                 "produces": [
                     "application/json"
@@ -421,7 +421,7 @@ const docTemplate = `{
                 "tags": [
                     "users"
                 ],
-                "summary": "Update an existing user's details",
+                "summary": "Update an existing user's username",
                 "parameters": [
                     {
                         "type": "integer",
@@ -431,16 +431,22 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Updated user details",
-                        "name": "user",
+                        "description": "Updated username",
+                        "name": "username",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.User"
+                            "type": "string"
                         }
                     }
                 ],
                 "responses": {
+                    "200": {
+                        "description": "Successful update user response",
+                        "schema": {
+                            "$ref": "#/definitions/response.UpdateUserResponse"
+                        }
+                    },
                     "400": {
                         "description": "Bad request",
                         "schema": {
@@ -488,12 +494,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
@@ -505,26 +505,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "domain.User": {
-            "type": "object",
-            "properties": {
-                "created": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "updated": {
-                    "type": "string"
-                }
-            }
-        },
         "request.UserLoginRequest": {
             "type": "object",
             "required": [
@@ -709,6 +689,17 @@ const docTemplate = `{
             "properties": {
                 "data": {
                     "$ref": "#/definitions/response.Post"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.UpdateUserResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/response.User"
                 },
                 "status": {
                     "type": "string"

@@ -9,6 +9,7 @@ import (
 type PostService interface {
 	FetchAllPosts() ([]domain.Post, error)
 	FetchPostByID(id int) (domain.Post, error)
+	FetchPostsByUserID(userID int) ([]domain.Post, error)
 	CreatePost(post domain.Post) (domain.Post, error)
 	UpdatePost(id int, post domain.Post) (domain.Post, error)
 	DeletePost(id int) error
@@ -37,6 +38,18 @@ func (s *postService) FetchPostByID(id int) (domain.Post, error) {
 		return domain.Post{}, domain.ErrNotFound
 	}
 	return *post, nil
+}
+
+func (s *postService) FetchPostsByUserID(userID int) ([]domain.Post, error) {
+	ctx := context.Background()
+	posts, err := s.postRepo.FetchPostsByUserID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	if len(posts) == 0 {
+		return nil, domain.ErrNotFound 
+	}
+	return posts, nil
 }
 
 func (s *postService) CreatePost(post domain.Post) (domain.Post, error) {

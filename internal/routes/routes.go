@@ -33,6 +33,7 @@ func setupUserRoutes(app *fiber.App, handler *handler.UserHandler, jwtSecret str
 	userGroup.Put("/:id", middleware.TokenValidationMiddleware(jwtSecret), handler.UpdateUser)
 	userGroup.Get("/", handler.GetAllUsers)
 	userGroup.Get("/:id", handler.GetUserByID)
+	app.Get("/search", handler.SearchUsers)
 }
 
 func setupAuthRoutes(app *fiber.App, handler *handler.AuthHandler) {
@@ -48,4 +49,5 @@ func setupPostRoutes(app *fiber.App, handler *handler.PostHandler, jwtSecret str
 	postGroup.Delete("/:id", middleware.TokenValidationMiddleware(jwtSecret), handler.DeletePost)
 	postGroup.Get("/", handler.GetAllPosts)
 	postGroup.Get("/:id", handler.GetPostByID)
+	postGroup.Get("/user/:user_id", handler.GetPostsByUserID)
 }

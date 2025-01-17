@@ -13,6 +13,7 @@ import (
 type PostRepository interface {
 	FetchAllPosts(ctx context.Context) ([]domain.Post, error)
 	FetchPostByID(ctx context.Context, postID int) (*domain.Post, error)
+	FetchPostsByUserID(ctx context.Context, userID int) ([]domain.Post, error)
 	CreatePost(ctx context.Context, post domain.Post) (*domain.Post, error)
 	UpdatePost(ctx context.Context, postID int, post domain.Post) (*domain.Post, error)
 	DeletePost(ctx context.Context, postID int) error
@@ -60,6 +61,28 @@ func (r *postRepository) FetchPostByID(ctx context.Context, postID int) (*domain
 		return nil, fmt.Errorf("error fetching post by ID: %w", err)
 	}
 	return &post, nil
+}
+
+func (r *postRepository) FetchPostsByUserID(ctx context.Context, userID int) ([]domain.Post, error) {
+	query := "SELECT id, user_id, caption, image_url, created_at, updated_at FROM posts WHERE user_id = $1"
+	rows, err := r.db.Query(ctx, query, userID)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching posts for user %d: %w", userID, err)
+	}
+	defer rows.Close()
+
+	var posts []domain.Post
+	for rows.Next() {
+		var post domain.Post
+		if err := rows.Scan(&post.ID, &post.UserID, &post.Caption, &post.ImageURL, &post.CreatedAt, &post.UpdatedAt); err != nil {
+			return nil, fmt.Errorf("error scanning post row: %w", err)
+		}
+		posts = append(posts, post)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating over rows: %w", err)
+	}
+	return posts, nil
 }
 
 func (r *postRepository) CreatePost(ctx context.Context, post domain.Post) (*domain.Post, error) {

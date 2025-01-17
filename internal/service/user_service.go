@@ -12,6 +12,7 @@ type UserService interface {
 	CreateUser(user domain.User) (domain.User, error)
 	UpdateUser(id int, user domain.User) (domain.User, error)
 	DeleteUser(id int) error
+	SearchUsers(query string) ([]domain.User, error)
 }
 
 type userService struct {
@@ -45,4 +46,9 @@ func (s *userService) UpdateUser(id int, user domain.User) (domain.User, error) 
 func (s *userService) DeleteUser(id int) error {
 	ctx := context.Background()
 	return s.userRepo.DeleteUser(ctx, id)
+}
+
+func (s *userService) SearchUsers(query string) ([]domain.User, error) {
+    ctx := context.Background()
+    return s.userRepo.SearchUsers(ctx, query)
 }

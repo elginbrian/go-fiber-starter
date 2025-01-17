@@ -1,5 +1,18 @@
 basePath: /
 definitions:
+  domain.UserResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
   request.UpdatePostRequest:
     properties:
       caption:
@@ -391,6 +404,34 @@ paths:
       summary: Update the caption of an existing post
       tags:
       - posts
+  /api/posts/user/{user_id}:
+    get:
+      description: Retrieves all posts created by a specific user, including the caption,
+        image URL, and timestamps.
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful fetch posts by user response
+          schema:
+            $ref: '#/definitions/response.GetAllPostsResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get all posts by a specific user
+      tags:
+      - posts
   /api/users:
     get:
       description: Fetches all user records from the database and returns them with
@@ -475,6 +516,35 @@ paths:
       security:
       - BearerAuth: []
       summary: Update an existing user's username
+      tags:
+      - users
+  /api/users/search:
+    get:
+      description: Retrieves users that match the given search query in name or email.
+      parameters:
+      - description: Search query
+        in: query
+        name: query
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful search response
+          schema:
+            items:
+              $ref: '#/definitions/domain.UserResponse'
+            type: array
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Search for users by name or email
       tags:
       - users
 securityDefinitions:

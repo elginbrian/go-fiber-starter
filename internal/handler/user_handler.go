@@ -192,3 +192,38 @@ func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
 
 	return response.Success(c, "User deleted successfully")
 }
+
+// SearchUsers godoc
+// @Summary Search for users by name or email
+// @Description Retrieves users that match the given search query in name or email.
+// @Tags users
+// @Produce json
+// @Param query query string true "Search query"
+// @Success 200 {array} domain.UserResponse "Successful search response"
+// @Failure 400 {object} response.ErrorResponse "Bad request"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
+// @Router /api/users/search [get]
+func (h *UserHandler) SearchUsers(c *fiber.Ctx) error {
+    query := c.Query("query")
+    if query == "" {
+        return response.Error(c, "Query parameter is required", fiber.StatusBadRequest)
+    }
+
+    users, err := h.userService.SearchUsers(query)
+    if err != nil {
+        return response.Error(c, err.Error(), fiber.StatusInternalServerError)
+    }
+
+    var userResponses []domain.UserResponse
+    for _, user := range users {
+        userResponses = append(userResponses, domain.UserResponse{
+            ID:        user.ID,
+            Username:  user.Name,
+            Email:     user.Email,
+            CreatedAt: user.CreatedAt,
+            UpdatedAt: user.UpdatedAt,
+        })
+    }
+
+    return response.Success(c, userResponses)
+}

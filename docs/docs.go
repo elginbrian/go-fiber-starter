@@ -201,6 +201,47 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/posts/user/{user_id}": {
+            "get": {
+                "description": "Retrieves all posts created by a specific user, including the caption, image URL, and timestamps.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "posts"
+                ],
+                "summary": "Get all posts by a specific user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful fetch posts by user response",
+                        "schema": {
+                            "$ref": "#/definitions/response.GetAllPostsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/posts/{id}": {
             "get": {
                 "description": "Retrieves a specific post by its ID, including its caption, image URL, and timestamps.",
@@ -371,6 +412,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/users/search": {
+            "get": {
+                "description": "Retrieves users that match the given search query in name or email.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Search for users by name or email",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search query",
+                        "name": "query",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful search response",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.UserResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/users/{id}": {
             "get": {
                 "description": "Fetches a specific user record from the database by the provided ID and returns the user's details, including timestamps.",
@@ -470,6 +555,26 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "domain.UserResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "request.UpdatePostRequest": {
             "type": "object",
             "required": [

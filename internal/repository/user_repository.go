@@ -17,6 +17,7 @@ type UserRepository interface {
 	CreateUser(ctx context.Context, user domain.User) (domain.User, error)
 	UpdateUser(ctx context.Context, id int, user domain.User) (domain.User, error)
 	DeleteUser(ctx context.Context, id int) error
+	SearchUsers(ctx context.Context, query string) ([]domain.User, error)
 }
 
 type userRepository struct {
@@ -108,4 +109,29 @@ func (r *userRepository) DeleteUser(ctx context.Context, id int) error {
 	}
 
 	return nil
+}
+
+func (r *userRepository) SearchUsers(ctx context.Context, query string) ([]domain.User, error) {
+    rows, err := r.db.Query(ctx, 
+        "SELECT id, name, email, created_at, updated_at FROM users WHERE name ILIKE $1 OR email ILIKE $1", 
+        "%"+query+"%")
+    if err != nil {
+        return nil, fmt.Errorf("error searching users: %w", err)
+    }
+    defer rows.Close()
+
+    var users []domain.User
+    for rows.Next() {
+        var user domain.User
+        if err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.CreatedAt, &user.UpdatedAt); err != nil {
+            return nil, fmt.Errorf("error scanning user row: %w", err)
+        }
+        users = append(users, user)
+    }
+
+    if len(users) == 0 {
+        return nil, errors.New("no users found")
+    }
+
+    return users, nil
 }

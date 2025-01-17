@@ -84,6 +84,46 @@ func (h *PostHandler) GetPostByID(c *fiber.Ctx) error {
 	return response.Success(c, postResponse, fiber.StatusOK)
 }
 
+// GetPostsByUserID godoc
+// @Summary Get all posts by a specific user
+// @Description Retrieves all posts created by a specific user, including the caption, image URL, and timestamps.
+// @Tags posts
+// @Produce json
+// @Param user_id path int true "User ID"
+// @Success 200 {object} response.GetAllPostsResponse "Successful fetch posts by user response"
+// @Failure 400 {object} response.ErrorResponse "Bad request"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
+// @Router /api/posts/user/{user_id} [get]
+func (h *PostHandler) GetPostsByUserID(c *fiber.Ctx) error {
+	userIDParam := c.Params("user_id")
+	userID, err := strconv.Atoi(userIDParam)
+	if err != nil {
+		return response.Error(c, "Invalid user ID", fiber.StatusBadRequest)
+	}
+
+	posts, err := h.postService.FetchPostsByUserID(userID)
+	if err != nil {
+		if err == domain.ErrNotFound {
+			return response.Error(c, "No posts found for this user", fiber.StatusNotFound)
+		}
+		return response.Error(c, "Failed to fetch posts", fiber.StatusInternalServerError)
+	}
+
+	var postResponse []domain.PostResponse
+	for _, post := range posts {
+		postResponse = append(postResponse, domain.PostResponse{
+			ID:        post.ID,
+			UserID:    post.UserID,
+			Caption:   post.Caption,
+			ImageURL:  post.ImageURL,
+			CreatedAt: post.CreatedAt.Format("2006-01-02 15:04:05"),
+			UpdatedAt: post.UpdatedAt.Format("2006-01-02 15:04:05"),
+		})
+	}
+
+	return response.Success(c, postResponse, fiber.StatusOK)
+}
+
 // CreatePost godoc
 // @Summary Create a new post
 // @Description Creates a new post with an optional image. The caption is required. If an image is provided, it will be uploaded to the server, and the URL will be returned in the response.

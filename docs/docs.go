@@ -121,6 +121,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/auth/me": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "This endpoint retrieves the details of the authenticated user using the JWT token provided in the Authorization header.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Retrieves information about the currently logged-in user",
+                "responses": {
+                    "200": {
+                        "description": "User information retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/response.GetCurrentUserResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized or invalid token",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/auth/register": {
             "post": {
                 "description": "This endpoint allows users to create a new account by providing a username, email, and password. The registration data is validated, and upon successful registration, a success message is returned.",
@@ -264,7 +304,7 @@ const docTemplate = `{
                 "summary": "Get all posts by a specific user",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "User ID",
                         "name": "user_id",
                         "in": "path",
@@ -305,7 +345,7 @@ const docTemplate = `{
                 "summary": "Get a post by ID",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Post ID",
                         "name": "id",
                         "in": "path",
@@ -352,7 +392,7 @@ const docTemplate = `{
                 "summary": "Update the caption of an existing post",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Post ID",
                         "name": "id",
                         "in": "path",
@@ -402,7 +442,7 @@ const docTemplate = `{
                 "summary": "Delete a post",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Post ID",
                         "name": "id",
                         "in": "path",
@@ -519,7 +559,7 @@ const docTemplate = `{
                 "summary": "Retrieve user details by user ID",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "User ID",
                         "name": "id",
                         "in": "path",
@@ -566,7 +606,7 @@ const docTemplate = `{
                 "summary": "Update an existing user's username",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "User ID",
                         "name": "id",
                         "in": "path",
@@ -616,7 +656,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"
@@ -642,7 +682,7 @@ const docTemplate = `{
                     "minLength": 6
                 },
                 "user_id": {
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         },
@@ -778,6 +818,17 @@ const docTemplate = `{
                 }
             }
         },
+        "response.GetCurrentUserResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/response.User"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "response.GetPostByIDResponse": {
             "type": "object",
             "properties": {
@@ -829,7 +880,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "image_url": {
                     "type": "string"
@@ -838,7 +889,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_id": {
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         },
@@ -893,7 +944,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"

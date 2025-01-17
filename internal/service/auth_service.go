@@ -15,6 +15,7 @@ type AuthService interface {
 	Register(username, email, password string) error
 	Login(email, password string) (string, error)
 	ChangePassword(userID string, oldPassword, newPassword string) error
+	GetCurrentUser(ctx context.Context, token string) (*domain.User, error)
 }
 
 type authService struct {
@@ -70,6 +71,43 @@ func (s *authService) Login(email, password string) (string, error) {
 	}
 
 	return token, nil
+}
+
+func (s *authService) GetCurrentUser(ctx context.Context, token string) (*domain.User, error) {
+    parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+        if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+            return nil, errors.New("invalid token signing method")
+        }
+        return []byte(s.jwtSecret), nil
+    })
+    if err != nil || !parsedToken.Valid {
+        return nil, errors.New("invalid or expired token")
+    }
+
+    claims, ok := parsedToken.Claims.(jwt.MapClaims)
+    if !ok {
+        return nil, errors.New("invalid token claims")
+    }
+
+    userID, ok := claims["user_id"].(string)
+    if !ok {
+        return nil, errors.New("user_id not found in token claims")
+    }
+
+    user, err := s.userRepo.GetUserByID(ctx, userID)
+
+	returnedUser := &domain.User{
+		ID:    user.ID,
+		Name:  user.Name,
+		Email: user.Email,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	}
+	if err != nil {
+		return nil, ErrUserNotFound
+	}
+
+	return returnedUser, nil
 }
 
 func (s *authService) ChangePassword(userID string, oldPassword, newPassword string) error {

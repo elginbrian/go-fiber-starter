@@ -18,6 +18,11 @@ type RegisterData struct {
 	Message string `json:"message"`
 }
 
+type GetCurrentUserResponse struct {
+	Status string `json:"status"`
+	Data   User   `json:"data"`
+}
+
 type ChangePasswordResponse struct {
 	Status string       `json:"status"`
 	Data   RegisterData `json:"data"`

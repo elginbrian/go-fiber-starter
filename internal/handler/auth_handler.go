@@ -80,6 +80,39 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	})
 }
 
+// @Summary Retrieves information about the currently logged-in user
+// @Description This endpoint retrieves the details of the authenticated user using the JWT token provided in the Authorization header.
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} response.GetCurrentUserResponse "User information retrieved successfully"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized or invalid token"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
+// @Router /api/auth/me [get]
+func (h *AuthHandler) GetUserInfo(c *fiber.Ctx) error {
+    authHeader := c.Get("Authorization")
+    if authHeader == "" || len(authHeader) <= len("Bearer ") {
+        return response.Error(c.Status(fiber.StatusUnauthorized), "Missing or invalid token")
+    }
+
+    token := authHeader[len("Bearer "):]
+
+    ctx := c.Context()
+    user, err := h.authService.GetCurrentUser(ctx, token)
+    if err != nil {
+        return response.Error(c.Status(fiber.StatusUnauthorized), err.Error())
+    }
+
+    return response.Success(c, response.User{
+        ID:        user.ID,
+        Username:  user.Name,
+        Email:     user.Email,
+        CreatedAt: user.CreatedAt,
+        UpdatedAt: user.UpdatedAt,
+    })
+}
+
 // @Summary Changes a user's password 
 // @Description This endpoint allows a user to change their password by providing their old password, new password, and user ID. The request requires authentication via a JWT token.
 // @Tags auth

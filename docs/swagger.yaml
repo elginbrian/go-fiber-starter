@@ -7,7 +7,7 @@ definitions:
       email:
         type: string
       id:
-        type: integer
+        type: string
       updated_at:
         type: string
       username:
@@ -22,7 +22,7 @@ definitions:
         minLength: 6
         type: string
       user_id:
-        type: integer
+        type: string
     required:
     - new_password
     - old_password
@@ -114,6 +114,13 @@ definitions:
       status:
         type: string
     type: object
+  response.GetCurrentUserResponse:
+    properties:
+      data:
+        $ref: '#/definitions/response.User'
+      status:
+        type: string
+    type: object
   response.GetPostByIDResponse:
     properties:
       data:
@@ -147,13 +154,13 @@ definitions:
       created_at:
         type: string
       id:
-        type: integer
+        type: string
       image_url:
         type: string
       updated_at:
         type: string
       user_id:
-        type: integer
+        type: string
     type: object
   response.RegisterData:
     properties:
@@ -188,7 +195,7 @@ definitions:
       email:
         type: string
       id:
-        type: integer
+        type: string
       updated_at:
         type: string
       username:
@@ -275,6 +282,32 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrorResponse'
       summary: Logs in an existing user
+      tags:
+      - auth
+  /api/auth/me:
+    get:
+      consumes:
+      - application/json
+      description: This endpoint retrieves the details of the authenticated user using
+        the JWT token provided in the Authorization header.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User information retrieved successfully
+          schema:
+            $ref: '#/definitions/response.GetCurrentUserResponse'
+        "401":
+          description: Unauthorized or invalid token
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Retrieves information about the currently logged-in user
       tags:
       - auth
   /api/auth/register:
@@ -376,7 +409,7 @@ paths:
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       responses:
         "204":
           description: Successful delete post response
@@ -403,7 +436,7 @@ paths:
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -432,7 +465,7 @@ paths:
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       - description: Request body with updated caption
         in: body
         name: request
@@ -468,7 +501,7 @@ paths:
         in: path
         name: user_id
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -547,7 +580,7 @@ paths:
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -575,7 +608,7 @@ paths:
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       - description: Request body with updated username
         in: body
         name: request

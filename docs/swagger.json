@@ -421,7 +421,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "posts"
+                    "search"
                 ],
                 "summary": "Search posts by title or content",
                 "parameters": [
@@ -459,7 +459,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "search"
                 ],
                 "summary": "Search for users by name or email",
                 "parameters": [

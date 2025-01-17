@@ -199,7 +199,7 @@ func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
 // SearchUsers godoc
 // @Summary Search for users by name or email
 // @Description Retrieves users that match the given search query in name or email.
-// @Tags users
+// @Tags search
 // @Produce json
 // @Param query query string true "Search query"
 // @Success 200 {array} domain.UserResponse "Successful search response"

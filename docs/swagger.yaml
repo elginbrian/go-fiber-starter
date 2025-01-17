@@ -498,7 +498,7 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       summary: Search posts by title or content
       tags:
-      - posts
+      - search
   /api/search/users:
     get:
       description: Retrieves users that match the given search query in name or email.
@@ -527,7 +527,7 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       summary: Search for users by name or email
       tags:
-      - users
+      - search
   /api/users:
     get:
       description: Fetches all user records from the database and returns them with

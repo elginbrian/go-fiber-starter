@@ -296,7 +296,7 @@ func (h *PostHandler) DeletePost(c *fiber.Ctx) error {
 // SearchPosts godoc
 // @Summary Search posts by title or content
 // @Description Retrieves posts that match the search query.
-// @Tags posts
+// @Tags search
 // @Produce json
 // @Param query query string true "Search query"
 // @Success 200 {array} response.SearchPostsResponse "Successful search response"

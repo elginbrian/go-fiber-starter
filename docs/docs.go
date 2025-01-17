@@ -427,7 +427,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "posts"
+                    "search"
                 ],
                 "summary": "Search posts by title or content",
                 "parameters": [
@@ -465,7 +465,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "search"
                 ],
                 "summary": "Search for users by name or email",
                 "parameters": [

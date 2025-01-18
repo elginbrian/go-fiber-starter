@@ -119,7 +119,12 @@ func (s *authService) ChangePassword(userID string, oldPassword, newPassword str
 		return ErrUserNotFound
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(oldPassword)); err != nil {
+	userByEmail, err := s.authRepo.GetUserByEmail(ctx, user.Email)
+	if err != nil || userByEmail == nil {
+		return ErrUserNotFound
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(userByEmail.PasswordHash), []byte(oldPassword)); err != nil {
 		return ErrIncorrectPassword
 	}
 

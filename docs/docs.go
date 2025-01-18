@@ -24,6 +24,57 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/auth/change-password": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "This endpoint allows an authenticated user to change their password. The user is identified by the JWT token provided in the Authorization header.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Change user password",
+                "parameters": [
+                    {
+                        "description": "Change Password Request",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ChangePasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Password changed successfully",
+                        "schema": {
+                            "$ref": "#/definitions/response.ChangePasswordData"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error or invalid request format",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/auth/current-user": {
             "get": {
                 "security": [
@@ -534,6 +585,63 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/users/update": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updates the username of the authenticated user. The user is identified by the JWT token provided in the Authorization header.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Update the authenticated user's username",
+                "parameters": [
+                    {
+                        "description": "Request body with updated username",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful update user response",
+                        "schema": {
+                            "$ref": "#/definitions/response.UpdateUserResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized or invalid token",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/users/{id}": {
             "get": {
                 "description": "Fetches a specific user record from the database by the provided ID and returns the user's details, including timestamps.",
@@ -573,62 +681,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Updates the user's username. Users can only modify their own account.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "users"
-                ],
-                "summary": "Update an existing user's username",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Request body with updated username",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.UpdateUserRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful update user response",
-                        "schema": {
-                            "$ref": "#/definitions/response.UpdateUserResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    }
-                }
             }
         }
     },
@@ -650,6 +702,23 @@ const docTemplate = `{
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "request.ChangePasswordRequest": {
+            "type": "object",
+            "required": [
+                "new_password",
+                "old_password"
+            ],
+            "properties": {
+                "new_password": {
+                    "type": "string",
+                    "minLength": 6
+                },
+                "old_password": {
+                    "type": "string",
+                    "minLength": 6
                 }
             }
         },
@@ -709,6 +778,14 @@ const docTemplate = `{
                     "minLength": 6
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ChangePasswordData": {
+            "type": "object",
+            "properties": {
+                "message": {
                     "type": "string"
                 }
             }

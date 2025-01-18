@@ -113,33 +113,46 @@ func (h *AuthHandler) GetUserInfo(c *fiber.Ctx) error {
     })
 }
 
+// @Summary Change user password
+// @Description This endpoint allows an authenticated user to change their password. The user is identified by the JWT token provided in the Authorization header.
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param data body request.ChangePasswordRequest true "Change Password Request"
+// @Success 200 {object} response.ChangePasswordData "Password changed successfully"
+// @Failure 400 {object} response.ErrorResponse "Validation error or invalid request format"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
+// @Router /api/auth/change-password [put]
 func (h *AuthHandler) ChangePassword(c *fiber.Ctx) error {
-	var req request.ChangePasswordRequest
+    authHeader := c.Get("Authorization")
+    if authHeader == "" || len(authHeader) <= len("Bearer ") {
+        return response.Error(c.Status(fiber.StatusUnauthorized), "Missing or invalid token")
+    }
 
-	if err := c.BodyParser(&req); err != nil {
-		return response.ValidationError(c, "Invalid request format")
-	}
+    token := authHeader[len("Bearer "):]
 
-	validate := validator.New()
-	if validationErrs := validate.Struct(req); validationErrs != nil {
-		return response.ValidationError(c, validationErrs.Error())
-	}
+    ctx := c.Context()
+    user, err := h.authService.GetCurrentUser(ctx, token)
+    if err != nil {
+        return response.Error(c.Status(fiber.StatusUnauthorized), "Unauthorized: "+err.Error())
+    }
 
-	if req.UserID == "" {
-		return response.ValidationError(c, "User ID is required")
-	}
+    var req request.ChangePasswordRequest
+    if err := c.BodyParser(&req); err != nil {
+        return response.ValidationError(c, "Invalid request format")
+    }
 
-	userID := req.UserID
+    validate := validator.New()
+    if validationErrs := validate.Struct(req); validationErrs != nil {
+        return response.ValidationError(c, validationErrs.Error())
+    }
 
-	if userID != c.Locals("user_id").(string) {
-		return response.Error(c.Status(fiber.StatusUnauthorized), "Unauthorized to change this password")
-	}
+    if err := h.authService.ChangePassword(user.ID, req.OldPassword, req.NewPassword); err != nil {
+        return response.Error(c, err.Error())
+    }
 
-	if err := h.authService.ChangePassword(userID, req.OldPassword, req.NewPassword); err != nil {
-		return response.Error(c, err.Error())
-	}
-
-	return response.Success(c, response.ChangePasswordData{
-		Message: "Password changed successfully",
-	})
+    return response.Success(c, response.ChangePasswordData{
+        Message: "Password changed successfully",
+    })
 }

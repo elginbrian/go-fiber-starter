@@ -13,6 +13,18 @@ definitions:
       username:
         type: string
     type: object
+  request.ChangePasswordRequest:
+    properties:
+      new_password:
+        minLength: 6
+        type: string
+      old_password:
+        minLength: 6
+        type: string
+    required:
+    - new_password
+    - old_password
+    type: object
   request.UpdatePostRequest:
     properties:
       caption:
@@ -53,6 +65,11 @@ definitions:
     - email
     - password
     - username
+    type: object
+  response.ChangePasswordData:
+    properties:
+      message:
+        type: string
     type: object
   response.CreatePostResponse:
     properties:
@@ -206,6 +223,39 @@ info:
   title: Fiber Starter API
   version: "1.0"
 paths:
+  /api/auth/change-password:
+    put:
+      consumes:
+      - application/json
+      description: This endpoint allows an authenticated user to change their password.
+        The user is identified by the JWT token provided in the Authorization header.
+      parameters:
+      - description: Change Password Request
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Password changed successfully
+          schema:
+            $ref: '#/definitions/response.ChangePasswordData'
+        "400":
+          description: Validation error or invalid request format
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Change user password
+      tags:
+      - auth
   /api/auth/current-user:
     get:
       consumes:
@@ -578,16 +628,13 @@ paths:
       summary: Retrieve user details by user ID
       tags:
       - users
+  /api/users/update:
     put:
       consumes:
       - application/json
-      description: Updates the user's username. Users can only modify their own account.
+      description: Updates the username of the authenticated user. The user is identified
+        by the JWT token provided in the Authorization header.
       parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: string
       - description: Request body with updated username
         in: body
         name: request
@@ -605,13 +652,17 @@ paths:
           description: Bad request
           schema:
             $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized or invalid token
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
         "500":
           description: Internal server error
           schema:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Update an existing user's username
+      summary: Update the authenticated user's username
       tags:
       - users
 securityDefinitions:

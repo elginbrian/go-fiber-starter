@@ -12,10 +12,14 @@ import (
 
 type UserHandler struct {
 	userService service.UserService
+	authService service.AuthService
 }
 
-func NewUserHandler(service service.UserService) *UserHandler {
-	return &UserHandler{userService: service}
+func NewUserHandler(userService service.UserService, authService service.AuthService) *UserHandler {
+    return &UserHandler{
+        userService: userService,
+        authService: authService,
+    }
 }
 
 func parseUserID(c *fiber.Ctx) (string, error) {
@@ -108,44 +112,33 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 }
 
 // UpdateUser godoc
-// @Summary Update an existing user's username
-// @Description Updates the user's username. Users can only modify their own account.
+// @Summary Update the authenticated user's username
+// @Description Updates the username of the authenticated user. The user is identified by the JWT token provided in the Authorization header.
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param id path string true "User ID"
 // @Param request body request.UpdateUserRequest true "Request body with updated username"
 // @Security BearerAuth
 // @Success 200 {object} response.UpdateUserResponse "Successful update user response"
 // @Failure 400 {object} response.ErrorResponse "Bad request"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized or invalid token"
 // @Failure 500 {object} response.ErrorResponse "Internal server error"
-// @Router /api/users/{id} [put]
+// @Router /api/users/update [put]
 func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
-    userID, err := parseUserID(c)
+    authHeader := c.Get("Authorization")
+    if authHeader == "" || len(authHeader) <= len("Bearer ") {
+        return response.Error(c.Status(fiber.StatusUnauthorized), "Missing or invalid token")
+    }
+
+    token := authHeader[len("Bearer "):]
+
+    ctx := c.Context()
+    user, err := h.authService.GetCurrentUser(ctx, token)
     if err != nil {
-        return response.Error(c, err.Error(), fiber.StatusBadRequest)
-    }
-
-    authenticatedUserID, ok := c.Locals("user_id").(string)
-    if !ok {
-        return response.Error(c, "Unauthorized access", fiber.StatusUnauthorized)
-    }
-
-    if authenticatedUserID != userID {
-        return response.Error(c, "You are not authorized to update this user", fiber.StatusForbidden)
-    }
-
-    existingUser, err := h.userService.FetchUserByID(userID)
-    if err != nil {
-        return response.Error(c, fmt.Sprintf("Error fetching user: %v", err), fiber.StatusInternalServerError)
-    }
-
-	if existingUser.ID == "" {
-        return response.Error(c, "User not found", fiber.StatusNotFound)
+        return response.Error(c.Status(fiber.StatusUnauthorized), "Unauthorized: "+err.Error())
     }
 
     var payload request.UpdateUserRequest
-
     if err := c.BodyParser(&payload); err != nil {
         return response.ValidationError(c, "Invalid input, expected JSON with 'username'")
     }
@@ -155,15 +148,15 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
     }
 
     updatedUser := domain.User{
-        ID:   userID,
-        Name: payload.Username,
-		Email: existingUser.Email,
-		CreatedAt: existingUser.CreatedAt,
+        ID:        user.ID,
+        Name:      payload.Username,
+        Email:     user.Email,
+        CreatedAt: user.CreatedAt,
     }
 
-    updatedUser, err = h.userService.UpdateUser(userID, updatedUser)
+    updatedUser, err = h.userService.UpdateUser(user.ID, updatedUser)
     if err != nil {
-        return response.Error(c, fmt.Sprintf("Error updating user: %v", err), fiber.StatusInternalServerError)
+        return response.Error(c.Status(fiber.StatusInternalServerError), fmt.Sprintf("Error updating user: %v", err))
     }
 
     userResponse := domain.UserResponse{

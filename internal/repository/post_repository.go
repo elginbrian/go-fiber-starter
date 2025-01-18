@@ -12,11 +12,11 @@ import (
 
 type PostRepository interface {
 	FetchAllPosts(ctx context.Context) ([]domain.Post, error)
-	FetchPostByID(ctx context.Context, postID int) (*domain.Post, error)
-	FetchPostsByUserID(ctx context.Context, userID int) ([]domain.Post, error)
+	FetchPostByID(ctx context.Context, postID string) (*domain.Post, error)
+	FetchPostsByUserID(ctx context.Context, userID string) ([]domain.Post, error)
 	CreatePost(ctx context.Context, post domain.Post) (*domain.Post, error)
-	UpdatePost(ctx context.Context, postID int, post domain.Post) (*domain.Post, error)
-	DeletePost(ctx context.Context, postID int) error
+	UpdatePost(ctx context.Context, postID string, post domain.Post) (*domain.Post, error)
+	DeletePost(ctx context.Context, postID string) error
 	SearchPosts(ctx context.Context, query string) ([]domain.Post, error)
 }
 
@@ -50,7 +50,7 @@ func (r *postRepository) FetchAllPosts(ctx context.Context) ([]domain.Post, erro
 	return posts, nil
 }
 
-func (r *postRepository) FetchPostByID(ctx context.Context, postID int) (*domain.Post, error) {
+func (r *postRepository) FetchPostByID(ctx context.Context, postID string) (*domain.Post, error) {
 	query := "SELECT id, user_id, caption, image_url, created_at, updated_at FROM posts WHERE id = $1"
 	row := r.db.QueryRow(ctx, query, postID)
 
@@ -64,7 +64,7 @@ func (r *postRepository) FetchPostByID(ctx context.Context, postID int) (*domain
 	return &post, nil
 }
 
-func (r *postRepository) FetchPostsByUserID(ctx context.Context, userID int) ([]domain.Post, error) {
+func (r *postRepository) FetchPostsByUserID(ctx context.Context, userID string) ([]domain.Post, error) {
 	query := "SELECT id, user_id, caption, image_url, created_at, updated_at FROM posts WHERE user_id = $1"
 	rows, err := r.db.Query(ctx, query, userID)
 	if err != nil {
@@ -99,7 +99,7 @@ func (r *postRepository) CreatePost(ctx context.Context, post domain.Post) (*dom
 	return &post, nil
 }
 
-func (r *postRepository) UpdatePost(ctx context.Context, postID int, post domain.Post) (*domain.Post, error) {
+func (r *postRepository) UpdatePost(ctx context.Context, postID string, post domain.Post) (*domain.Post, error) {
 	query := "UPDATE posts SET caption = $1, image_url = $2, updated_at = NOW() WHERE id = $3 RETURNING id, user_id, caption, image_url, created_at, updated_at"
 	err := r.db.QueryRow(ctx, query, post.Caption, post.ImageURL, postID).Scan(
 		&post.ID, &post.UserID, &post.Caption, &post.ImageURL, &post.CreatedAt, &post.UpdatedAt,
@@ -113,7 +113,7 @@ func (r *postRepository) UpdatePost(ctx context.Context, postID int, post domain
 	return &post, nil
 }
 
-func (r *postRepository) DeletePost(ctx context.Context, postID int) error {
+func (r *postRepository) DeletePost(ctx context.Context, postID string) error {
 	query := "DELETE FROM posts WHERE id = $1"
 	result, err := r.db.Exec(ctx, query, postID)
 	if err != nil {

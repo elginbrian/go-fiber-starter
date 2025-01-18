@@ -7,7 +7,6 @@ import (
 	"fiber-starter/pkg/response"
 	"os"
 	"regexp"
-	"strconv"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -68,11 +67,8 @@ func (h *PostHandler) GetAllPosts(c *fiber.Ctx) error {
 // @Router /api/posts/{id} [get]
 func (h *PostHandler) GetPostByID(c *fiber.Ctx) error {
 	id := c.Params("id")
-	postID, err := strconv.Atoi(id)
-	if err != nil {
-		return response.Error(c, "Invalid post ID", fiber.StatusBadRequest)
-	}
-	post, err := h.postService.FetchPostByID(postID)
+
+	post, err := h.postService.FetchPostByID(id)
 	if err != nil {
 		return response.Error(c, "Post not found", fiber.StatusNotFound)
 	}
@@ -99,11 +95,7 @@ func (h *PostHandler) GetPostByID(c *fiber.Ctx) error {
 // @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /api/posts/user/{user_id} [get]
 func (h *PostHandler) GetPostsByUserID(c *fiber.Ctx) error {
-	userIDParam := c.Params("user_id")
-	userID, err := strconv.Atoi(userIDParam)
-	if err != nil {
-		return response.Error(c, "Invalid user ID", fiber.StatusBadRequest)
-	}
+	userID := c.Params("user_id")
 
 	posts, err := h.postService.FetchPostsByUserID(userID)
 	if err != nil {
@@ -238,12 +230,8 @@ func (h *PostHandler) UpdatePost(c *fiber.Ctx) error {
     }
 
     id := c.Params("id")
-    postID, err := strconv.Atoi(id)
-    if err != nil {
-        return response.Error(c, "Invalid post ID", fiber.StatusBadRequest)
-    }
 
-    existingPost, err := h.postService.FetchPostByID(postID)
+    existingPost, err := h.postService.FetchPostByID(id)
     if err != nil {
         return response.Error(c, "Post not found", fiber.StatusNotFound)
     }
@@ -262,7 +250,7 @@ func (h *PostHandler) UpdatePost(c *fiber.Ctx) error {
     }
 
     existingPost.Caption = input.Caption
-    updatedPost, err := h.postService.UpdatePost(postID, existingPost)
+    updatedPost, err := h.postService.UpdatePost(id, existingPost)
     if err != nil {
         return response.Error(c, "Failed to update post", fiber.StatusInternalServerError)
     }
@@ -305,12 +293,8 @@ func (h *PostHandler) DeletePost(c *fiber.Ctx) error {
     }
 
 	id := c.Params("id")
-	postID, err := strconv.Atoi(id)
-	if err != nil {
-		return response.Error(c, "Invalid post ID", fiber.StatusBadRequest)
-	}
 
-	post, err := h.postService.FetchPostByID(postID)
+	post, err := h.postService.FetchPostByID(id)
 	if err != nil {
 		return response.Error(c, "Post not found", fiber.StatusNotFound)
 	}
@@ -319,7 +303,7 @@ func (h *PostHandler) DeletePost(c *fiber.Ctx) error {
 		return response.Error(c, "Unauthorized to delete this post", fiber.StatusUnauthorized)
 	}
 
-	err = h.postService.DeletePost(postID)
+	err = h.postService.DeletePost(id)
 	if err != nil {
 		return response.Error(c, "Post not found", fiber.StatusNotFound)
 	}

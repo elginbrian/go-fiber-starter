@@ -28,7 +28,7 @@ func NewContainer(db *pgxpool.Pool, jwtSecret string) *Container {
 	// Handlers
 	userHandler := handler.NewUserHandler(userService, authService)
 	authHandler := handler.NewAuthHandler(authService)
-	postHandler := handler.NewPostHandler(postService) 
+	postHandler := handler.NewPostHandler(postService, authService) 
 
 	return &Container{
 		UserHandler: userHandler,

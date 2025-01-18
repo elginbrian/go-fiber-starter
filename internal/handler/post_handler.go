@@ -15,10 +15,14 @@ import (
 
 type PostHandler struct {
 	postService service.PostService
+	authService service.AuthService
 }
 
-func NewPostHandler(service service.PostService) *PostHandler {
-	return &PostHandler{postService: service}
+func NewPostHandler(postService service.PostService, authService service.AuthService) *PostHandler {
+	return &PostHandler{
+        postService: postService,
+        authService: authService,
+    }
 }
 
 
@@ -138,10 +142,17 @@ func (h *PostHandler) GetPostsByUserID(c *fiber.Ctx) error {
 // @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /api/posts [post]
 func (h *PostHandler) CreatePost(c *fiber.Ctx) error {
-	userID := c.Locals("user_id").(string)
+	authHeader := c.Get("Authorization")
+    if authHeader == "" || len(authHeader) <= len("Bearer ") {
+        return response.Error(c.Status(fiber.StatusUnauthorized), "Missing or invalid token")
+    }
 
-	if userID == "" {
-        return response.Error(c, "Unauthorized", fiber.StatusUnauthorized)
+    token := authHeader[len("Bearer "):]
+
+    ctx := c.Context()
+    user, err := h.authService.GetCurrentUser(ctx, token)
+    if err != nil {
+        return response.Error(c.Status(fiber.StatusUnauthorized), "Unauthorized: "+err.Error())
     }
 
 	caption := c.FormValue("caption")
@@ -171,7 +182,7 @@ func (h *PostHandler) CreatePost(c *fiber.Ctx) error {
 	}
 
 	post := domain.Post{
-		UserID:   userID,
+		UserID:   user.ID,
 		Caption:  caption,
 		ImageURL: imageURL, 
 	}
@@ -213,7 +224,18 @@ func sanitizeFileName(fileName string) string {
 // @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /api/posts/{id} [put]
 func (h *PostHandler) UpdatePost(c *fiber.Ctx) error {
-    userID := c.Locals("user_id").(string)
+	authHeader := c.Get("Authorization")
+    if authHeader == "" || len(authHeader) <= len("Bearer ") {
+        return response.Error(c.Status(fiber.StatusUnauthorized), "Missing or invalid token")
+    }
+
+    token := authHeader[len("Bearer "):]
+
+    ctx := c.Context()
+    user, err := h.authService.GetCurrentUser(ctx, token)
+    if err != nil {
+        return response.Error(c.Status(fiber.StatusUnauthorized), "Unauthorized: "+err.Error())
+    }
 
     id := c.Params("id")
     postID, err := strconv.Atoi(id)
@@ -226,7 +248,7 @@ func (h *PostHandler) UpdatePost(c *fiber.Ctx) error {
         return response.Error(c, "Post not found", fiber.StatusNotFound)
     }
 
-    if existingPost.UserID != userID {
+    if existingPost.UserID != user.ID {
         return response.Error(c, "Unauthorized to update this post", fiber.StatusUnauthorized)
     }
 
@@ -269,7 +291,18 @@ func (h *PostHandler) UpdatePost(c *fiber.Ctx) error {
 // @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /api/posts/{id} [delete]
 func (h *PostHandler) DeletePost(c *fiber.Ctx) error {
-	userID := c.Locals("user_id").(string)
+	authHeader := c.Get("Authorization")
+    if authHeader == "" || len(authHeader) <= len("Bearer ") {
+        return response.Error(c.Status(fiber.StatusUnauthorized), "Missing or invalid token")
+    }
+
+    token := authHeader[len("Bearer "):]
+
+    ctx := c.Context()
+    user, err := h.authService.GetCurrentUser(ctx, token)
+    if err != nil {
+        return response.Error(c.Status(fiber.StatusUnauthorized), "Unauthorized: "+err.Error())
+    }
 
 	id := c.Params("id")
 	postID, err := strconv.Atoi(id)
@@ -282,7 +315,7 @@ func (h *PostHandler) DeletePost(c *fiber.Ctx) error {
 		return response.Error(c, "Post not found", fiber.StatusNotFound)
 	}
 
-	if post.UserID != userID {
+	if post.UserID != user.ID {
 		return response.Error(c, "Unauthorized to delete this post", fiber.StatusUnauthorized)
 	}
 

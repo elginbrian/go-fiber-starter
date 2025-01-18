@@ -68,7 +68,7 @@ func (r *postRepository) FetchPostsByUserID(ctx context.Context, userID string) 
 	query := "SELECT id, user_id, caption, image_url, created_at, updated_at FROM posts WHERE user_id = $1"
 	rows, err := r.db.Query(ctx, query, userID)
 	if err != nil {
-		return nil, fmt.Errorf("error fetching posts for user %d: %w", userID, err)
+		return nil, fmt.Errorf("error fetching posts for user %s: %w", userID, err)
 	}
 	defer rows.Close()
 

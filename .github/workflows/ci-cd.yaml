@@ -70,5 +70,5 @@ jobs:
             git reset --hard origin/main
             go mod vendor
             docker image prune
-            docker-compose down
+            docker-compose down -v
             docker-compose up --build -d

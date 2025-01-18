@@ -83,8 +83,8 @@ func (r *userRepository) CreateUser(ctx context.Context, user domain.User) (doma
 
 func (r *userRepository) UpdateUser(ctx context.Context, id string, user domain.User) (domain.User, error) {
 	commandTag, err := r.db.Exec(ctx, 
-		"UPDATE users SET name = $1, email = $2, password_hash = $3, updated_at = NOW() WHERE id = $4", 
-		user.Name, user.Email, user.PasswordHash, id)
+		"UPDATE users SET name = $1, email = $2, updated_at = NOW() WHERE id = $3", 
+		user.Name, user.Email, id)
 	if err != nil {
 		return user, fmt.Errorf("error updating user: %w", err)
 	}

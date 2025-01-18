@@ -38,7 +38,7 @@ func setupSearchRoutes(app *fiber.App, userHandler *handler.UserHandler, postHan
 
 func setupUserRoutes(app *fiber.App, handler *handler.UserHandler, jwtSecret string) { 
     userGroup := app.Group("/api/users")
-    userGroup.Put("/:id", middleware.TokenValidationMiddleware(jwtSecret), handler.UpdateUser)
+    userGroup.Put("/", middleware.TokenValidationMiddleware(jwtSecret), handler.UpdateUser)
     userGroup.Get("/", handler.GetAllUsers)
     userGroup.Get("/:id", handler.GetUserByID)
 }

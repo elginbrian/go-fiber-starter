@@ -31,7 +31,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "This endpoint allows an authenticated user to change their password. The user is identified by the JWT token provided in the Authorization header.",
+                "description": "Update your password securely. You need to be logged in and provide your old password along with the new one. Include your JWT token in the Authorization header.",
                 "consumes": [
                     "application/json"
                 ],
@@ -41,7 +41,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Change user password",
+                "summary": "Change your password",
                 "parameters": [
                     {
                         "description": "Change Password Request",
@@ -82,7 +82,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "This endpoint retrieves the details of the authenticated user using the JWT token provided in the Authorization header.",
+                "description": "Retrieve details about the logged-in user. You must include your JWT token in the Authorization header to access this information.",
                 "consumes": [
                     "application/json"
                 ],
@@ -92,7 +92,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Retrieves information about the currently logged-in user",
+                "summary": "Get current user info",
                 "responses": {
                     "200": {
                         "description": "User information retrieved successfully",
@@ -117,7 +117,7 @@ const docTemplate = `{
         },
         "/api/auth/login": {
             "post": {
-                "description": "This endpoint allows a user to log in by providing their email and password. Upon successful login, a JWT token is generated and returned, which can be used for authenticated requests.",
+                "description": "Log in to your account by providing your email and password. If the details are correct, you will receive a JWT token to use for secure access to other endpoints.",
                 "consumes": [
                     "application/json"
                 ],
@@ -127,7 +127,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Logs in an existing user",
+                "summary": "Log in a user",
                 "parameters": [
                     {
                         "description": "User login details",
@@ -163,7 +163,7 @@ const docTemplate = `{
         },
         "/api/auth/register": {
             "post": {
-                "description": "This endpoint allows users to create a new account by providing a username, email, and password. The registration data is validated, and upon successful registration, a success message is returned.",
+                "description": "Create a new account by providing a username, email, and password. The system checks if the details are valid and returns a success message if registration is successful.",
                 "consumes": [
                     "application/json"
                 ],
@@ -173,7 +173,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Registers a new user",
+                "summary": "Register a new user",
                 "parameters": [
                     {
                         "description": "User registration details",
@@ -209,7 +209,7 @@ const docTemplate = `{
         },
         "/api/posts": {
             "get": {
-                "description": "Retrieves all posts, including the user who created them, the caption, image URL, and timestamps.",
+                "description": "Get a list of all posts, along with details like the user who created them, the caption, image URL, and timestamps.",
                 "produces": [
                     "application/json"
                 ],
@@ -244,7 +244,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Creates a new post with an optional image. The caption is required. If an image is provided, it will be uploaded to the server, and the URL will be returned in the response.",
+                "description": "Create a new post with a caption. Optionally, you can upload an image. If an image is uploaded, its URL will be returned in the response. Requires JWT authentication.",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -294,7 +294,7 @@ const docTemplate = `{
         },
         "/api/posts/user/{user_id}": {
             "get": {
-                "description": "Retrieves all posts created by a specific user, including the caption, image URL, and timestamps.",
+                "description": "Get all posts made by a specific user, including the caption, image URL, and timestamps.",
                 "produces": [
                     "application/json"
                 ],
@@ -335,7 +335,7 @@ const docTemplate = `{
         },
         "/api/posts/{id}": {
             "get": {
-                "description": "Retrieves a specific post by its ID, including its caption, image URL, and timestamps.",
+                "description": "Get a post by its unique ID, including the caption, image URL, and timestamps.",
                 "produces": [
                     "application/json"
                 ],
@@ -379,7 +379,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Updates only the caption of a post. Only the creator of the post is allowed to update it.",
+                "description": "Update only the caption of an existing post. Only the post creator is allowed to make this change. Requires JWT authentication.",
                 "consumes": [
                     "application/json"
                 ],
@@ -389,7 +389,7 @@ const docTemplate = `{
                 "tags": [
                     "posts"
                 ],
-                "summary": "Update the caption of an existing post",
+                "summary": "Update an existing post's caption",
                 "parameters": [
                     {
                         "type": "string",
@@ -435,7 +435,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Deletes a post by its ID. Only the creator of the post is authorized to delete it.",
+                "description": "Delete a post by its ID. Only the post creator is allowed to delete it. Requires JWT authentication.",
                 "tags": [
                     "posts"
                 ],
@@ -473,14 +473,14 @@ const docTemplate = `{
         },
         "/api/search/posts": {
             "get": {
-                "description": "Retrieves posts that match the search query.",
+                "description": "Search for posts that match a given query, such as a keyword in the caption or content.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "search"
                 ],
-                "summary": "Search posts by title or content",
+                "summary": "Search posts",
                 "parameters": [
                     {
                         "type": "string",
@@ -511,14 +511,14 @@ const docTemplate = `{
         },
         "/api/search/users": {
             "get": {
-                "description": "Retrieves users that match the given search query in name or email.",
+                "description": "Search for users by their name or email. The response includes users matching the provided query.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "search"
                 ],
-                "summary": "Search for users by name or email",
+                "summary": "Search users",
                 "parameters": [
                     {
                         "type": "string",
@@ -555,14 +555,14 @@ const docTemplate = `{
         },
         "/api/users": {
             "get": {
-                "description": "Fetches all user records from the database and returns them with timestamps for creation and update.",
+                "description": "Retrieve a list of all users from the database, including their usernames, emails, and timestamps for when their accounts were created or updated.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "users"
                 ],
-                "summary": "Retrieve a list of all users",
+                "summary": "Get all users",
                 "responses": {
                     "200": {
                         "description": "Successful fetch users response",
@@ -583,16 +583,14 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/api/users/update": {
+            },
             "put": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Updates the username of the authenticated user. The user is identified by the JWT token provided in the Authorization header.",
+                "description": "Update the username of the authenticated user. The user must include their JWT token in the Authorization header.",
                 "consumes": [
                     "application/json"
                 ],
@@ -602,7 +600,7 @@ const docTemplate = `{
                 "tags": [
                     "users"
                 ],
-                "summary": "Update the authenticated user's username",
+                "summary": "Update user information",
                 "parameters": [
                     {
                         "description": "Request body with updated username",
@@ -644,14 +642,14 @@ const docTemplate = `{
         },
         "/api/users/{id}": {
             "get": {
-                "description": "Fetches a specific user record from the database by the provided ID and returns the user's details, including timestamps.",
+                "description": "Retrieve the details of a specific user by their ID. The response includes the user's username, email, and account timestamps.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "users"
                 ],
-                "summary": "Retrieve user details by user ID",
+                "summary": "Get user details by ID",
                 "parameters": [
                     {
                         "type": "string",

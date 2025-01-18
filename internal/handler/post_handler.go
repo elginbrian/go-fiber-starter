@@ -24,7 +24,7 @@ func NewPostHandler(service service.PostService) *PostHandler {
 
 // GetAllPosts godoc
 // @Summary Get all posts
-// @Description Retrieves all posts, including the user who created them, the caption, image URL, and timestamps.
+// @Description Get a list of all posts, along with details like the user who created them, the caption, image URL, and timestamps.
 // @Tags posts
 // @Produce json
 // @Success 200 {object} response.GetAllPostsResponse "Successful fetch posts response"
@@ -54,7 +54,7 @@ func (h *PostHandler) GetAllPosts(c *fiber.Ctx) error {
 
 // GetPostByID godoc
 // @Summary Get a post by ID
-// @Description Retrieves a specific post by its ID, including its caption, image URL, and timestamps.
+// @Description Get a post by its unique ID, including the caption, image URL, and timestamps.
 // @Tags posts
 // @Produce json
 // @Param id path string true "Post ID"
@@ -86,7 +86,7 @@ func (h *PostHandler) GetPostByID(c *fiber.Ctx) error {
 
 // GetPostsByUserID godoc
 // @Summary Get all posts by a specific user
-// @Description Retrieves all posts created by a specific user, including the caption, image URL, and timestamps.
+// @Description Get all posts made by a specific user, including the caption, image URL, and timestamps.
 // @Tags posts
 // @Produce json
 // @Param user_id path string true "User ID"
@@ -126,7 +126,7 @@ func (h *PostHandler) GetPostsByUserID(c *fiber.Ctx) error {
 
 // CreatePost godoc
 // @Summary Create a new post
-// @Description Creates a new post with an optional image. The caption is required. If an image is provided, it will be uploaded to the server, and the URL will be returned in the response.
+// @Description Create a new post with a caption. Optionally, you can upload an image. If an image is uploaded, its URL will be returned in the response. Requires JWT authentication.
 // @Tags posts
 // @Accept multipart/form-data
 // @Produce json
@@ -200,8 +200,8 @@ func sanitizeFileName(fileName string) string {
 }
 
 // UpdatePost godoc
-// @Summary Update the caption of an existing post
-// @Description Updates only the caption of a post. Only the creator of the post is allowed to update it.
+// @Summary Update an existing post's caption
+// @Description Update only the caption of an existing post. Only the post creator is allowed to make this change. Requires JWT authentication.
 // @Tags posts
 // @Accept json
 // @Produce json
@@ -260,7 +260,7 @@ func (h *PostHandler) UpdatePost(c *fiber.Ctx) error {
 
 // DeletePost godoc
 // @Summary Delete a post
-// @Description Deletes a post by its ID. Only the creator of the post is authorized to delete it.
+// @Description Delete a post by its ID. Only the post creator is allowed to delete it. Requires JWT authentication.
 // @Tags posts
 // @Param id path string true "Post ID"
 // @Security BearerAuth
@@ -294,8 +294,8 @@ func (h *PostHandler) DeletePost(c *fiber.Ctx) error {
 }
 
 // SearchPosts godoc
-// @Summary Search posts by title or content
-// @Description Retrieves posts that match the search query.
+// @Summary Search posts
+// @Description Search for posts that match a given query, such as a keyword in the caption or content.
 // @Tags search
 // @Produce json
 // @Param query query string true "Search query"

@@ -17,8 +17,8 @@ func NewAuthHandler(authService service.AuthService) *AuthHandler {
 	return &AuthHandler{authService: authService}
 }
 
-// @Summary Registers a new user
-// @Description This endpoint allows users to create a new account by providing a username, email, and password. The registration data is validated, and upon successful registration, a success message is returned.
+// @Summary Register a new user
+// @Description Create a new account by providing a username, email, and password. The system checks if the details are valid and returns a success message if registration is successful.
 // @Tags auth
 // @Accept json
 // @Produce json
@@ -48,8 +48,8 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	})
 }
 
-// @Summary Logs in an existing user
-// @Description This endpoint allows a user to log in by providing their email and password. Upon successful login, a JWT token is generated and returned, which can be used for authenticated requests.
+// @Summary Log in a user
+// @Description Log in to your account by providing your email and password. If the details are correct, you will receive a JWT token to use for secure access to other endpoints.
 // @Tags auth
 // @Accept json
 // @Produce json
@@ -80,8 +80,8 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	})
 }
 
-// @Summary Retrieves information about the currently logged-in user
-// @Description This endpoint retrieves the details of the authenticated user using the JWT token provided in the Authorization header.
+// @Summary Get current user info
+// @Description Retrieve details about the logged-in user. You must include your JWT token in the Authorization header to access this information.
 // @Tags auth
 // @Accept json
 // @Produce json
@@ -113,8 +113,8 @@ func (h *AuthHandler) GetUserInfo(c *fiber.Ctx) error {
     })
 }
 
-// @Summary Change user password
-// @Description This endpoint allows an authenticated user to change their password. The user is identified by the JWT token provided in the Authorization header.
+// @Summary Change your password
+// @Description Update your password securely. You need to be logged in and provide your old password along with the new one. Include your JWT token in the Authorization header.
 // @Tags auth
 // @Accept json
 // @Produce json

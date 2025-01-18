@@ -28,8 +28,8 @@ func parseUserID(c *fiber.Ctx) (string, error) {
 }
 
 // GetAllUsers godoc
-// @Summary Retrieve a list of all users
-// @Description Fetches all user records from the database and returns them with timestamps for creation and update.
+// @Summary Get all users
+// @Description Retrieve a list of all users from the database, including their usernames, emails, and timestamps for when their accounts were created or updated.
 // @Tags users
 // @Produce json
 // @Success 200 {object} response.GetAllUsersResponse "Successful fetch users response" 
@@ -57,8 +57,8 @@ func (h *UserHandler) GetAllUsers(c *fiber.Ctx) error {
 }
 
 // GetUserByID godoc
-// @Summary Retrieve user details by user ID
-// @Description Fetches a specific user record from the database by the provided ID and returns the user's details, including timestamps.
+// @Summary Get user details by ID
+// @Description Retrieve the details of a specific user by their ID. The response includes the user's username, email, and account timestamps.
 // @Tags users
 // @Produce json
 // @Param id path string true "User ID"
@@ -112,8 +112,8 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 }
 
 // UpdateUser godoc
-// @Summary Update the authenticated user's username
-// @Description Updates the username of the authenticated user. The user is identified by the JWT token provided in the Authorization header.
+// @Summary Update user information
+// @Description Update the username of the authenticated user. The user must include their JWT token in the Authorization header.
 // @Tags users
 // @Accept json
 // @Produce json
@@ -123,7 +123,7 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 // @Failure 400 {object} response.ErrorResponse "Bad request"
 // @Failure 401 {object} response.ErrorResponse "Unauthorized or invalid token"
 // @Failure 500 {object} response.ErrorResponse "Internal server error"
-// @Router /api/users/update [put]
+// @Router /api/users [put]
 func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
     authHeader := c.Get("Authorization")
     if authHeader == "" || len(authHeader) <= len("Bearer ") {
@@ -190,8 +190,8 @@ func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
 }
 
 // SearchUsers godoc
-// @Summary Search for users by name or email
-// @Description Retrieves users that match the given search query in name or email.
+// @Summary Search users
+// @Description Search for users by their name or email. The response includes users matching the provided query.
 // @Tags search
 // @Produce json
 // @Param query query string true "Search query"

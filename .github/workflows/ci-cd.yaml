@@ -69,5 +69,6 @@ jobs:
             git fetch origin
             git reset --hard origin/main
             go mod vendor
+            docker image prune
             docker-compose down
             docker-compose up --build -d

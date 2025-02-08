@@ -1,0 +1,22 @@
+type Post {
+  id: ID!
+  userId: ID!
+  caption: String!
+  imageURL: String
+  createdAt: String!
+  updatedAt: String!
+}
+
+type Query {
+  getAllPosts: [Post!]!
+  getPostByID(id: ID!): Post
+  getPostsByUserID(userId: ID!): [Post!]!
+}
+
+type Mutation {
+  createPost(caption: String!, image: Upload): Post
+  updatePostCaption(id: ID!, caption: String!): Post
+  deletePost(id: ID!): Boolean
+}
+
+scalar Upload

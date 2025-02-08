@@ -1,7 +1,8 @@
 package di
 
 import (
-	"fiber-starter/internal/handler"
+	graph "fiber-starter/internal/handler/graphql"
+	rest "fiber-starter/internal/handler/rest"
 	"fiber-starter/internal/repository"
 	"fiber-starter/internal/service"
 
@@ -9,30 +10,48 @@ import (
 )
 
 type Container struct {
-	UserHandler *handler.UserHandler
-	AuthHandler *handler.AuthHandler
-	PostHandler *handler.PostHandler
+	UserHandler    *rest.UserHandler
+	AuthHandler    *rest.AuthHandler
+	PostHandler    *rest.PostHandler
+	CommentHandler *rest.CommentHandler
+	LikeHandler    *rest.LikeHandler
+	UserResolver   *graph.UserResolver
+	PostResolver   *graph.PostResolver
 }
 
-func NewContainer(db *pgxpool.Pool, jwtSecret string) *Container {
+func NewContainer(db *pgxpool.Pool, jwtSecret string, refreshSecret string) *Container {
 	// Repositories
-	userRepo := repository.NewUserRepository(db)
-	authRepo := repository.NewAuthRepository(db)
-	postRepo := repository.NewPostRepository(db) 
+	userRepo 	:= repository.NewUserRepository(db)
+	authRepo 	:= repository.NewAuthRepository(db)
+	postRepo 	:= repository.NewPostRepository(db)
+	commentRepo := repository.NewCommentRepository(db) 
+	likeRepo 	:= repository.NewLikeRepository(db) 
 
 	// Services
-	userService := service.NewUserService(userRepo)
-	authService := service.NewAuthService(authRepo, userRepo, jwtSecret)
-	postService := service.NewPostService(postRepo) 
+	userService 	:= service.NewUserService(userRepo)
+	authService 	:= service.NewAuthService(userRepo, authRepo, jwtSecret, refreshSecret)
+	postService 	:= service.NewPostService(postRepo) 
+	commentService 	:= service.NewCommentService(commentRepo)
+	likeService 	:= service.NewLikeService(likeRepo)
 
 	// Handlers
-	userHandler := handler.NewUserHandler(userService, authService)
-	authHandler := handler.NewAuthHandler(authService)
-	postHandler := handler.NewPostHandler(postService, authService) 
+	userHandler 	:= rest.NewUserHandler(userService, authService)
+	authHandler 	:= rest.NewAuthHandler(authService)
+	postHandler 	:= rest.NewPostHandler(postService, authService) 
+	commentHandler 	:= rest.NewCommentHandler(commentService, authService)
+	likeHandler 	:= rest.NewLikeHandler(likeService, authService)
+
+	// Resolvers
+	userResolver 	:= graph.NewUserResolver(userService, authService)
+	postResolver 	:= graph.NewPostResolver(postService, authService)
 
 	return &Container{
 		UserHandler: userHandler,
 		AuthHandler: authHandler,
 		PostHandler: postHandler, 
+		CommentHandler: commentHandler,
+		LikeHandler: likeHandler,
+		UserResolver: userResolver,
+		PostResolver: postResolver,
 	}
 }

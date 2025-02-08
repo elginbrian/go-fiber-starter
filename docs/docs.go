@@ -10,11 +10,7 @@ const docTemplate = `{
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
         "termsOfService": "http://swagger.io/terms/",
-        "contact": {
-            "name": "Elgin Brian Wahyu Bramadhika",
-            "url": "https://wa.me/6285749806571",
-            "email": "elginbrian49@student.ub.ac.id"
-        },
+        "contact": {},
         "license": {
             "name": "MIT",
             "url": "https://opensource.org/licenses/MIT"
@@ -24,14 +20,14 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/auth/change-password": {
-            "put": {
+        "/auth/change-password": {
+            "patch": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Update your password securely. You need to be logged in and provide your old password along with the new one. Include your JWT token in the Authorization header.",
+                "description": "Update your password securely.",
                 "consumes": [
                     "application/json"
                 ],
@@ -75,14 +71,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/auth/current-user": {
+        "/auth/current-user": {
             "get": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Retrieve details about the logged-in user. You must include your JWT token in the Authorization header to access this information.",
+                "description": "Retrieve logged-in user's details using an access token.",
                 "consumes": [
                     "application/json"
                 ],
@@ -95,19 +91,13 @@ const docTemplate = `{
                 "summary": "Get current user info",
                 "responses": {
                     "200": {
-                        "description": "User information retrieved successfully",
+                        "description": "User details",
                         "schema": {
                             "$ref": "#/definitions/response.GetCurrentUserResponse"
                         }
                     },
                     "401": {
-                        "description": "Unauthorized or invalid token",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
@@ -115,9 +105,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/auth/login": {
+        "/auth/login": {
             "post": {
-                "description": "Log in to your account by providing your email and password. If the details are correct, you will receive a JWT token to use for secure access to other endpoints.",
+                "description": "Authenticate user and receive access and refresh tokens.",
                 "consumes": [
                     "application/json"
                 ],
@@ -140,8 +130,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": "Successful registration response",
+                    "200": {
+                        "description": "Successful login response",
                         "schema": {
                             "$ref": "#/definitions/response.LoginResponse"
                         }
@@ -161,9 +151,55 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/auth/register": {
+        "/auth/refresh-token": {
             "post": {
-                "description": "Create a new account by providing a username, email, and password. The system checks if the details are valid and returns a success message if registration is successful.",
+                "description": "Obtain a new access token using a valid refresh token.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Refresh access token",
+                "parameters": [
+                    {
+                        "description": "Refresh token request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RefreshTokenRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "New access token",
+                        "schema": {
+                            "$ref": "#/definitions/response.RefreshTokenResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "description": "Create a new account by providing a username, email, and password.",
                 "consumes": [
                     "application/json"
                 ],
@@ -207,7 +243,50 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/posts": {
+        "/comments/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete a comment by its ID. Only the comment creator can delete it. Requires authentication.",
+                "tags": [
+                    "comments"
+                ],
+                "summary": "Delete a comment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Comment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful deletion response",
+                        "schema": {
+                            "$ref": "#/definitions/response.DeleteCommentResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts": {
             "get": {
                 "description": "Get a list of all posts, along with details like the user who created them, the caption, image URL, and timestamps.",
                 "produces": [
@@ -292,7 +371,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/posts/user/{user_id}": {
+        "/posts/user/{user_id}": {
             "get": {
                 "description": "Get all posts made by a specific user, including the caption, image URL, and timestamps.",
                 "produces": [
@@ -333,7 +412,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/posts/{id}": {
+        "/posts/{id}": {
             "get": {
                 "description": "Get a post by its unique ID, including the caption, image URL, and timestamps.",
                 "produces": [
@@ -357,62 +436,6 @@ const docTemplate = `{
                         "description": "Successful fetch post response",
                         "schema": {
                             "$ref": "#/definitions/response.GetPostByIDResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Update only the caption of an existing post. Only the post creator is allowed to make this change. Requires JWT authentication.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "posts"
-                ],
-                "summary": "Update an existing post's caption",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Post ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Request body with updated caption",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.UpdatePostRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful update response",
-                        "schema": {
-                            "$ref": "#/definitions/response.UpdatePostResponse"
                         }
                     },
                     "400": {
@@ -469,9 +492,295 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update only the caption of an existing post. Only the post creator is allowed to make this change. Requires JWT authentication.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "posts"
+                ],
+                "summary": "Update an existing post's caption",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Post ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Request body with updated caption",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdatePostRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful update response",
+                        "schema": {
+                            "$ref": "#/definitions/response.UpdatePostResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
             }
         },
-        "/api/search/posts": {
+        "/posts/{post_id}/comments": {
+            "get": {
+                "description": "Retrieve all comments related to a specific post.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "comments"
+                ],
+                "summary": "Get comments for a post",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Post ID",
+                        "name": "post_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of comments",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.GetCommentsResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a comment for a post. Requires authentication.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "comments"
+                ],
+                "summary": "Create a new comment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Post ID",
+                        "name": "post_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Comment request body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateCommentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created comment response",
+                        "schema": {
+                            "$ref": "#/definitions/response.CreateCommentResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/{post_id}/like": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Allows a user to like a post. Requires JWT authentication.",
+                "tags": [
+                    "likes"
+                ],
+                "summary": "Like a post",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Post ID",
+                        "name": "post_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully liked post",
+                        "schema": {
+                            "$ref": "#/definitions/response.LikeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/{post_id}/likes": {
+            "get": {
+                "description": "Fetch all users who liked a specific post",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "likes"
+                ],
+                "summary": "Get all likes for a post",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Post ID",
+                        "name": "post_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of users who liked the post",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.GetAllLikesResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/{post_id}/unlike": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Allows a user to remove their like from a post. Requires JWT authentication.",
+                "tags": [
+                    "likes"
+                ],
+                "summary": "Unlike a post",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Post ID",
+                        "name": "post_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully unliked post",
+                        "schema": {
+                            "$ref": "#/definitions/response.LikeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/search/posts": {
             "get": {
                 "description": "Search for posts that match a given query, such as a keyword in the caption or content.",
                 "produces": [
@@ -509,9 +818,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/search/users": {
+        "/search/users": {
             "get": {
-                "description": "Search for users by their name or email. The response includes users matching the provided query.",
+                "description": "Search for users by their name or email.",
                 "produces": [
                     "application/json"
                 ],
@@ -534,7 +843,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.UserResponse"
+                                "$ref": "#/definitions/response.SearchUsersResponse"
                             }
                         }
                     },
@@ -553,9 +862,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/users": {
+        "/users": {
             "get": {
-                "description": "Retrieve a list of all users from the database, including their usernames, emails, and timestamps for when their accounts were created or updated.",
+                "description": "Retrieve a list of all users from the database.",
                 "produces": [
                     "application/json"
                 ],
@@ -570,12 +879,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.GetAllUsersResponse"
                         }
                     },
-                    "400": {
-                        "description": "Bad request",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
@@ -584,15 +887,15 @@ const docTemplate = `{
                     }
                 }
             },
-            "put": {
+            "patch": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Update the username of the authenticated user. The user must include their JWT token in the Authorization header.",
+                "description": "Update the bio, image_url, and/or username of the authenticated user. All fields are optional. If a field is not provided, the existing value will be retained.",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -603,13 +906,22 @@ const docTemplate = `{
                 "summary": "Update user information",
                 "parameters": [
                     {
-                        "description": "Request body with updated username",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.UpdateUserRequest"
-                        }
+                        "type": "string",
+                        "description": "Updated username (optional)",
+                        "name": "username",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Updated bio (optional)",
+                        "name": "bio",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Updated image (optional)",
+                        "name": "image",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -620,7 +932,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad request",
+                        "description": "Validation error",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
@@ -640,9 +952,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/users/{id}": {
+        "/users/{id}": {
             "get": {
-                "description": "Retrieve the details of a specific user by their ID. The response includes the user's username, email, and account timestamps.",
+                "description": "Retrieve the details of a specific user by their ID.",
                 "produces": [
                     "application/json"
                 ],
@@ -666,6 +978,44 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.GetUserByIDResponse"
                         }
                     },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{user_id}/likes": {
+            "get": {
+                "description": "Fetch all posts liked by a specific user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "likes"
+                ],
+                "summary": "Get all likes by a user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of posts liked by the user",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.GetAllLikesResponse"
+                            }
+                        }
+                    },
                     "400": {
                         "description": "Bad request",
                         "schema": {
@@ -683,26 +1033,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "domain.UserResponse": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
         "request.ChangePasswordRequest": {
             "type": "object",
             "required": [
@@ -712,11 +1042,37 @@ const docTemplate = `{
             "properties": {
                 "new_password": {
                     "type": "string",
-                    "minLength": 6
+                    "minLength": 6,
+                    "example": "NewP@ssw0rd123"
                 },
                 "old_password": {
                     "type": "string",
-                    "minLength": 6
+                    "minLength": 6,
+                    "example": "OldP@ssw0rd"
+                }
+            }
+        },
+        "request.CreateCommentRequest": {
+            "type": "object",
+            "required": [
+                "content"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string",
+                    "example": "This is a great post!"
+                }
+            }
+        },
+        "request.RefreshTokenRequest": {
+            "type": "object",
+            "required": [
+                "refresh_token"
+            ],
+            "properties": {
+                "refresh_token": {
+                    "type": "string",
+                    "example": "your_refresh_token_here"
                 }
             }
         },
@@ -728,20 +1084,8 @@ const docTemplate = `{
             "properties": {
                 "caption": {
                     "type": "string",
-                    "minLength": 1
-                }
-            }
-        },
-        "request.UpdateUserRequest": {
-            "type": "object",
-            "required": [
-                "username"
-            ],
-            "properties": {
-                "username": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 3
+                    "minLength": 1,
+                    "example": "Had an amazing trip to the mountains!"
                 }
             }
         },
@@ -753,10 +1097,12 @@ const docTemplate = `{
             ],
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "john.doe@example.com"
                 },
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "P@ssw0rd123"
                 }
             }
         },
@@ -769,14 +1115,17 @@ const docTemplate = `{
             ],
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "john.doe@example.com"
                 },
                 "password": {
                     "type": "string",
-                    "minLength": 6
+                    "minLength": 6,
+                    "example": "P@ssw0rd123"
                 },
                 "username": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "john_doe"
                 }
             }
         },
@@ -784,35 +1133,116 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Password changed successfully"
+                }
+            }
+        },
+        "response.Comment": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string",
+                    "example": "This is a comment!"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2025-01-31T12:00:00Z"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                },
+                "post_id": {
+                    "type": "string",
+                    "example": "c6f7c988-233f-4f3c-a74d-17f72e4a1b56"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2025-01-31T12:30:00Z"
+                },
+                "user_id": {
+                    "type": "string",
+                    "example": "b3d1a42b-6871-4a47-bec3-6df0980a9c75"
+                }
+            }
+        },
+        "response.CreateCommentResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/response.Comment"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "success"
                 }
             }
         },
         "response.CreatePostResponse": {
             "type": "object",
             "properties": {
+                "code": {
+                    "type": "integer"
+                },
                 "data": {
                     "$ref": "#/definitions/response.Post"
                 },
                 "status": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
+        "response.DeleteCommentResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Comment deleted successfully"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
+        "response.DeletePostData": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Post deleted successfully"
                 }
             }
         },
         "response.DeletePostResponse": {
             "type": "object",
             "properties": {
+                "code": {
+                    "type": "integer"
+                },
                 "data": {
-                    "$ref": "#/definitions/response.RegisterData"
+                    "$ref": "#/definitions/response.DeletePostData"
                 },
                 "status": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "success"
                 }
             }
         },
         "response.ErrorResponse": {
             "type": "object",
             "properties": {
+                "code": {
+                    "type": "integer"
+                },
                 "message": {
                     "type": "string"
                 },
@@ -821,9 +1251,30 @@ const docTemplate = `{
                 }
             }
         },
+        "response.GetAllLikesResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.Like"
+                    }
+                },
+                "status": {
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
         "response.GetAllPostsResponse": {
             "type": "object",
             "properties": {
+                "code": {
+                    "type": "integer"
+                },
                 "data": {
                     "type": "array",
                     "items": {
@@ -831,13 +1282,17 @@ const docTemplate = `{
                     }
                 },
                 "status": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "success"
                 }
             }
         },
         "response.GetAllUsersResponse": {
             "type": "object",
             "properties": {
+                "code": {
+                    "type": "integer"
+                },
                 "data": {
                     "type": "array",
                     "items": {
@@ -845,59 +1300,136 @@ const docTemplate = `{
                     }
                 },
                 "status": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
+        "response.GetCommentsResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.Comment"
+                    }
+                },
+                "status": {
+                    "type": "string",
+                    "example": "success"
                 }
             }
         },
         "response.GetCurrentUserResponse": {
             "type": "object",
             "properties": {
+                "code": {
+                    "type": "integer"
+                },
                 "data": {
                     "$ref": "#/definitions/response.User"
                 },
                 "status": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "success"
                 }
             }
         },
         "response.GetPostByIDResponse": {
             "type": "object",
             "properties": {
+                "code": {
+                    "type": "integer"
+                },
                 "data": {
                     "$ref": "#/definitions/response.Post"
                 },
                 "status": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "success"
                 }
             }
         },
         "response.GetUserByIDResponse": {
             "type": "object",
             "properties": {
+                "code": {
+                    "type": "integer"
+                },
                 "data": {
                     "$ref": "#/definitions/response.User"
                 },
                 "status": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
+        "response.Like": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2025-01-31T12:00:00Z"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "a1f5e4b3-8d2a-4c39-91a2-47b36295d8a3"
+                },
+                "post_id": {
+                    "type": "string",
+                    "example": "c6f7c988-233f-4f3c-a74d-17f72e4a1b56"
+                },
+                "user_id": {
+                    "type": "string",
+                    "example": "b3d1a42b-6871-4a47-bec3-6df0980a9c75"
+                }
+            }
+        },
+        "response.LikeResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Like added successfully"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "success"
                 }
             }
         },
         "response.LoginData": {
             "type": "object",
             "properties": {
-                "token": {
-                    "type": "string"
+                "access_token": {
+                    "type": "string",
+                    "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                },
+                "refresh_token": {
+                    "type": "string",
+                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
                 }
             }
         },
         "response.LoginResponse": {
             "type": "object",
             "properties": {
+                "code": {
+                    "type": "integer"
+                },
                 "data": {
                     "$ref": "#/definitions/response.LoginData"
                 },
                 "status": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "success"
                 }
             }
         },
@@ -905,22 +1437,52 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "caption": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Had an amazing day at the beach!"
                 },
                 "created_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2025-01-31T12:00:00Z"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "f9d6b52a-76a1-4b2b-9229-4c8db23a5ef2"
                 },
                 "image_url": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "https://example.com/images/beach.jpg"
                 },
                 "updated_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2025-01-31T12:30:00Z"
                 },
                 "user_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2e0850c7-d213-4a91-9b78-bb86e3a6f0d3"
+                }
+            }
+        },
+        "response.RefreshTokenData": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string",
+                    "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                }
+            }
+        },
+        "response.RefreshTokenResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/response.RefreshTokenData"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "success"
                 }
             }
         },
@@ -928,24 +1490,32 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "User registered successfully"
                 }
             }
         },
         "response.RegisterResponse": {
             "type": "object",
             "properties": {
+                "code": {
+                    "type": "integer"
+                },
                 "data": {
                     "$ref": "#/definitions/response.RegisterData"
                 },
                 "status": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "success"
                 }
             }
         },
         "response.SearchPostsResponse": {
             "type": "object",
             "properties": {
+                "code": {
+                    "type": "integer"
+                },
                 "data": {
                     "type": "array",
                     "items": {
@@ -953,49 +1523,89 @@ const docTemplate = `{
                     }
                 },
                 "status": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
+        "response.SearchUsersResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.User"
+                    }
+                },
+                "status": {
+                    "type": "string",
+                    "example": "success"
                 }
             }
         },
         "response.UpdatePostResponse": {
             "type": "object",
             "properties": {
+                "code": {
+                    "type": "integer"
+                },
                 "data": {
                     "$ref": "#/definitions/response.Post"
                 },
                 "status": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "success"
                 }
             }
         },
         "response.UpdateUserResponse": {
             "type": "object",
             "properties": {
+                "code": {
+                    "type": "integer"
+                },
                 "data": {
                     "$ref": "#/definitions/response.User"
                 },
                 "status": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "success"
                 }
             }
         },
         "response.User": {
             "type": "object",
             "properties": {
+                "bio": {
+                    "type": "string",
+                    "example": "Hi there!"
+                },
                 "created_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2025-01-31T12:00:00Z"
                 },
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "john.doe@example.com"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "3d5a8b92-f1c5-4dbe-a2a7-1d9a8c743e9b"
+                },
+                "image_url": {
+                    "type": "string",
+                    "example": "https://example.com/profile.jpg"
                 },
                 "updated_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2025-01-31T12:30:00Z"
                 },
                 "username": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "john_doe"
                 }
             }
         }
@@ -1012,10 +1622,10 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "178.128.61.145:8084",
-	BasePath:         "/",
+	Host:             "localhost:8084",
+	BasePath:         "/api/v1/",
 	Schemes:          []string{},
-	Title:            "Fiber Starter API",
+	Title:            "FIBER STARTER API",
 	Description:      "This is a RESTful API for a simple social media application. It allows users to manage their posts, including creating, updating, and deleting posts, and provides authentication using JWT. The API is built using the Fiber framework and interacts with a PostgreSQL database.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

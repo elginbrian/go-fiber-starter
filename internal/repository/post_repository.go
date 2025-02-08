@@ -2,7 +2,8 @@ package repository
 
 import (
 	"context"
-	"fiber-starter/internal/domain"
+	contract "fiber-starter/domain/contract"
+	entity "fiber-starter/domain/entity"
 	"fmt"
 	"time"
 
@@ -10,25 +11,15 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-type PostRepository interface {
-	FetchAllPosts(ctx context.Context) ([]domain.Post, error)
-	FetchPostByID(ctx context.Context, postID string) (*domain.Post, error)
-	FetchPostsByUserID(ctx context.Context, userID string) ([]domain.Post, error)
-	CreatePost(ctx context.Context, post domain.Post) (*domain.Post, error)
-	UpdatePost(ctx context.Context, postID string, post domain.Post) (*domain.Post, error)
-	DeletePost(ctx context.Context, postID string) error
-	SearchPosts(ctx context.Context, query string) ([]domain.Post, error)
-}
-
 type postRepository struct {
 	db *pgxpool.Pool
 }
 
-func NewPostRepository(db *pgxpool.Pool) PostRepository {
+func NewPostRepository(db *pgxpool.Pool) contract.IPostRepository {
 	return &postRepository{db: db}
 }
 
-func (r *postRepository) FetchAllPosts(ctx context.Context) ([]domain.Post, error) {
+func (r *postRepository) FetchAllPosts(ctx context.Context) ([]entity.Post, error) {
 	query := "SELECT id, user_id, caption, image_url, created_at, updated_at FROM posts"
 	rows, err := r.db.Query(ctx, query)
 	if err != nil {
@@ -36,9 +27,9 @@ func (r *postRepository) FetchAllPosts(ctx context.Context) ([]domain.Post, erro
 	}
 	defer rows.Close()
 
-	var posts []domain.Post
+	var posts []entity.Post
 	for rows.Next() {
-		var post domain.Post
+		var post entity.Post
 		if err := rows.Scan(&post.ID, &post.UserID, &post.Caption, &post.ImageURL, &post.CreatedAt, &post.UpdatedAt); err != nil {
 			return nil, fmt.Errorf("error scanning post row: %w", err)
 		}
@@ -50,11 +41,11 @@ func (r *postRepository) FetchAllPosts(ctx context.Context) ([]domain.Post, erro
 	return posts, nil
 }
 
-func (r *postRepository) FetchPostByID(ctx context.Context, postID string) (*domain.Post, error) {
+func (r *postRepository) FetchPostByID(ctx context.Context, postID string) (*entity.Post, error) {
 	query := "SELECT id, user_id, caption, image_url, created_at, updated_at FROM posts WHERE id = $1"
 	row := r.db.QueryRow(ctx, query, postID)
 
-	var post domain.Post
+	var post entity.Post
 	if err := row.Scan(&post.ID, &post.UserID, &post.Caption, &post.ImageURL, &post.CreatedAt, &post.UpdatedAt); err != nil {
 		if err == pgx.ErrNoRows {
 			return nil, nil 
@@ -64,7 +55,7 @@ func (r *postRepository) FetchPostByID(ctx context.Context, postID string) (*dom
 	return &post, nil
 }
 
-func (r *postRepository) FetchPostsByUserID(ctx context.Context, userID string) ([]domain.Post, error) {
+func (r *postRepository) FetchPostsByUserID(ctx context.Context, userID string) ([]entity.Post, error) {
 	query := "SELECT id, user_id, caption, image_url, created_at, updated_at FROM posts WHERE user_id = $1"
 	rows, err := r.db.Query(ctx, query, userID)
 	if err != nil {
@@ -72,9 +63,9 @@ func (r *postRepository) FetchPostsByUserID(ctx context.Context, userID string) 
 	}
 	defer rows.Close()
 
-	var posts []domain.Post
+	var posts []entity.Post
 	for rows.Next() {
-		var post domain.Post
+		var post entity.Post
 		if err := rows.Scan(&post.ID, &post.UserID, &post.Caption, &post.ImageURL, &post.CreatedAt, &post.UpdatedAt); err != nil {
 			return nil, fmt.Errorf("error scanning post row: %w", err)
 		}
@@ -86,7 +77,7 @@ func (r *postRepository) FetchPostsByUserID(ctx context.Context, userID string) 
 	return posts, nil
 }
 
-func (r *postRepository) CreatePost(ctx context.Context, post domain.Post) (*domain.Post, error) {
+func (r *postRepository) CreatePost(ctx context.Context, post entity.Post) (*entity.Post, error) {
 	query := "INSERT INTO posts (user_id, caption, image_url) VALUES ($1, $2, $3) RETURNING id, created_at, updated_at"
 	err := r.db.QueryRow(ctx, query, post.UserID, post.Caption, post.ImageURL).Scan(
 		&post.ID, &post.CreatedAt, &post.UpdatedAt,
@@ -99,7 +90,7 @@ func (r *postRepository) CreatePost(ctx context.Context, post domain.Post) (*dom
 	return &post, nil
 }
 
-func (r *postRepository) UpdatePost(ctx context.Context, postID string, post domain.Post) (*domain.Post, error) {
+func (r *postRepository) UpdatePost(ctx context.Context, postID string, post entity.Post) (*entity.Post, error) {
 	query := "UPDATE posts SET caption = $1, image_url = $2, updated_at = NOW() WHERE id = $3 RETURNING id, user_id, caption, image_url, created_at, updated_at"
 	err := r.db.QueryRow(ctx, query, post.Caption, post.ImageURL, postID).Scan(
 		&post.ID, &post.UserID, &post.Caption, &post.ImageURL, &post.CreatedAt, &post.UpdatedAt,
@@ -127,7 +118,7 @@ func (r *postRepository) DeletePost(ctx context.Context, postID string) error {
 	return nil
 }
 
-func (r *postRepository) SearchPosts(ctx context.Context, query string) ([]domain.Post, error) {
+func (r *postRepository) SearchPosts(ctx context.Context, query string) ([]entity.Post, error) {
 	queryText := `
 		SELECT id, user_id, caption, image_url, created_at, updated_at 
 		FROM posts 
@@ -139,9 +130,9 @@ func (r *postRepository) SearchPosts(ctx context.Context, query string) ([]domai
 	}
 	defer rows.Close()
 
-	var posts []domain.Post
+	var posts []entity.Post
 	for rows.Next() {
-		var post domain.Post
+		var post entity.Post
 		if err := rows.Scan(&post.ID, &post.UserID, &post.Caption, &post.ImageURL, &post.CreatedAt, &post.UpdatedAt); err != nil {
 			return nil, fmt.Errorf("error scanning post row: %w", err)
 		}

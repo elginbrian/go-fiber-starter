@@ -1,13 +1,16 @@
 module fiber-starter
 
-go 1.22.0
+go 1.22.5
 
 toolchain go1.23.4
 
 require (
+	github.com/99designs/gqlgen v0.17.64
 	github.com/go-playground/validator/v10 v10.24.0
 	github.com/gofiber/fiber/v2 v2.52.6
 	github.com/golang-jwt/jwt/v4 v4.5.1
+	github.com/graphql-go/graphql v0.8.1
+	github.com/graphql-go/handler v0.2.4
 	github.com/jackc/pgx/v4 v4.18.3
 	github.com/swaggo/fiber-swagger v1.3.0
 	github.com/swaggo/swag v1.16.4

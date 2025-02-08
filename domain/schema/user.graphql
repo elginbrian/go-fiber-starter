@@ -1,0 +1,21 @@
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  bio: String
+  imageURL: String
+  createdAt: String!
+  updatedAt: String!
+}
+
+type Query {
+  getAllUsers: [User!]!
+  getUserByID(id: ID!): User
+  searchUsers(query: String!): [User!]!
+}
+
+type Mutation {
+  updateUser(username: String, bio: String, image: Upload): User
+}
+
+scalar Upload

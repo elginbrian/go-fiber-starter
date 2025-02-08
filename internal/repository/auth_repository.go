@@ -2,32 +2,29 @@ package repository
 
 import (
 	"context"
-	"fiber-starter/internal/domain"
+	contract "fiber-starter/domain/contract"
+	entity "fiber-starter/domain/entity"
 	"fmt"
 
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-type AuthRepository interface {
-	GetUserByEmail(ctx context.Context, email string) (*domain.User, error)
-}
-
 type authRepository struct {
 	db *pgxpool.Pool
 }
 
-func NewAuthRepository(db *pgxpool.Pool) AuthRepository {
+func NewAuthRepository(db *pgxpool.Pool) contract.IAuthRepository {
 	return &authRepository{db: db}
 }
 
-func (r *authRepository) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
-	var user domain.User
-	query := "SELECT id, name, email, password_hash FROM users WHERE email = $1"
+func (r *authRepository) GetUserByEmail(ctx context.Context, email string) (*entity.User, error) {
+	var user entity.User
+	query := "SELECT id, name, email, bio, image_url, password_hash FROM users WHERE email = $1"
 
 	row := r.db.QueryRow(ctx, query, email)
 
-	if err := row.Scan(&user.ID, &user.Name, &user.Email, &user.PasswordHash); err != nil {
+	if err := row.Scan(&user.ID, &user.Name, &user.Email, &user.Bio, &user.ImageURL, &user.PasswordHash); err != nil {
 		if err == pgx.ErrNoRows {
 			return nil, nil
 		}

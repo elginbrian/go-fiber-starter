@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	migrations "fiber-starter/db/migrations"
+	migrations "fiber-starter/database/migrations"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 )
@@ -15,6 +15,8 @@ func RunSQLMigrations(db *pgxpool.Pool) error {
 		migrations.InsertUsersData,
 		migrations.CreatePostsTable,
 		migrations.InsertPostsData,
+		migrations.CreateCommentsTable,
+		migrations.CreateLikesTable,
 	}
 
 	for i, migration := range Migrations {

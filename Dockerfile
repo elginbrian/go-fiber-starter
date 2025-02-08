@@ -15,7 +15,7 @@ COPY database/migrations /app/database/migrations
 
 COPY public/ /app/public/
 
-RUN go build -mod=vendor -o /app/raion-assessment ./cmd/app/main.go
+RUN go build -mod=vendor -o /app/fiber-starter ./cmd/app/main.go
 
 FROM alpine:latest
 
@@ -23,8 +23,8 @@ WORKDIR /app
 
 RUN apk add --no-cache bash
 
-COPY --from=builder /app/raion-assessment /app/raion-assessment
+COPY --from=builder /app/fiber-starter /app/fiber-starter
 
 EXPOSE 8080
 
-CMD ["/app/raion-assessment"]
+CMD ["/app/fiber-starter"]

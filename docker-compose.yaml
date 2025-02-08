@@ -6,13 +6,13 @@ services:
       - "8084:8080"
     environment:
       - PORT=8080
-      - DATABASE_URL=postgres://user:password@db:5432/raion-assessment?sslmode=disable
+      - DATABASE_URL=postgres://user:password@db:5432/fiber-starter?sslmode=disable
     depends_on:
       - db
     networks:
-      - raion-assessment-network
+      - fiber-starter-network
     command: >
-      sh -c "./raion-assessment"
+      sh -c "./fiber-starter"
     volumes:
       - ./public/uploads:/app/public/uploads
       - ./cmd:/app/cmd
@@ -23,19 +23,19 @@ services:
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: raion-assessment
+      POSTGRES_DB: fiber-starter
     volumes:
       - db_data:/var/lib/postgresql/data
     networks:
-      - raion-assessment-network
+      - fiber-starter-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d raion-assessment"]
+      test: ["CMD-SHELL", "pg_isready -U user -d fiber-starter"]
       interval: 10s
       timeout: 5s
       retries: 5
 
 networks:
-  raion-assessment-network:
+  fiber-starter-network:
     driver: bridge
 
 volumes:

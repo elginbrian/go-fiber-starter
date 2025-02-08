@@ -26,6 +26,7 @@ services:
       POSTGRES_DB: fiber-starter
     volumes:
       - db_data:/var/lib/postgresql/data
+      - ./database/init/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - fiber-starter-network
     healthcheck:

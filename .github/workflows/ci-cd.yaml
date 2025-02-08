@@ -58,7 +58,7 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT }}
           script: |
-            cd github/Raion-Battlepass-2025
+            cd github/go-fiber-starter
             git fetch origin
             git reset --hard origin/main
             go mod vendor

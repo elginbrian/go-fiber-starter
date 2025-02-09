@@ -17,11 +17,11 @@ CREATE TABLE IF NOT EXISTS posts (
 const InsertPostsData = `
 INSERT INTO posts (user_id, image_url, caption, created_at, updated_at)
 VALUES 
-    ((SELECT id FROM users WHERE email = 'elginbrian49@gmail.com'), 'https://raion-battlepass.elginbrian.com/uploads/hackjam.jpg', 'With fellas at Raion Hackjam 2024.', NOW(), NOW())
+    ((SELECT id FROM users WHERE email = 'elginbrian49@gmail.com'), 'https://fiber-starter.elginbrian.com/uploads/hackjam.jpg', 'With fellas at Raion Hackjam 2024.', NOW(), NOW())
 ON CONFLICT (user_id, image_url, caption) DO NOTHING;
 
 INSERT INTO posts (user_id, image_url, caption, created_at, updated_at)
 VALUES 
-    ((SELECT id FROM users WHERE email = 'midnightsparks@example.com'), 'https://raion-battlepass.elginbrian.com/uploads/farewell.jpg', 'Our activities at Raion Farewell 2024.', NOW(), NOW())
+    ((SELECT id FROM users WHERE email = 'midnightsparks@example.com'), 'https://fiber-starter.elginbrian.com/uploads/farewell.jpg', 'Our activities at Raion Farewell 2024.', NOW(), NOW())
 ON CONFLICT (user_id, image_url, caption) DO NOTHING;
 `
